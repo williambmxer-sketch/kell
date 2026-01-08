@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useBranding } from './hooks/useBranding';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -86,6 +87,8 @@ const App: React.FC = () => {
   const [gearboxes, setGearboxes] = useState<Gearbox[]>([]);
   const [settings, setSettings] = useState<WorkshopSettings | null>(null);
   const [brands, setBrands] = useState<Brand[]>([]);
+
+  useBranding(settings);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // null = checking, false = not auth, true = auth
