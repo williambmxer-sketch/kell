@@ -591,6 +591,40 @@ const Agenda: React.FC = () => {
                   const dDay = String(day.getDate()).padStart(2, '0');
                   const dateKey = `${dYear}-${dMonth}-${dDay}`;
 
+                  // Calculate Daily Specific Limits
+                  const daysMap = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+                  const dayKey = daysMap[day.getDay()];
+                  const dayConfig = settings?.horario_funcionamento?.[dayKey];
+
+                  // Defaults if config missing
+                  let dayStartMin = businessStartHour * 60;
+                  let dayEndMin = (businessStartHour * 60) + businessDayMinutes;
+
+                  if (dayConfig && dayConfig.ativo !== false) {
+                    const [sH, sM] = dayConfig.inicio.split(':').map(Number);
+                    const [eH, eM] = dayConfig.fim.split(':').map(Number);
+                    dayStartMin = sH * 60 + sM;
+                    dayEndMin = eH * 60 + eM;
+                  } else if (dayConfig && dayConfig.ativo === false) {
+                    // Closed day: entire day unavailable
+                    dayStartMin = (businessStartHour * 60) + businessDayMinutes; // Start = End (effectively closed relative to open window)
+                  }
+
+                  // Calculate Gaps relative to Grid Start (businessStartHour)
+                  const gridStartMin = businessStartHour * 60;
+                  const gridTotalMin = businessDayMinutes;
+
+                  // Pre-gap (e.g. 7h - 8h)
+                  const preGapDuration = Math.max(0, dayStartMin - gridStartMin);
+                  const preGapPct = (preGapDuration / gridTotalMin) * 100;
+
+                  // Post-gap (e.g. 12h - 18h)
+                  // Grid End time
+                  const gridEndMin = gridStartMin + gridTotalMin;
+                  const postGapDuration = Math.max(0, gridEndMin - dayEndMin);
+                  const postGapPct = (postGapDuration / gridTotalMin) * 100;
+
+
                   // Filter segments for this day
                   const daySegments = processOrdersForView.filter(seg =>
                     seg.date === dateKey &&
@@ -657,14 +691,37 @@ const Agenda: React.FC = () => {
                       <div className="flex-1 relative">
                         {/* Background Grid Lines */}
                         <div className="absolute inset-0 flex pointer-events-none">
-                          {/* Map 10 intervals (hours 0 to 9) */}
+                          {/* Map intervals */}
                           <div className="absolute inset-0 flex pointer-events-none">
-                            {Array.from({ length: 10 }).map((_, i) => (
+                            {hours.slice(0, -1).map((_, i) => (
                               <div key={i} className="flex-1 border-r border-slate-200 relative">
                               </div>
                             ))}
                           </div>
                         </div>
+
+                        {/* UNAVAILABLE ZONES */}
+                        {/* Pre-Gap Overlay */}
+                        {preGapPct > 0 && (
+                          <div
+                            className="absolute top-0 bottom-0 left-0 bg-slate-100/50 z-0 h-full border-r border-slate-300/50"
+                            style={{
+                              width: `${preGapPct}%`,
+                              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.03) 5px, rgba(0,0,0,0.03) 10px)'
+                            }}
+                          ></div>
+                        )}
+                        {/* Post-Gap Overlay */}
+                        {postGapPct > 0 && (
+                          <div
+                            className="absolute top-0 bottom-0 right-0 bg-slate-100/50 z-0 h-full border-l border-slate-300/50"
+                            style={{
+                              width: `${postGapPct}%`,
+                              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.03) 5px, rgba(0,0,0,0.03) 10px)'
+                            }}
+                          ></div>
+                        )}
+
 
                         {/* Events */}
                         {placedEvents.map(ev => {
