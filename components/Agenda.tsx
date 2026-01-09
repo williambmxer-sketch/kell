@@ -554,7 +554,7 @@ const Agenda: React.FC = () => {
             </div>
           ) : (
             /* VIEW MODE: WEEK (Horizontal Gantt Layout) */
-            <div className="flex flex-col min-w-[1000px] bg-slate-50 h-full">
+            <div className="flex flex-col w-full bg-slate-50 h-full">
               {/* Header: Time Axis (Sticky Top) */}
               <div className="sticky top-0 z-30 flex items-center bg-slate-100 border-b border-slate-300 h-10 ml-[100px] shadow-sm">
                 <div className="relative w-full h-full">
@@ -563,17 +563,39 @@ const Agenda: React.FC = () => {
                     const isFirst = idx === 0;
                     const isLast = idx === hours.length - 1;
 
+                    let wrapperStyle: React.CSSProperties = { left: `${leftPct}%` };
+                    let tickStyle: React.CSSProperties = {};
+                    let textStyle = "text-[10px] font-black text-slate-500 relative -top-1";
+
+                    if (isFirst) {
+                      wrapperStyle.transform = 'translateX(0)';
+                      wrapperStyle.alignItems = 'flex-start'; // Align content left
+                      tickStyle.left = '0';
+                      textStyle += " left-1 text-left origin-left";
+                    } else if (isLast) {
+                      wrapperStyle.transform = 'translateX(-100%)';
+                      wrapperStyle.alignItems = 'flex-end'; // Align content right
+                      tickStyle.right = '0';
+                      textStyle += " -left-1 text-right origin-right";
+                    } else {
+                      wrapperStyle.transform = 'translateX(-50%)';
+                      wrapperStyle.alignItems = 'center';
+                      tickStyle.left = '50%';
+                      tickStyle.transform = 'translateX(-50%)';
+                      textStyle += " text-center";
+                    }
+
                     return (
                       <div
                         key={hour}
-                        className="absolute top-0 h-full flex flex-col justify-center"
-                        style={{ left: `${leftPct}%`, transform: 'translateX(-50%)' }} // Center the Wrapper on the point
+                        className="absolute top-0 h-full flex flex-col justify-center w-8" // Fixed width wrapper to hold content
+                        style={wrapperStyle}
                       >
-                        {/* Tick Mark - Always exactly centered on the point */}
-                        <div className="absolute bottom-0 h-1.5 w-px bg-slate-400 left-1/2 -translate-x-1/2"></div>
+                        {/* Tick Mark */}
+                        <div className="absolute bottom-0 h-1.5 w-px bg-slate-400" style={tickStyle}></div>
 
-                        {/* Text Label - Shifted locally based on position */}
-                        <span className={`text-[10px] font-black text-slate-500 relative -top-1 ${isFirst ? 'left-1' : isLast ? '-left-1' : ''} ${isFirst ? 'text-left origin-left' : isLast ? 'text-right origin-right' : 'text-center'}`}>
+                        {/* Text Label */}
+                        <span className={textStyle}>
                           {hour}
                         </span>
                       </div>
