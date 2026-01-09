@@ -105,141 +105,150 @@ const Dashboard: React.FC = () => {
 
       <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar">
         <div className="flex gap-4 h-full w-full">
-          {columns.map((status) => (
-            <div key={status} className="flex-1 min-w-0 flex flex-col h-full bg-slate-100/50 rounded-2xl border border-slate-200">
-              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/30">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${STATUS_CONFIG[status].color.split(' ')[0]}`}></div>
-                  <h3 className="font-black text-slate-700 text-[10px] uppercase tracking-widest">{STATUS_CONFIG[status].label}</h3>
-                  <span className="bg-white border border-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-black shadow-sm">
-                    {getOrdersInStatus(status).length}
-                  </span>
-                </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setOpenSortMenu(openSortMenu === status ? null : status)}
-                    className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-200 rounded-lg transition-all"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-
-                  {openSortMenu === status && (
-                    <>
-                      {/* Invisible overlay to close menu when clicking outside */}
-                      <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setOpenSortMenu(null)}
-                      />
-                      <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1 min-w-[180px] animate-in fade-in slide-in-from-top-2 duration-200">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Ordenar por</p>
-                        <button
-                          onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'createdAt' })); setOpenSortMenu(null); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'createdAt' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
-                        >
-                          <ListOrdered className="w-3.5 h-3.5" />
-                          Ordem de Lançamento
-                        </button>
-                        <button
-                          onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityDesc' })); setOpenSortMenu(null); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'priorityDesc' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                          Prioridade Alta → Baixa
-                        </button>
-                        <button
-                          onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityAsc' })); setOpenSortMenu(null); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'priorityAsc' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                          Prioridade Baixa → Alta
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                {getOrdersInStatus(status).map((order) => {
-                  const vehicle = vehicles.find(v => v.id === order.vehicleId);
-                  const client = vehicle ? clients.find(c => c.id === vehicle.clientId) : null;
-                  const priorityInfo = PRIORITY_CONFIG[order.priority];
-
-                  // Tonalidade sutil baseada na prioridade
-                  let cardBg = "bg-white";
-                  let cardBorder = "border-slate-200";
-
-                  if (order.priority === Priority.HIGH) {
-                    cardBg = "bg-red-50/60";
-                    cardBorder = "border-red-600";
-                  }
-                  else if (order.priority === Priority.MEDIUM) {
-                    cardBg = "bg-yellow-50/60";
-                    cardBorder = "border-yellow-500";
-                  }
-                  else if (order.priority === Priority.LOW) {
-                    cardBg = "bg-emerald-50/60";
-                    cardBorder = "border-emerald-600";
-                  }
-
-                  return (
-                    <div
-                      key={order.id}
-                      onClick={() => setSelectedOrderId(order.id)}
-                      className={`${cardBg} ${cardBorder} p-4 rounded-2xl border shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group`}
+          {columns.map((status) => {
+            const isFinished = status === OSStatus.FINISHED;
+            return (
+              <div
+                key={status}
+                className={`flex-1 min-w-0 flex flex-col h-full rounded-2xl border transition-colors ${isFinished
+                  ? 'bg-slate-200/60 border-slate-300 opacity-80 saturate-50'
+                  : 'bg-slate-100/50 border-slate-200'
+                  }`}
+              >
+                <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/30">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${STATUS_CONFIG[status].color.split(' ')[0]}`}></div>
+                    <h3 className="font-black text-slate-700 text-[10px] uppercase tracking-widest">{STATUS_CONFIG[status].label}</h3>
+                    <span className="bg-white border border-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-black shadow-sm">
+                      {getOrdersInStatus(status).length}
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <button
+                      onClick={() => setOpenSortMenu(openSortMenu === status ? null : status)}
+                      className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-200 rounded-lg transition-all"
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
-                        <div className={`text-[9px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${priorityInfo.bg} ${priorityInfo.color} ${priorityInfo.border}`}>
-                          {priorityInfo.label}
-                        </div>
-                      </div>
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
 
-                      <h4 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors text-sm uppercase tracking-tight">
-                        {vehicle?.brand} {vehicle?.model}
-                      </h4>
-                      <div className="flex items-center gap-1.5 mt-1 text-slate-500">
-                        <span className="text-[10px] bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded font-mono font-bold text-slate-600 uppercase tracking-tighter">{vehicle?.plate}</span>
-                        <span className="text-xs">•</span>
-                        <span className="text-xs truncate font-medium">{client?.name}</span>
-                      </div>
-
-                      {order.scheduledDate && (
-                        <div className="mt-3 p-2 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600">
-                            {order.status === 'FINISHED' ? 'Finalizado' :
-                              (order.status === 'BUDGET') ? 'Aprovar Orçamento' :
-                                (order.status === 'SCHEDULED') ? 'Agendado: Montagem' :
-                                  (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
-                          </span>
-                          <span className="text-[9px] font-bold text-slate-700 font-mono">
-                            {new Date(order.scheduledDate).toLocaleDateString([], { day: '2-digit', month: '2-digit' })} {new Date(order.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                    {openSortMenu === status && (
+                      <>
+                        {/* Invisible overlay to close menu when clicking outside */}
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setOpenSortMenu(null)}
+                        />
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1 min-w-[180px] animate-in fade-in slide-in-from-top-2 duration-200">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Ordenar por</p>
+                          <button
+                            onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'createdAt' })); setOpenSortMenu(null); }}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'createdAt' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
+                          >
+                            <ListOrdered className="w-3.5 h-3.5" />
+                            Ordem de Lançamento
+                          </button>
+                          <button
+                            onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityDesc' })); setOpenSortMenu(null); }}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'priorityDesc' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                            Prioridade Alta → Baixa
+                          </button>
+                          <button
+                            onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityAsc' })); setOpenSortMenu(null); }}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 transition-colors text-left ${columnSort[status] === 'priorityAsc' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600'}`}
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                            Prioridade Baixa → Alta
+                          </button>
                         </div>
-                      )}
+                      </>
+                    )}
+                  </div>
+                </div>
 
-                      <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
-                        <div className="flex items-center gap-1 text-[10px] font-bold">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                        {order.mechanicId ? (
-                          <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
-                            <UserIcon className="w-3.5 h-3.5" />
-                            <span>{mechanics.find(m => m.id === order.mechanicId)?.name || 'Mecânico'}</span>
+                <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                  {getOrdersInStatus(status).map((order) => {
+                    const vehicle = vehicles.find(v => v.id === order.vehicleId);
+                    const client = vehicle ? clients.find(c => c.id === vehicle.clientId) : null;
+                    const priorityInfo = PRIORITY_CONFIG[order.priority];
+
+                    // Tonalidade sutil baseada na prioridade
+                    let cardBg = "bg-white";
+                    let cardBorder = "border-slate-200";
+
+                    if (order.priority === Priority.HIGH) {
+                      cardBg = "bg-red-50/60";
+                      cardBorder = "border-red-600";
+                    }
+                    else if (order.priority === Priority.MEDIUM) {
+                      cardBg = "bg-yellow-50/60";
+                      cardBorder = "border-yellow-500";
+                    }
+                    else if (order.priority === Priority.LOW) {
+                      cardBg = "bg-emerald-50/60";
+                      cardBorder = "border-emerald-600";
+                    }
+
+                    return (
+                      <div
+                        key={order.id}
+                        onClick={() => setSelectedOrderId(order.id)}
+                        className={`${cardBg} ${cardBorder} p-4 rounded-2xl border shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
+                          <div className={`text-[9px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${priorityInfo.bg} ${priorityInfo.color} ${priorityInfo.border}`}>
+                            {priorityInfo.label}
                           </div>
-                        ) : (
-                          <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
-                            <Plus className="w-3 h-3" />
+                        </div>
+
+                        <h4 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors text-sm uppercase tracking-tight">
+                          {vehicle?.brand} {vehicle?.model}
+                        </h4>
+                        <div className="flex items-center gap-1.5 mt-1 text-slate-500">
+                          <span className="text-[10px] bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded font-mono font-bold text-slate-600 uppercase tracking-tighter">{vehicle?.plate}</span>
+                          <span className="text-xs">•</span>
+                          <span className="text-xs truncate font-medium">{client?.name}</span>
+                        </div>
+
+                        {order.scheduledDate && (
+                          <div className="mt-3 p-2 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600">
+                              {order.status === 'FINISHED' ? 'Finalizado' :
+                                (order.status === 'BUDGET') ? 'Aprovar Orçamento' :
+                                  (order.status === 'SCHEDULED') ? 'Agendado: Montagem' :
+                                    (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-700 font-mono">
+                              {new Date(order.scheduledDate).toLocaleDateString([], { day: '2-digit', month: '2-digit' })} {new Date(order.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
                         )}
+
+                        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
+                          <div className="flex items-center gap-1 text-[10px] font-bold">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          {order.mechanicId ? (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
+                              <UserIcon className="w-3.5 h-3.5" />
+                              <span>{mechanics.find(m => m.id === order.mechanicId)?.name || 'Mecânico'}</span>
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
+                              <Plus className="w-3 h-3" />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
