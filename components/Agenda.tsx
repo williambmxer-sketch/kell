@@ -609,13 +609,13 @@ const Agenda: React.FC = () => {
                   const rowHeight = Math.max(100, maxLanes * (laneHeight + 8) + 20);
 
                   return (
-                    <div key={day.toISOString()} className={`flex-1 flex border-b border-slate-200 ${isDayToday ? 'bg-indigo-50/30' : 'bg-white'}`} style={{ minHeight: '100px' }}>
+                    <div key={day.toISOString()} className={`flex-1 flex border-b border-slate-200 ${isDayToday ? 'bg-orange-50/30' : 'bg-white'}`} style={{ minHeight: '100px' }}>
                       {/* Left Column: Day Label */}
-                      <div className={`w-[100px] shrink-0 border-r border-slate-300 p-4 flex flex-col items-center justify-center sticky left-0 z-20 ${isDayToday ? 'bg-indigo-50' : 'bg-white'}`}>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${isDayToday ? 'text-indigo-600' : 'text-slate-500'}`}>
+                      <div className={`w-[100px] shrink-0 border-r border-slate-300 p-4 flex flex-col items-center justify-center sticky left-0 z-20 ${isDayToday ? 'bg-orange-100' : 'bg-white'}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${isDayToday ? 'text-orange-600' : 'text-slate-500'}`}>
                           {day.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}
                         </span>
-                        <span className={`text-2xl font-black ${isDayToday ? 'text-indigo-900' : 'text-slate-800'}`}>
+                        <span className={`text-2xl font-black ${isDayToday ? 'text-orange-900' : 'text-slate-800'}`}>
                           {day.getDate()}
                         </span>
                       </div>
