@@ -701,11 +701,15 @@ export const uploadDocument = async (orderId: string, file: File, customName?: s
   // Generate a random ID since getNextId might not be configured for documents
   const newId = `doc-${Date.now()}-${mathRandomString()}`;
 
+  // Custom Domain for "documents" bucket/routes
+  // The worker maps kellretifica.online/orcamentos/* -> supabase storage
+  const customUrl = `https://kellretifica.online/orcamentos/${fileName}`;
+
   const { data: docData, error: docError } = await supabase.from('order_documents').insert({
     id: newId,
     order_id: orderId,
     name: customName || file.name,
-    url: publicUrl,
+    url: customUrl,
     type: fileExt?.toUpperCase() || 'FILE'
   }).select().single();
 
