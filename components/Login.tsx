@@ -131,7 +131,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
 
                 {/* Footer */}
                 <div className="flex items-center justify-center gap-3 mt-8">
-                    <img src="/WOLVES_SEM_FUNDO.png" alt="Wolves Tecnologia" className="w-24 h-auto object-contain" />
+                    <img src="/WOLVES_TRANSPARENT.png" alt="Wolves Tecnologia" className="w-24 h-auto object-contain" />
                     <span className="text-white text-xs font-bold tracking-widest uppercase text-opacity-80">WOLVES tecnologia</span>
                 </div>
             </div>
