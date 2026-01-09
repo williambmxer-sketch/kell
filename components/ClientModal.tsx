@@ -73,7 +73,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto"
+        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
