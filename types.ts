@@ -31,6 +31,7 @@ export interface Client {
   zipCode?: string;
   neighborhood?: string;
   state?: string;
+  type?: 'PRIVATE' | 'COMPANY';
 }
 
 export interface Vehicle {
