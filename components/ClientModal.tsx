@@ -91,6 +91,21 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
         </header>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+          <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tipo de Conta</span>
+            <div className="flex items-center gap-3">
+              <span className={`text-[10px] font-black uppercase transition-colors ${(!formData.type || formData.type === 'PRIVATE') ? 'text-indigo-600' : 'text-slate-400'}`}>Particular</span>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, type: (prev.type === 'COMPANY' ? 'PRIVATE' : 'COMPANY') }))}
+                className={`relative w-10 h-5 rounded-full transition-colors ${formData.type === 'COMPANY' ? 'bg-indigo-600' : 'bg-slate-300'}`}
+              >
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${formData.type === 'COMPANY' ? 'left-[22px]' : 'left-0.5'}`}></div>
+              </button>
+              <span className={`text-[10px] font-black uppercase transition-colors ${formData.type === 'COMPANY' ? 'text-indigo-600' : 'text-slate-400'}`}>Empresa</span>
+            </div>
+          </div>
+
           <div className="space-y-1">
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo</label>
             <div className="relative">
