@@ -21,7 +21,7 @@ const Agenda: React.FC = () => {
     }
     return d;
   });
-  const [viewMode, setViewMode] = useState<ViewMode>('day');
+  const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [mechanicFilter, setMechanicFilter] = useState<string>('all');
   const [viewOnlyOrder, setViewOnlyOrder] = useState<WorkshopOrder | null>(null);
   const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; content: React.ReactNode } | null>(null);
