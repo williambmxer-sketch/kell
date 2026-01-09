@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { X, User, Phone, Mail, CreditCard, Save } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { Client } from '../types';
 
 interface ClientModalProps {
@@ -15,7 +14,8 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
     name: '',
     email: '',
     phone: '',
-    cpf: ''
+    cpf: '',
+    type: 'PRIVATE'
   });
 
   // Sincroniza o estado quando o cliente para edição é carregado
@@ -65,9 +65,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
     }
   };
 
-  // Cores de texto forçadas para slate-900 (preto acinzentado) para evitar letra branca em fundo claro
-  const inputClasses = "w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm text-slate-900 placeholder:text-slate-400 font-medium";
-  const simpleInputClasses = "w-full pl-4 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm text-slate-900 placeholder:text-slate-400 font-medium";
+  const inputClasses = "w-full p-2.5 bg-white text-slate-900 border border-slate-200 rounded-xl mt-1 focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-300 text-[11px] font-medium";
 
   return (
     <div
@@ -75,7 +73,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-[90vh] md:h-auto"
+        className="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 h-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
@@ -91,7 +89,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
         </header>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
-          <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tipo de Conta</span>
             <div className="flex items-center gap-3">
               <span className={`text-[10px] font-black uppercase transition-colors ${(!formData.type || formData.type === 'PRIVATE') ? 'text-indigo-600' : 'text-slate-400'}`}>Particular</span>
@@ -108,44 +106,35 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
 
           <div className="space-y-1">
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                required
-                className={inputClasses}
-                value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Nome do cliente"
-              />
-            </div>
+            <input
+              required
+              className={inputClasses}
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Nome do cliente"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">CPF / CNPJ</label>
-              <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  required
-                  className={inputClasses}
-                  value={formData.cpf}
-                  onChange={e => setFormData({ ...formData, cpf: e.target.value })}
-                  placeholder="000.000.000-00"
-                />
-              </div>
+              <input
+                required
+                className={inputClasses}
+                value={formData.cpf}
+                onChange={e => setFormData({ ...formData, cpf: e.target.value })}
+                placeholder="000.000.000-00"
+              />
             </div>
             <div className="space-y-1">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Telefone</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  required
-                  className={inputClasses}
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="(00) 00000-0000"
-                />
-              </div>
+              <input
+                required
+                className={inputClasses}
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="(00) 00000-0000"
+              />
             </div>
           </div>
 
@@ -157,7 +146,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">CEP</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.zipCode || ''}
                   onChange={e => setFormData({ ...formData, zipCode: e.target.value })}
                   onBlur={handleZipCodeBlur}
@@ -168,7 +157,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Endereço</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.address || ''}
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   placeholder={isLoadingCep ? 'Carregando...' : 'Rua...'}
@@ -181,7 +170,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Número</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.addressNumber || ''}
                   onChange={e => setFormData({ ...formData, addressNumber: e.target.value })}
                   placeholder="123"
@@ -190,7 +179,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Bairro</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.neighborhood || ''}
                   onChange={e => setFormData({ ...formData, neighborhood: e.target.value })}
                   placeholder="Bairro"
@@ -202,7 +191,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Cidade</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.city || ''}
                   onChange={e => setFormData({ ...formData, city: e.target.value })}
                   placeholder="Cidade"
@@ -211,7 +200,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
               <div className="space-y-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">UF</label>
                 <input
-                  className={simpleInputClasses}
+                  className={inputClasses}
                   value={formData.state || ''}
                   onChange={e => setFormData({ ...formData, state: e.target.value })}
                   placeholder="UF"
@@ -223,22 +212,19 @@ const ClientModal: React.FC<ClientModalProps> = ({ client, onClose, onSave }) =>
 
           <div className="space-y-1 mt-4">
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="email"
-                className={inputClasses}
-                value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                placeholder="email@exemplo.com"
-              />
-            </div>
+            <input
+              type="email"
+              className={inputClasses}
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              placeholder="email@exemplo.com"
+            />
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               <Save className="w-3.5 h-3.5" />
               {client ? 'Atualizar Cliente' : 'Confirmar Cadastro'}
