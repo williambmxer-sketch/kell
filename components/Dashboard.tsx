@@ -207,9 +207,10 @@ const Dashboard: React.FC = () => {
                       {order.scheduledDate && (
                         <div className="mt-3 p-2 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between">
                           <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600">
-                            {order.status === 'BUDGET' ? 'Aprovar Orçamento' :
-                              (order.status === 'SCHEDULED') ? 'Agendado: Montagem' :
-                                (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
+                            {order.status === 'FINISHED' ? 'Finalizado' :
+                              (order.status === 'BUDGET') ? 'Aprovar Orçamento' :
+                                (order.status === 'SCHEDULED') ? 'Agendado: Montagem' :
+                                  (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
                           </span>
                           <span className="text-[9px] font-bold text-slate-700 font-mono">
                             {new Date(order.scheduledDate).toLocaleDateString([], { day: '2-digit', month: '2-digit' })} {new Date(order.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
