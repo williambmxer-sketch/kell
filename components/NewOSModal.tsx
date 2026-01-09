@@ -37,7 +37,10 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
   const [isRegisteringGearbox, setIsRegisteringGearbox] = useState(false);
   const [newGearboxData, setNewGearboxData] = useState({ model: '', type: 'MANUAL', specs: '5 Marchas', assemblyTime: '' });
 
-  /* Logic for CEP Autofill */
+  // New Brand Logic
+  const [isRegisteringBrand, setIsRegisteringBrand] = useState(false);
+  const [brandSearch, setBrandSearch] = useState('');
+  const [newBrandName, setNewBrandName] = useState('');
   const handleZipCodeBlur = async () => {
     const cep = newClient.zipCode?.replace(/\D/g, '');
     if (cep && cep.length === 8) {
@@ -90,7 +93,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') handleCloseInternal(); };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose, isRegisteringClient, isRegisteringGearbox]);
+  }, [onClose, isRegisteringClient, isRegisteringGearbox, isRegisteringBrand]);
 
   if (!context) return null;
 
@@ -162,6 +165,33 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
       alert("Erro ao cadastrar modelo de câmbio.");
     }
   };
+
+  const handleCreateBrand = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+
+    try {
+      const newBrand: import('../types').Brand = {
+        id: `b-${Date.now()}`,
+        name: newBrandName.trim().toUpperCase(),
+        logo: '' // Optional or placeholder
+      };
+
+      await context.addBrand(newBrand);
+      setSelectedBrand(newBrand.name);
+      setIsRegisteringBrand(false);
+      setNewBrandName('');
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao cadastrar marca.");
+    }
+  };
+
+  const filteredBrands = useMemo(() => {
+    if (!context.brands) return [];
+    if (!brandSearch) return context.brands;
+    return context.brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase()));
+  }, [context.brands, brandSearch]);
 
   const handleCreateVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,6 +295,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
                   if (isRegisteringClient) setIsRegisteringClient(false);
                   else if (step === 3) { // Vehicle Step Back Logic
                     if (selectedGearbox) setSelectedGearbox(null);
+                    else if (isRegisteringBrand) setIsRegisteringBrand(false);
                     else if (selectedBrand) setSelectedBrand('');
                     else if (isCreatingVehicle) setIsCreatingVehicle(false);
                     else setStep(2);
@@ -557,13 +588,37 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
                           ) : (
                             <>
                               {!selectedBrand ? (
-                                <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
-                                  {brands?.map(b => (
-                                    <button key={b.id} onClick={() => setSelectedBrand(b.name)} className="p-3 border border-slate-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-center group">
-                                      <span className="text-xs font-black text-slate-700 group-hover:text-indigo-700 uppercase">{b.name}</span>
-                                    </button>
-                                  ))}
-                                </div>
+                                <>
+                                  {isRegisteringBrand ? (
+                                    <form onSubmit={handleCreateBrand} className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <button type="button" onClick={() => setIsRegisteringBrand(false)} className="p-1 hover:bg-slate-100 rounded-lg text-slate-400"><ChevronLeft className="w-4 h-4" /></button>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nova Marca</p>
+                                      </div>
+                                      <div>
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome da Marca</label>
+                                        <input required autoFocus className={inputClasses} value={newBrandName} onChange={e => setNewBrandName(e.target.value)} placeholder="Ex: VOLKSWAGEN, FORD..." />
+                                      </div>
+                                      <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-xl mt-2 shadow-lg hover:bg-indigo-700 transition-all">Salvar Marca</button>
+                                    </form>
+                                  ) : (
+                                    <div className="space-y-4">
+                                      <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input type="text" placeholder="Buscar marca..." className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs" value={brandSearch} onChange={(e) => setBrandSearch(e.target.value)} /></div>
+
+                                      <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1">
+                                        <button onClick={() => setIsRegisteringBrand(true)} className="p-3 border-2 border-dashed border-slate-200 bg-slate-50 rounded-xl text-slate-500 font-black text-[10px] uppercase tracking-widest hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-1 col-span-2">
+                                          <Plus className="w-3 h-3" /> NOVA MARCA
+                                        </button>
+                                        {filteredBrands?.map(b => (
+                                          <button key={b.id} onClick={() => setSelectedBrand(b.name)} className="p-3 border border-slate-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50 transition-all text-center group">
+                                            <span className="text-xs font-black text-slate-700 group-hover:text-indigo-700 uppercase">{b.name}</span>
+                                          </button>
+                                        ))}
+                                        {filteredBrands?.length === 0 && <p className="text-center text-xs text-slate-400 py-4 italic col-span-2">Nenhuma marca encontrada.</p>}
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
                               ) : (
                                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
                                   <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input type="text" placeholder="Buscar modelo..." className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs" value={gearboxSearch} onChange={(e) => setGearboxSearch(e.target.value)} /></div>
