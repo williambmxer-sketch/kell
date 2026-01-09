@@ -130,9 +130,10 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-indigo-400/60 text-xs mt-6">
-                    © 2026 {companyName}. Todos os direitos reservados.
-                </p>
+                <div className="flex items-center justify-center gap-2 mt-6 opacity-60">
+                    <img src="/WOLVES1.png" alt="Wolves Tecnologia" className="w-5 h-5 rounded object-contain" />
+                    <span className="text-white text-[10px] font-bold tracking-widest uppercase">WOLVES tecnologia</span>
+                </div>
             </div>
         </div>
     );
