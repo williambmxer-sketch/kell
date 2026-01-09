@@ -134,8 +134,8 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
                     <img src="/WOLVES_TRANSPARENT.png" alt="Wolves Tecnologia" className="w-20 h-auto object-contain" />
                     <div className="flex flex-col items-start leading-tight">
                         <span className="text-white text-xs font-bold tracking-widest uppercase text-opacity-80">WOLVES tecnologia</span>
-                        <span className="text-slate-400 text-[10px] items-center gap-1">
-                            © 2026 <span className="text-xs">°</span> todos direitos reservados
+                        <span className="text-slate-400 text-[10px] flex items-center gap-2">
+                            © 2026 <span className="text-[6px]">•</span> todos direitos reservados
                         </span>
                     </div>
                 </div>
