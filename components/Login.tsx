@@ -130,9 +130,9 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-center gap-2 mt-6 opacity-60">
-                    <img src="/WOLVES1.png" alt="Wolves Tecnologia" className="w-5 h-5 rounded object-contain" />
-                    <span className="text-white text-[10px] font-bold tracking-widest uppercase">WOLVES tecnologia</span>
+                <div className="flex items-center justify-center gap-3 mt-8">
+                    <img src="/WOLVES1.png" alt="Wolves Tecnologia" className="w-8 h-8 rounded-md object-contain" />
+                    <span className="text-white text-xs font-bold tracking-widest uppercase text-opacity-80">WOLVES tecnologia</span>
                 </div>
             </div>
         </div>
