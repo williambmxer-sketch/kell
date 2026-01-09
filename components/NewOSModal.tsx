@@ -429,7 +429,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
                                   <input required autoFocus className={inputClasses} value={newVehicleData.model} onChange={e => setNewVehicleData({ ...newVehicleData, model: e.target.value })} placeholder="Ex: Cruze, Civic, Onix..." />
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                  <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Placa</label><input required className={inputClasses} value={newVehicleData.plate} onChange={e => setNewVehicleData({ ...newVehicleData, plate: e.target.value })} placeholder="ABC-1234" /></div>
+                                  <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Placa</label><input required className={inputClasses} value={newVehicleData.plate} onChange={e => setNewVehicleData({ ...newVehicleData, plate: e.target.value.toUpperCase() })} placeholder="ABC-1234" /></div>
                                   <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Ano</label><input type="number" required className={inputClasses} value={newVehicleData.year} onChange={e => setNewVehicleData({ ...newVehicleData, year: e.target.value })} /></div>
                                 </div>
                                 <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-xl mt-2 shadow-lg hover:bg-indigo-700 transition-all">Cadastrar Veículo</button>
