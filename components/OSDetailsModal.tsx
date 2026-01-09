@@ -102,34 +102,39 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       const element = document.getElementById('whatsapp-pdf-content');
       if (!wrapper || !element) throw new Error("Conteúdo do orçamento não encontrado.");
 
-      // Temporarily make visible and bring to front for html2canvas
-      const prevOpacity = wrapper.style.opacity;
-      const prevZIndex = wrapper.style.zIndex;
-      const prevPosition = wrapper.style.position;
+      // 1b. Enhanced Strategy: Clone and Isolate
+      const clone = element.cloneNode(true) as HTMLElement;
 
-      wrapper.style.opacity = '1';
-      wrapper.style.zIndex = '99999'; // Ensure it's on top of modal overlay
-      wrapper.style.position = 'fixed'; // Ensure it's in view/context
-      wrapper.style.background = 'white'; // Ensure clean background
+      // Create a temporary container to hold the clone outside of modal context
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '-10000px'; // Off-screen but renderable
+      container.style.left = '-10000px';
+      container.style.width = '210mm'; // Match A4 width
+      container.style.background = '#ffffff'; // Force white background
+      container.style.zIndex = '99999';
+      container.appendChild(clone);
+
+      document.body.appendChild(container);
 
       const filename = `Orcamento_${vehicle?.plate || 'MP'}_${order.id}.pdf`;
       const opt = {
         margin: 0,
         filename: filename,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, // Reset scroll
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
       let blob;
       try {
-        blob = await html2pdf().set(opt).from(element).output('blob');
+        // Generate from the isolated container
+        blob = await html2pdf().set(opt).from(container).output('blob');
       } finally {
-        // Restore invisibility and position
-        wrapper.style.opacity = prevOpacity;
-        wrapper.style.zIndex = prevZIndex;
-        wrapper.style.position = prevPosition;
-        wrapper.style.background = '';
+        // Cleanup: Remove the temporary container
+        if (document.body.contains(container)) {
+          document.body.removeChild(container);
+        }
       }
 
       // 2. Upload to Documents
