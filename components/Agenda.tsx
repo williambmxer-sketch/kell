@@ -7,12 +7,45 @@ import { WorkshopOrder, OSStatus, Priority } from '../types';
 
 type ViewMode = 'day' | 'week';
 
-const BUSINESS_START_HOUR = 8;
-const BUSINESS_END_HOUR = 18;
-const BUSINESS_DAY_MINUTES = (BUSINESS_END_HOUR - BUSINESS_START_HOUR) * 60; // 600 mins
+// Constants removed - now dynamic based on settings
+
 
 const Agenda: React.FC = () => {
   const context = useContext(WorkshopContext);
+  const { orders, vehicles, clients, mechanics, settings } = context || { orders: [], vehicles: [], clients: [], mechanics: [], settings: null };
+
+  // --- Dynamic Business Hours Calculation ---
+  const { businessStartHour, businessDayMinutes, hours } = useMemo(() => {
+    let start = 8;
+    let end = 18;
+
+    if (settings && settings.horario_funcionamento) {
+      let minS = 24;
+      let maxE = 0;
+      let hasActive = false;
+
+      Object.values(settings.horario_funcionamento).forEach((conf: any) => {
+        if (conf.ativo !== false) {
+          hasActive = true;
+          const [s] = conf.inicio.split(':').map(Number);
+          const [e] = conf.fim.split(':').map(Number);
+          if (s < minS) minS = s;
+          if (e > maxE) maxE = e;
+        }
+      });
+
+      if (hasActive) {
+        start = minS;
+        end = maxE;
+      }
+    }
+
+    const totalMinutes = (end - start) * 60;
+    const hoursArr = Array.from({ length: (end - start) + 1 }, (_, i) => `${i + start}:00`);
+
+    return { businessStartHour: start, businessDayMinutes: totalMinutes, hours: hoursArr };
+  }, [settings]);
+
   const [currentDate, setCurrentDate] = useState(() => {
     const d = new Date();
     // If it's past 18:00 (closing time), start on next day
@@ -35,10 +68,9 @@ const Agenda: React.FC = () => {
   }, []);
 
   if (!context) return null;
-  if (!context) return null;
-  const { orders, vehicles, clients, mechanics, settings } = context;
 
-  const hours = Array.from({ length: 11 }, (_, i) => `${i + 8}:00`);
+
+
 
   const navigateDate = (amount: number) => {
     const nextDate = new Date(currentDate);
@@ -390,7 +422,7 @@ const Agenda: React.FC = () => {
                   <div
                     key={hour}
                     className="absolute top-0 bottom-0 flex items-center justify-center transform -translate-x-1/2"
-                    style={{ left: `${(idx / 10) * 100}%` }}
+                    style={{ left: `${(idx / (hours.length - 1)) * 100}%` }}
                   >
                     <span className="text-[10px] font-black text-slate-500 bg-slate-50 px-1">{hour}</span>
                     {/* Tick Mark */}
@@ -438,10 +470,11 @@ const Agenda: React.FC = () => {
                         return mechanicSegments.map((segment, idx) => {
                           const activeOrder = segment.order;
 
-                          // Calculate Position and Width relative to 08:00
-                          // Business hours start at 08:00 (480 mins)
-                          const startOffset = segment.startMin - (BUSINESS_START_HOUR * 60);
-                          const totalDayMinutes = BUSINESS_DAY_MINUTES; // 600
+                          // Calculate Position and Width relative to businessStartHour
+                          // Business hours start at businessStartHour
+                          const startOffset = segment.startMin - (businessStartHour * 60);
+                          const totalDayMinutes = businessDayMinutes;
+
 
                           const leftPercent = (Math.max(0, startOffset) / totalDayMinutes) * 100;
                           const widthPercent = (segment.duration / totalDayMinutes) * 100;
@@ -526,7 +559,7 @@ const Agenda: React.FC = () => {
               <div className="sticky top-0 z-30 flex items-center bg-slate-100 border-b border-slate-300 h-10 ml-[100px] shadow-sm">
                 <div className="relative w-full h-full">
                   {hours.map((hour, idx) => {
-                    const leftPct = (idx / 10) * 100;
+                    const leftPct = (idx / (hours.length - 1)) * 100;
                     const isFirst = idx === 0;
                     const isLast = idx === hours.length - 1;
 
@@ -566,14 +599,14 @@ const Agenda: React.FC = () => {
 
                   // Use safe parsing for startMin
                   const rowEvents = daySegments.map(seg => {
-                    const startOffset = Math.max(0, seg.startMin - (BUSINESS_START_HOUR * 60));
-                    // Ensure we don't go out of bounds (08:00 to 18:00 = 600 mins)
-                    const safeOffset = Math.min(BUSINESS_DAY_MINUTES, startOffset);
-                    const leftPct = (safeOffset / BUSINESS_DAY_MINUTES) * 100;
+                    const startOffset = Math.max(0, seg.startMin - (businessStartHour * 60));
+                    // Ensure we don't go out of bounds
+                    const safeOffset = Math.min(businessDayMinutes, startOffset);
+                    const leftPct = (safeOffset / businessDayMinutes) * 100;
                     // Cap duration to remaining day
-                    const maxDuration = BUSINESS_DAY_MINUTES - safeOffset;
+                    const maxDuration = businessDayMinutes - safeOffset;
                     const safeDuration = Math.min(seg.duration, maxDuration);
-                    const widthPct = (safeDuration / BUSINESS_DAY_MINUTES) * 100;
+                    const widthPct = (safeDuration / businessDayMinutes) * 100;
 
                     return { ...seg, leftPct, widthPct };
                   });
