@@ -251,9 +251,11 @@ export const fetchInventory = async (): Promise<InventoryItem[]> => {
 
 export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Promise<InventoryItem> => {
   const id = await getNextId('itens_estoque');
+  const code = id; // Auto-generate code equal to ID
+
   const { data, error } = await supabase.from('itens_estoque').insert({
     id,
-    codigo: item.code,
+    codigo: code,
     nome: item.name,
     fornecedor: item.supplier,
     preco_custo: item.costPrice,
@@ -464,9 +466,11 @@ export const deleteInventoryItem = async (id: string) => {
 // Services Table CRUD
 export const createService = async (service: Service): Promise<Service> => {
   const newId = await getNextId('servicos');
+  const code = newId; // Auto-generate code equal to ID
+
   const { data, error } = await supabase.from('servicos').insert({
     id: newId,
-    codigo: service.code,
+    codigo: code,
     nome: service.name,
     categoria: service.category,
     preco: service.price,

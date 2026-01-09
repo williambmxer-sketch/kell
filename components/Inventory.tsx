@@ -409,11 +409,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
               <div className="col-span-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Código / Ref</label>
                 <input
-                  required
-                  className={`${inputClasses} ${type === 'gearboxes' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
-                  value={formData.code}
-                  onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  readOnly={type === 'gearboxes'}
+                  required={type === 'gearboxes'} // Only required for gearboxes now vs optional/auto
+                  className={`${inputClasses} ${type !== 'brands' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
+                  value={type === 'gearboxes' ? formData.code : 'Automático'}
+                  onChange={e => type === 'gearboxes' && setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                  readOnly={true} // Always read-only as per request (auto-generated or auto-filled)
                 />
               </div>
               <div className="col-span-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{type === 'gearboxes' ? 'Marca' : type === 'services' ? 'Categoria' : 'Fornecedor'}</label>
