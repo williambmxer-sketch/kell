@@ -342,10 +342,19 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
             isRegisteringClient ? (
               <form onSubmit={handleCreateClient} className="p-6 space-y-4 animate-in fade-in slide-in-from-right-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de Cliente</label>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setNewClient({ ...newClient, type: 'PRIVATE' })} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-lg border transition-all ${newClient.type === 'PRIVATE' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'border-slate-200 text-slate-400'}`}>Particular</button>
-                    <button type="button" onClick={() => setNewClient({ ...newClient, type: 'COMPANY' })} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-lg border transition-all ${newClient.type === 'COMPANY' ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'border-slate-200 text-slate-400'}`}>Empresa</button>
+                  <div className="flex items-center justify-between mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tipo de Conta</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[10px] font-black uppercase transition-colors ${newClient.type === 'PRIVATE' ? 'text-indigo-600' : 'text-slate-400'}`}>Particular</span>
+                      <button
+                        type="button"
+                        onClick={() => setNewClient(prev => ({ ...prev, type: prev.type === 'PRIVATE' ? 'COMPANY' : 'PRIVATE' }))}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${newClient.type === 'COMPANY' ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                      >
+                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${newClient.type === 'COMPANY' ? 'left-[22px]' : 'left-0.5'}`}></div>
+                      </button>
+                      <span className={`text-[10px] font-black uppercase transition-colors ${newClient.type === 'COMPANY' ? 'text-indigo-600' : 'text-slate-400'}`}>Empresa</span>
+                    </div>
                   </div>
                 </div>
 
@@ -417,8 +426,8 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
                   </p>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <span className="text-[9px] font-bold text-slate-400 uppercase">Mostrar Todos</span>
-                    <button onClick={() => setShowAllClients(!showAllClients)} className={`relative w-8 h-4 rounded-full transition-colors ${showAllClients ? 'bg-indigo-600' : 'bg-slate-300'}`}>
-                      <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${showAllClients ? 'left-4.5 translate-x-1' : 'left-0.5'}`}></div>
+                    <button onClick={() => setShowAllClients(!showAllClients)} className={`relative w-9 h-5 rounded-full transition-colors ${showAllClients ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                      <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${showAllClients ? 'left-[18px]' : 'left-0.5'}`}></div>
                     </button>
                   </label>
                 </div>
