@@ -102,25 +102,34 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       const element = document.getElementById('whatsapp-pdf-content');
       if (!wrapper || !element) throw new Error("Conteúdo do orçamento não encontrado.");
 
-      // Temporarily make visible for html2canvas capture to avoid blank/faint PDF
+      // Temporarily make visible and bring to front for html2canvas
       const prevOpacity = wrapper.style.opacity;
+      const prevZIndex = wrapper.style.zIndex;
+      const prevPosition = wrapper.style.position;
+
       wrapper.style.opacity = '1';
+      wrapper.style.zIndex = '99999'; // Ensure it's on top of modal overlay
+      wrapper.style.position = 'fixed'; // Ensure it's in view/context
+      wrapper.style.background = 'white'; // Ensure clean background
 
       const filename = `Orcamento_${vehicle?.plate || 'MP'}_${order.id}.pdf`;
       const opt = {
-        margin: 0, // No margin for custom A4 layout
+        margin: 0,
         filename: filename,
         image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true }, // useCORS for logo
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const } // Fixed A4
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, // Reset scroll
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       };
 
       let blob;
       try {
         blob = await html2pdf().set(opt).from(element).output('blob');
       } finally {
-        // Restore invisibility
+        // Restore invisibility and position
         wrapper.style.opacity = prevOpacity;
+        wrapper.style.zIndex = prevZIndex;
+        wrapper.style.position = prevPosition;
+        wrapper.style.background = '';
       }
 
       // 2. Upload to Documents
