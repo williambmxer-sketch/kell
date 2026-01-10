@@ -6,7 +6,9 @@ import {
   LogOut,
   ChevronRight,
   Pin,
-  PinOff
+  PinOff,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 
 import { WorkshopContext } from '../App';
@@ -15,7 +17,29 @@ import { signOut } from '../services/supabase';
 const Sidebar: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(() => localStorage.getItem('sidebarPinned') === 'true');
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const context = React.useContext(WorkshopContext);
+
+  React.useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
+  }, []);
+
+  const toggleFullScreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error("Error attempting to toggle full-screen mode:", err);
+    }
+  };
   const settings = context?.settings;
 
   const isCollapsed = !isHovered && !isPinned;
@@ -112,6 +136,24 @@ const Sidebar: React.FC = () => {
               : 'opacity-100 w-auto translate-x-0 delay-100'
             }`}>
             {isPinned ? 'Desafixar Menu' : 'Fixar Menu'}
+          </span>
+        </button>
+
+        <button
+          onClick={toggleFullScreen}
+          className="flex items-center gap-3 w-full pl-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group relative overflow-hidden"
+        >
+          {isFullScreen ? (
+            <Minimize className="w-5 h-5 shrink-0 transition-transform text-slate-400 group-hover:text-indigo-600 relative z-10" />
+          ) : (
+            <Maximize className="w-5 h-5 shrink-0 transition-transform text-slate-400 group-hover:text-indigo-600 relative z-10" />
+          )}
+
+          <span className={`font-semibold text-sm text-slate-400 group-hover:text-indigo-600 whitespace-nowrap transition-all duration-300 ease-in-out ${isCollapsed
+            ? 'opacity-0 w-0 translate-x-[-10px]'
+            : 'opacity-100 w-auto translate-x-0 delay-100'
+            }`}>
+            {isFullScreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
           </span>
         </button>
 

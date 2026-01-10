@@ -4,7 +4,6 @@ import { WorkshopContext } from '../App';
 import { PRIORITY_CONFIG, STATUS_CONFIG } from '../constants';
 import { ChevronLeft, ChevronRight, Clock, LayoutGrid, CalendarDays, Plus, User as UserIcon, X, Info, Gauge, Wrench, Package } from 'lucide-react';
 import { WorkshopOrder, OSStatus, Priority } from '../types';
-import FullScreenButton from './FullScreenButton';
 
 type ViewMode = 'day' | 'week';
 
@@ -407,9 +406,6 @@ const Agenda: React.FC = () => {
           <button onClick={goToToday} className="bg-slate-900 border border-slate-900 px-5 py-2.5 rounded-xl text-xs font-black text-white hover:bg-slate-800 transition-all shadow-md active:scale-95 uppercase tracking-widest">
             Hoje
           </button>
-          <div className="border-l border-slate-300 pl-3 ml-1">
-            <FullScreenButton />
-          </div>
         </div>
       </header>
 

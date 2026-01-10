@@ -6,7 +6,6 @@ import { STATUS_CONFIG, PRIORITY_CONFIG } from '../constants';
 import { Plus, Search, MoreHorizontal, Clock, User as UserIcon, ArrowUp, ArrowDown, ListOrdered } from 'lucide-react';
 import OSDetailsModal from './OSDetailsModal';
 import NewOSModal from './NewOSModal';
-import FullScreenButton from './FullScreenButton';
 
 const Dashboard: React.FC = () => {
   const context = useContext(WorkshopContext);
@@ -101,9 +100,6 @@ const Dashboard: React.FC = () => {
             <Plus className="w-4 h-4" />
             Novo Check-in
           </button>
-          <div className="border-l border-slate-200 pl-4 ml-2">
-            <FullScreenButton />
-          </div>
         </div>
       </header>
 

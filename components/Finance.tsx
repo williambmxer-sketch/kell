@@ -3,7 +3,6 @@ import React, { useContext, useState, useMemo } from 'react';
 import { WorkshopContext } from '../App';
 import { DollarSign, TrendingUp, TrendingDown, Clock, Download, Filter, Plus, X, Calendar, Tag } from 'lucide-react';
 import { Transaction } from '../types';
-import FullScreenButton from './FullScreenButton';
 
 const Finance: React.FC = () => {
   const context = useContext(WorkshopContext);
@@ -77,9 +76,6 @@ const Finance: React.FC = () => {
           <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95">
             <Plus className="w-4 h-4" /> Novo Lançamento
           </button>
-          <div className="border-l border-slate-200 pl-4 ml-2">
-            <FullScreenButton />
-          </div>
         </div>
       </header>
 
