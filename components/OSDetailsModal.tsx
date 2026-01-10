@@ -103,19 +103,35 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       if (!wrapper || !element) throw new Error("Conteúdo do orçamento não encontrado.");
 
       // 1b. Enhanced Strategy: Clone and Isolate
-      const clone = element.cloneNode(true) as HTMLElement;
+      // 1b. Enhanced Strategy: Live Fullscreen Overlay
+      // Instead of cloning (which loses styles/images), we force the live wrapper
+      // to cover the entire screen with a white background, ensuring clean capture.
 
-      // Create a temporary container to hold the clone outside of modal context
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.top = '-10000px'; // Off-screen but renderable
-      container.style.left = '-10000px';
-      container.style.width = '210mm'; // Match A4 width
-      container.style.background = '#ffffff'; // Force white background
-      container.style.zIndex = '99999';
-      container.appendChild(clone);
+      const prevStyle = {
+        opacity: wrapper.style.opacity,
+        zIndex: wrapper.style.zIndex,
+        position: wrapper.style.position,
+        top: wrapper.style.top,
+        left: wrapper.style.left,
+        background: wrapper.style.background,
+        width: wrapper.style.width,
+        height: wrapper.style.height,
+        display: wrapper.style.display,
+        justifyContent: wrapper.style.justifyContent
+      };
 
-      document.body.appendChild(container);
+      // Force Wrapper to be visible, full screen, white background, on top of EVERYTHING
+      wrapper.style.opacity = '1';
+      wrapper.style.zIndex = '2147483647'; // Max Z-Index
+      wrapper.style.position = 'fixed';
+      wrapper.style.top = '0';
+      wrapper.style.left = '0';
+      wrapper.style.width = '100vw';
+      wrapper.style.height = '100vh';
+      wrapper.style.background = '#ffffff';
+      wrapper.style.display = 'flex';
+      wrapper.style.justifyContent = 'center'; // Center the A4 page
+      wrapper.style.overflow = 'hidden'; // Prevent internal scroll bars affecting capture
 
       const filename = `Orcamento_${vehicle?.plate || 'MP'}_${order.id}.pdf`;
       const opt = {
@@ -128,13 +144,21 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
       let blob;
       try {
-        // Generate from the isolated container
-        blob = await html2pdf().set(opt).from(container).output('blob');
+        // Generate from the element (which is now centered on a white fullscreen background)
+        blob = await html2pdf().set(opt).from(element).output('blob');
       } finally {
-        // Cleanup: Remove the temporary container
-        if (document.body.contains(container)) {
-          document.body.removeChild(container);
-        }
+        // Restore original styles
+        wrapper.style.opacity = prevStyle.opacity;
+        wrapper.style.zIndex = prevStyle.zIndex;
+        wrapper.style.position = prevStyle.position;
+        wrapper.style.top = prevStyle.top;
+        wrapper.style.left = prevStyle.left;
+        wrapper.style.background = prevStyle.background;
+        wrapper.style.width = prevStyle.width;
+        wrapper.style.height = prevStyle.height;
+        wrapper.style.display = prevStyle.display;
+        wrapper.style.justifyContent = prevStyle.justifyContent;
+        wrapper.style.overflow = '';
       }
 
       // 2. Upload to Documents
