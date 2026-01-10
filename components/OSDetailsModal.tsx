@@ -1694,7 +1694,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
               <div className="flex flex-col gap-1">
                 <span className="font-bold text-slate-900">Tel: <span className="font-normal">{client?.phone || '---'}</span></span>
                 <span className="font-bold text-slate-900">Placa: <span className="font-normal">{vehicle?.plate || '---'}</span></span>
-                <span className="font-bold text-slate-900">KM: <span className="font-normal">{order.km ? order.km.toLocaleString('pt-BR') : '---'}</span></span>
+
               </div>
             </div>
           </div>
