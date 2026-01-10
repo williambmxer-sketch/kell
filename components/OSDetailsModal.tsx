@@ -1163,9 +1163,22 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                         </div>
                         <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5">Tipo de Atendimento</p>
-                          <div className="px-4 py-2.5 border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Serviço Particular</span>
-                          </div>
+                          {order.category === 'RESTORATION' ? (
+                            <div className="px-4 py-2.5 border border-amber-200 bg-amber-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">Projeto de Restauração</span>
+                            </div>
+                          ) : order.category === 'COMPANY' ? (
+                            <div className="px-4 py-2.5 border border-purple-200 bg-purple-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                              <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-purple-700">Frota / Empresa</span>
+                            </div>
+                          ) : (
+                            <div className="px-4 py-2.5 border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                              <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Serviço Particular</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

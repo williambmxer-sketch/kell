@@ -197,21 +197,7 @@ const Dashboard: React.FC = () => {
                         className={`${cardBg} ${cardBorder} p-4 rounded-2xl border shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group`}
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
-                            {order.category === 'RESTORATION' && (
-                              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded border bg-amber-50 border-amber-200 text-amber-700" title="Projeto de Restauração">
-                                <Sparkles className="w-3 h-3" />
-                                <span className="text-[9px] font-black uppercase tracking-tighter hidden sm:inline-block">Restauro</span>
-                              </div>
-                            )}
-                            {order.category === 'COMPANY' && (
-                              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded border bg-purple-50 border-purple-200 text-purple-700" title="Veículo de Frota">
-                                <Briefcase className="w-3 h-3" />
-                                <span className="text-[9px] font-black uppercase tracking-tighter hidden sm:inline-block">Frota</span>
-                              </div>
-                            )}
-                          </div>
+                          <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
                           <div className={`text-[9px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${priorityInfo.bg} ${priorityInfo.color} ${priorityInfo.border}`}>
                             {priorityInfo.label}
                           </div>
