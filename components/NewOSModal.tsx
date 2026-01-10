@@ -197,13 +197,36 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
     e.preventDefault();
     if (!selectedClient || !selectedGearbox) return;
 
+    // Validation & Duplication Check
+    const cleanPlate = newVehicleData.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    // Import helper inline or assume we can move it to top if strictly needed, but better to fetch from context or define here? 
+    // Since I cannot modify top-level easily without huge context, I will include validation logic here or rely on the proposed file import.
+    // Let's use the explicit checks here to be safe and robust without relying on a new import that might break if file isn't found by bundler immediately.
+
+    // Regex Check
+    const isOld = /^[A-Z]{3}\d{4}$/.test(cleanPlate);
+    const isMercosur = /^[A-Z]{3}\d[A-Z]\d{2}$/.test(cleanPlate);
+
+    if (!isOld && !isMercosur) {
+      alert("Formato de placa inválido. Use ABC-1234 ou ABC1C34.");
+      return;
+    }
+
+    // Duplicate Check
+    const plateExists = context.vehicles.some(v => v.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === cleanPlate);
+    if (plateExists) {
+      alert("Esta placa já está cadastrada em outro veículo.");
+      return;
+    }
+
     try {
       const newVehicle: Vehicle = {
         id: `v-${Date.now()}`,
         clientId: selectedClient.id,
         brand: selectedGearbox.brand,
         model: newVehicleData.model || selectedGearbox.model,
-        plate: newVehicleData.plate.toUpperCase(),
+        plate: cleanPlate, // Store cleaned/standardized
         color: newVehicleData.color.toUpperCase(),
         year: parseInt(newVehicleData.year) || new Date().getFullYear()
       };

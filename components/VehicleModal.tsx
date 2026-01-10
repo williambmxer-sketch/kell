@@ -35,7 +35,35 @@ const VehicleModal: React.FC<VehicleModalProps> = ({ clientId, vehicle, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+
+    // Validation & Duplication Check logic
+    const cleanPlate = formData.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    // Regex Check
+    const isOld = /^[A-Z]{3}\d{4}$/.test(cleanPlate);
+    const isMercosur = /^[A-Z]{3}\d[A-Z]\d{2}$/.test(cleanPlate);
+
+    if (!isOld && !isMercosur) {
+      alert("Formato de placa inválido. Use ABC-1234 ou ABC1C34.");
+      return;
+    }
+
+    // Duplicate Check 
+    // We must ensure context exists
+    if (context) {
+      const plateExists = context.vehicles.some(v =>
+        v.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === cleanPlate &&
+        v.id !== vehicle?.id // Exclude self if editing
+      );
+
+      if (plateExists) {
+        alert("Esta placa já está cadastrada em outro veículo.");
+        return;
+      }
+    }
+
+    // Save with standardized plate
+    onSave({ ...formData, plate: cleanPlate });
   };
 
   const inputClasses = "w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm text-slate-900 placeholder:text-slate-400 font-medium uppercase";
