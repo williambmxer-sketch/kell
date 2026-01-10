@@ -5,6 +5,7 @@ import { User, Phone, Mail, Car, CreditCard, Plus, Search, Edit3, Trash2, X, Ale
 import ClientModal from './ClientModal';
 import VehicleModal from './VehicleModal';
 import { Client, Vehicle } from '../types';
+import FullScreenButton from './FullScreenButton';
 
 const Clients: React.FC = () => {
   const context = useContext(WorkshopContext);
@@ -112,6 +113,9 @@ const Clients: React.FC = () => {
             <Plus className="w-3.5 h-3.5" />
             Novo
           </button>
+          <div className="border-l border-slate-200 pl-4 ml-2">
+            <FullScreenButton />
+          </div>
         </div>
       </header>
 

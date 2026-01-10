@@ -6,6 +6,7 @@ import TeamSettings from './Settings/TeamSettings';
 import NotificationSettings from './Settings/NotificationSettings';
 import SecuritySettings from './Settings/SecuritySettings';
 import { APP_VERSION } from '../constants';
+import FullScreenButton from './FullScreenButton';
 
 const Settings: React.FC = () => {
   const activeTabState = useState<string | null>(null);
@@ -85,6 +86,9 @@ const Settings: React.FC = () => {
               ? 'Gerencie as informações detalhadas desta seção.'
               : 'Personalize a experiência do Oficina Master Pro para sua empresa.'}
           </p>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <FullScreenButton />
         </div>
       </header>
 

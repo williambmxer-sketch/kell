@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 import { WorkshopContext } from '../App';
 import { Search, AlertTriangle, Package, TrendingUp, Plus, Settings2, Cpu, Trash2, Edit3, X, Save, Clock } from 'lucide-react';
 import { InventoryItem, Service, Gearbox } from '../types';
+import FullScreenButton from './FullScreenButton';
 
 const Inventory: React.FC = () => {
   const context = useContext(WorkshopContext);
@@ -96,6 +97,9 @@ const Inventory: React.FC = () => {
             <Plus className="w-4 h-4" />
             Novo Registro
           </button>
+          <div className="border-l border-slate-200 pl-4 ml-2">
+            <FullScreenButton />
+          </div>
         </div>
       </header>
 
