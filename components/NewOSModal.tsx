@@ -41,6 +41,10 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
   const [isRegisteringBrand, setIsRegisteringBrand] = useState(false);
   const [brandSearch, setBrandSearch] = useState('');
   const [newBrandName, setNewBrandName] = useState('');
+
+  // Conflict State
+  const [conflictData, setConflictData] = useState<{ vehicle: Vehicle, client: Client } | null>(null);
+
   const handleZipCodeBlur = async () => {
     const cep = newClient.zipCode?.replace(/\D/g, '');
     if (cep && cep.length === 8) {
@@ -78,6 +82,10 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
   }, [context, selectedClient]);
 
   const handleCloseInternal = () => {
+    if (conflictData) {
+      setConflictData(null);
+      return;
+    }
     if (isRegisteringClient) {
       setIsRegisteringClient(false);
       return;
@@ -98,6 +106,22 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
   if (!context) return null;
 
   const { addClient, addVehicle, addNewOrder, vehicles, clients, addHistoryLog, brands, addGearbox } = context;
+
+  const useExistingVehicle = () => {
+    if (!conflictData) return;
+
+    // Switch Everything to existing
+    setSelectedClient(conflictData.client);
+    setSelectedVehicle(conflictData.vehicle);
+
+    // Ensure service type matches client type (optional but good for consistency)
+    if (conflictData.client.type) {
+      setServiceType(conflictData.client.type);
+    }
+
+    setConflictData(null);
+    setStep(4); // Skip to Priority
+  };
 
   const filteredClients = useMemo(() => {
     let list = clients;
@@ -214,9 +238,15 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
     }
 
     // Duplicate Check
-    const plateExists = context.vehicles.some(v => v.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === cleanPlate);
-    if (plateExists) {
-      alert("Esta placa já está cadastrada em outro veículo.");
+    const existingVehicle = context.vehicles.find(v => v.plate.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === cleanPlate);
+
+    if (existingVehicle) {
+      const existingClient = context.clients.find(c => c.id === existingVehicle.clientId);
+      if (existingClient) {
+        setConflictData({ vehicle: existingVehicle, client: existingClient });
+      } else {
+        alert("Esta placa já está cadastrada, mas o cliente não foi encontrado.");
+      }
       return;
     }
 
@@ -697,6 +727,55 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
           )}
         </div>
       </div>
+
+      {/* Duplicate Vehicle Conflict Modal */}
+      {conflictData && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mb-1 text-amber-600">
+                <Car className="w-6 h-6" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-black text-slate-900 leading-tight mb-2 uppercase">Veículo já Cadastrado</h3>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                  A placa <span className="text-slate-900 font-black font-mono bg-slate-100 px-1.5 py-0.5 rounded">{conflictData.vehicle.plate}</span> já pertence à frota de outro cliente.
+                </p>
+              </div>
+
+              <div className="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 text-left">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Proprietário Atual</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900 uppercase">{conflictData.client.name}</p>
+                    <p className="text-[10px] text-slate-500">{conflictData.client.phone}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 w-full pt-2">
+                <button
+                  onClick={useExistingVehicle}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  Usar este Veículo e Cliente
+                </button>
+                <button
+                  onClick={() => setConflictData(null)}
+                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-xl transition-colors"
+                >
+                  Corrigir Placa
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
