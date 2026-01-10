@@ -119,6 +119,7 @@ const Sidebar: React.FC = () => {
           onClick={async () => {
             try {
               await signOut();
+              window.location.reload(); // Force reload to ensure clean state exit
             } catch (err) {
               console.error('Logout error:', err);
             }
