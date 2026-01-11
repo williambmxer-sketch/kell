@@ -15,4 +15,4 @@ export const PRIORITY_CONFIG: Record<Priority, { label: string; color: string; b
   [Priority.HIGH]: { label: 'Alta Prioridade', color: 'text-red-700', border: 'border-red-300', bg: 'bg-red-100' },
 };
 
-export const APP_VERSION = '2026.01.0001';
+export const APP_VERSION = '2026.01.00034';

@@ -15,6 +15,8 @@ const Clients: React.FC = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [vehicleModalConfig, setVehicleModalConfig] = useState<{ clientId: string; vehicle?: Vehicle | null } | null>(null);
   const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
   if (!context) return null;
   const { clients, vehicles, orders, addClient, updateClient, deleteClient, addVehicle, updateVehicle, deleteVehicle } = context;
@@ -80,6 +82,14 @@ const Clients: React.FC = () => {
     if (vehicleToDelete) {
       deleteVehicle(vehicleToDelete.id);
       setVehicleToDelete(null);
+    }
+  };
+
+  const confirmDeleteClient = () => {
+    if (clientToDelete && deleteConfirmation.toLowerCase() === 'excluir') {
+      deleteClient(clientToDelete.id);
+      setClientToDelete(null);
+      setDeleteConfirmation('');
     }
   };
 
@@ -150,7 +160,8 @@ const Clients: React.FC = () => {
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm(`Excluir ${client.name}? Todos os veículos serão removidos.`)) deleteClient(client.id);
+                        setClientToDelete(client);
+                        setDeleteConfirmation('');
                       }}
                       className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
                       title="Excluir"
@@ -270,6 +281,60 @@ const Clients: React.FC = () => {
                   onClick={confirmDeleteVehicle}
                 >
                   Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Deletion Confirmation Modal */}
+      {clientToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setClientToDelete(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-sm w-full p-6 animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center mb-1">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-black text-slate-900 leading-tight mb-2">Excluir Cliente?</h3>
+                <p className="text-sm text-slate-500 font-medium mb-2">
+                  Você está prestes a excluir o cliente <span className="text-slate-800 font-black">{clientToDelete.name}</span>.
+                </p>
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold leading-relaxed mb-4">
+                  <span className="block mb-1">⚠️ ATENÇÃO E PERIGO:</span>
+                  Isso excluirá também <span className="underline">{vehicles.filter(v => v.clientId === clientToDelete.id).length} veículos</span> vinculados e todo o histórico de serviços.
+                </div>
+                <p className="text-xs text-slate-400 font-medium mb-2">
+                  Digite <span className="font-mono font-bold text-slate-600">excluir</span> abaixo para confirmar:
+                </p>
+                <input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder="excluir"
+                  className="w-full text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-100"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 w-full pt-2">
+                <button
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-widest rounded-xl transition-colors"
+                  onClick={() => {
+                    setClientToDelete(null);
+                    setDeleteConfirmation('');
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-red-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                  onClick={confirmDeleteClient}
+                  disabled={deleteConfirmation.toLowerCase() !== 'excluir'}
+                >
+                  Excluir
                 </button>
               </div>
             </div>
