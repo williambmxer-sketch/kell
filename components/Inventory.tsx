@@ -259,8 +259,6 @@ const Inventory: React.FC = () => {
               <thead className="bg-slate-50/50 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest w-2/5">Serviço / Especialidade</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Categoria</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tempo</th>
                   <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Valor MO</th>
                   <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ações</th>
                 </tr>
@@ -275,8 +273,6 @@ const Inventory: React.FC = () => {
                         <span className="text-[9px] font-mono text-slate-400 uppercase">{service.code}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">{service.category}</td>
-                    <td className="px-6 py-4 text-xs text-slate-500 font-bold uppercase">{service.time}</td>
                     <td className="px-6 py-4 text-xs text-emerald-600 font-black text-right font-mono tracking-tighter">R$ {service.price.toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-2">
@@ -457,26 +453,29 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
 
           {(type !== 'brands' && type !== 'payment-methods') && (
             <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-1">
+              <div className={type === 'services' ? "col-span-2" : "col-span-1"}>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Código / Ref</label>
                 <input
-                  required={type === 'gearboxes'} // Only required for gearboxes now vs optional/auto
+                  required={type === 'gearboxes'}
                   className={`${inputClasses} ${type !== 'brands' && type !== 'payment-methods' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                   value={type === 'gearboxes' ? formData.code : 'Automático'}
                   onChange={e => type === 'gearboxes' && setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  readOnly={true} // Always read-only as per request (auto-generated or auto-filled)
+                  readOnly={true}
                 />
               </div>
-              <div className="col-span-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{type === 'gearboxes' ? 'Marca' : type === 'services' ? 'Categoria' : 'Fornecedor'}</label>
-                {type === 'gearboxes' ? (
-                  <select required className={inputClasses} value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })}>
-                    <option value="">Selecione...</option>
-                    {context.brands?.map((b: any) => <option key={b.id} value={b.name}>{b.name}</option>)}
-                  </select>
-                ) : (
-                  <input required className={inputClasses} value={type === 'services' ? formData.category : formData.supplier} onChange={e => setFormData({ ...formData, [type === 'services' ? 'category' : 'supplier']: e.target.value })} />
-                )}
-              </div>
+
+              {type !== 'services' && (
+                <div className="col-span-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{type === 'gearboxes' ? 'Marca' : 'Fornecedor'}</label>
+                  {type === 'gearboxes' ? (
+                    <select required className={inputClasses} value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })}>
+                      <option value="">Selecione...</option>
+                      {context.brands?.map((b: any) => <option key={b.id} value={b.name}>{b.name}</option>)}
+                    </select>
+                  ) : (
+                    <input required className={inputClasses} value={formData.supplier} onChange={e => setFormData({ ...formData, supplier: e.target.value })} />
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -501,10 +500,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
           )}
 
           {type === 'services' && (
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Tempo Médio</label><div className="relative"><Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" /><input placeholder="1h 30min" className={`${inputClasses} pl-8`} value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} /></div></div>
-              <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor Mão de Obra</label><input type="number" step="0.01" className={inputClasses} value={formData.price} onChange={e => setFormData({ ...formData, price: Number(e.target.value) })} /></div>
-            </div>
+            <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor Mão de Obra</label><input type="number" step="0.01" className={inputClasses} value={formData.price} onChange={e => setFormData({ ...formData, price: Number(e.target.value) })} /></div>
           )}
 
           {type === 'gearboxes' && (
