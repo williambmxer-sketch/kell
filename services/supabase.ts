@@ -21,11 +21,19 @@ export const getUserId = async () => {
  */
 
 const getNextId = async (table: string): Promise<string> => {
-  // Use a unique ID generation strategy to avoid RLS collisions
-  // Format: Timestamp (Base36) + Random Suffix (Base36)
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 5).toUpperCase();
-  return `${timestamp}${random}`;
+  const { data, error } = await supabase
+    .from(table)
+    .select('id');
+
+  if (error) {
+    console.error(`Error fetching IDs for ${table}:`, error);
+    // Fallback if error, though we ideally shouldn't fail
+    return Date.now().toString();
+  }
+
+  const ids = data.map(d => parseInt(d.id, 10)).filter(n => !isNaN(n));
+  const nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+  return String(nextId).padStart(2, '0');
 };
 
 const mapUserFromDB = (u: any): User => ({
