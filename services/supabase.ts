@@ -598,9 +598,12 @@ export const deleteGearbox = async (id: string) => {
 // Settings
 // Settings
 export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
-  // RLS will ensure we only fetching the row that belongs to the current user
-  // We don't need to filter by ID 'geral' anymore, just get the single row available
-  const { data, error } = await supabase.from('configuracoes').select('*').limit(1).maybeSingle();
+  // Get current user to ensure we fetch the EXACT row we write to (id = user.id)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  // Explicitly fetch the row for this user Key
+  const { data, error } = await supabase.from('configuracoes').select('*').eq('id', user.id).maybeSingle();
 
   if (error) {
     console.error('Error fetching settings:', error);
