@@ -14,19 +14,22 @@ const Finance: React.FC = () => {
     return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
   });
   const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedPaymentMethodFilter, setSelectedPaymentMethodFilter] = useState('');
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
   if (!context) return null;
-  const { transactions, orders, addTransaction, deleteTransaction } = context;
+  const { transactions, orders, addTransaction, deleteTransaction, paymentMethods } = context;
 
   // Filter Transactions by Date Range
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       if (!t.date) return false;
       const tDate = t.date.split('T')[0]; // Normalize to YYYY-MM-DD
-      return tDate >= startDate && tDate <= endDate;
+      const dateMatch = tDate >= startDate && tDate <= endDate;
+      const methodMatch = selectedPaymentMethodFilter ? t.paymentMethod === selectedPaymentMethodFilter : true;
+      return dateMatch && methodMatch;
     });
-  }, [transactions, startDate, endDate]);
+  }, [transactions, startDate, endDate, selectedPaymentMethodFilter]);
 
   const combinedList = [...filteredTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -70,7 +73,23 @@ const Finance: React.FC = () => {
               className="text-xs font-bold text-slate-600 bg-transparent border-none outline-none focus:ring-0"
             />
             <div className="px-2 text-[10px] font-black uppercase text-slate-400 tracking-widest border-l border-slate-100 pl-2">
-              Filtro
+              Período
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm px-3">
+            <select
+              className="text-xs font-bold text-slate-600 bg-transparent border-none outline-none focus:ring-0 min-w-[100px]"
+              value={selectedPaymentMethodFilter}
+              onChange={(e) => setSelectedPaymentMethodFilter(e.target.value)}
+            >
+              <option value="">Todas as formas</option>
+              {paymentMethods?.map(p => (
+                <option key={p.id} value={p.name}>{p.name}</option>
+              ))}
+            </select>
+            <div className="px-2 text-[10px] font-black uppercase text-slate-400 tracking-widest border-l border-slate-100 pl-2">
+              Pagamento
             </div>
           </div>
           <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95">
@@ -108,6 +127,7 @@ const Finance: React.FC = () => {
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Data</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Descrição</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Categoria</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Forma Pagto</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Status</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest text-right">Valor</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest text-center">Ações</th>
@@ -122,6 +142,7 @@ const Finance: React.FC = () => {
                       {row.orderId && <span className="ml-2 text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">Auto</span>}
                     </td>
                     <td className="px-6 py-4 text-slate-500 text-xs uppercase tracking-wide">{row.category}</td>
+                    <td className="px-6 py-4 text-slate-500 text-xs font-bold uppercase tracking-wider">{row.paymentMethod || '-'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${row.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                         row.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
@@ -179,7 +200,7 @@ const Finance: React.FC = () => {
       )}
 
       {isModalOpen && (
-        <TransactionModal onClose={() => setIsModalOpen(false)} onSave={addTransaction} />
+        <TransactionModal onClose={() => setIsModalOpen(false)} onSave={addTransaction} paymentMethods={paymentMethods} />
       )}
     </div>
   );
@@ -188,16 +209,18 @@ const Finance: React.FC = () => {
 interface TransactionModalProps {
   onClose: () => void;
   onSave: (t: Transaction) => Promise<void>;
+  paymentMethods: import('../types').PaymentMethod[];
 }
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave }) => {
+const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, paymentMethods }) => {
   const [formData, setFormData] = useState({
     description: '',
     category: 'Geral',
     amount: '',
     type: 'OUT' as 'IN' | 'OUT',
     status: 'PAID' as 'PENDING' | 'PAID',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    paymentMethod: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -252,8 +275,17 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave }) 
             </div>
           </div>
           <div>
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Categoria</label>
             <input className={inputClass} placeholder="Ex: Fixo, Variável, Peças..." value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
+          </div>
+
+          <div>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Forma de Pagamento</label>
+            <select className={inputClass} value={formData.paymentMethod} onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}>
+              <option value="">Nenhuma / Outros</option>
+              {paymentMethods?.filter(p => p.active).map(p => (
+                <option key={p.id} value={p.name}>{p.name}</option>
+              ))}
+            </select>
           </div>
 
           <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all mt-4">

@@ -11,19 +11,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey);
 
+export const getUserId = async () => {
+  const { data } = await supabase.auth.getUser();
+  return data.user?.id;
+};
+
 /**
  * MAPPERS (Portuguese DB <-> English App Types)
  */
 
 const getNextId = async (table: string): Promise<string> => {
-  const { data, error } = await supabase.from(table).select('id');
-  if (error) {
-    console.error(`Error fetching IDs for ${table}`, error);
-    return '01';
-  }
-  const ids = data.map(d => parseInt(d.id, 10)).filter(n => !isNaN(n));
-  const nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
-  return String(nextId).padStart(2, '0');
+  // Use a unique ID generation strategy to avoid RLS collisions
+  // Format: Timestamp (Base36) + Random Suffix (Base36)
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+  return `${timestamp}${random}`;
 };
 
 const mapUserFromDB = (u: any): User => ({
@@ -138,8 +140,10 @@ export const fetchUsers = async (): Promise<User[]> => {
 
 export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
   const id = await getNextId('usuarios');
+  const user_id = await getUserId();
   const { data, error } = await supabase.from('usuarios').insert({
     id,
+    user_id,
     nome: user.name,
     papel: user.role
   }).select().single();
@@ -171,8 +175,10 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 export const createClient = async (client: Omit<Client, 'id'>): Promise<Client> => {
   const id = await getNextId('clientes');
+  const user_id = await getUserId();
   const { data, error } = await supabase.from('clientes').insert({
     id,
+    user_id,
     nome: client.name,
     email: client.email,
     telefone: client.phone,
@@ -215,6 +221,7 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
 
 export const createVehicle = async (vehicle: Omit<Vehicle, 'id'>): Promise<Vehicle> => {
   const id = await getNextId('veiculos');
+  // user_id is NOT directly on vehicles table, it relies on client association for RLS
   const { data, error } = await supabase.from('veiculos').insert({
     id,
     id_cliente: vehicle.clientId,
@@ -253,6 +260,8 @@ export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Prom
   const id = await getNextId('itens_estoque');
   const code = id; // Auto-generate code equal to ID
 
+  // Note: If this table needs RLS by User, ensure it has user_id or remove checks if global.
+  // Assuming simpler structure based on script.
   const { data, error } = await supabase.from('itens_estoque').insert({
     id,
     codigo: code,
@@ -315,8 +324,10 @@ export const fetchOrders = async (): Promise<WorkshopOrder[]> => {
 export const createOrder = async (order: WorkshopOrder): Promise<WorkshopOrder> => {
   // 1. Insert Order
   const newId = await getNextId('ordens_servico');
+  const user_id = await getUserId();
   const { data: newOrder, error } = await supabase.from('ordens_servico').insert({
     id: newId,
+    user_id,
     id_veiculo: order.vehicleId,
     status: order.status,
     prioridade: order.priority,
@@ -466,10 +477,12 @@ export const deleteInventoryItem = async (id: string) => {
 // Services Table CRUD
 export const createService = async (service: Service): Promise<Service> => {
   const newId = await getNextId('servicos');
+  const user_id = await getUserId();
   const code = newId; // Auto-generate code equal to ID
 
   const { data, error } = await supabase.from('servicos').insert({
     id: newId,
+    user_id,
     codigo: code,
     nome: service.name,
     categoria: service.category,
@@ -507,7 +520,8 @@ const mapTransactionFromDB = (db: any): Transaction => ({
   type: db.tipo,
   status: db.status,
   date: db.data,
-  orderId: db.id_ordem
+  orderId: db.id_ordem,
+  paymentMethod: db.forma_pagamento
 });
 
 export const fetchTransactions = async (): Promise<Transaction[]> => {
@@ -529,7 +543,8 @@ export const createTransaction = async (transaction: Transaction): Promise<Trans
     tipo: transaction.type,
     status: transaction.status,
     data: transaction.date,
-    id_ordem: transaction.orderId
+    id_ordem: transaction.orderId,
+    forma_pagamento: transaction.paymentMethod
   }).select().single();
 
   if (error) throw error;
@@ -687,8 +702,10 @@ export const fetchBrands = async (): Promise<import('../types').Brand[]> => {
 
 export const createBrand = async (brand: import('../types').Brand): Promise<import('../types').Brand> => {
   const newId = await getNextId('marcas');
+  const user_id = await getUserId();
   const { data, error } = await supabase.from('marcas').insert({
     id: newId,
+    user_id,
     nome: brand.name,
     logo_url: brand.logo
   }).select().single();
@@ -699,6 +716,47 @@ export const createBrand = async (brand: import('../types').Brand): Promise<impo
 
 export const deleteBrand = async (id: string) => {
   const { error } = await supabase.from('marcas').delete().eq('id', id);
+  if (error) throw error;
+};
+
+// PAYMENT METHODS
+const mapPaymentMethodFromDB = (pm: any): import('../types').PaymentMethod => ({
+  id: pm.id,
+  name: pm.name,
+  active: pm.active
+});
+
+export const fetchPaymentMethods = async (): Promise<import('../types').PaymentMethod[]> => {
+  const { data, error } = await supabase.from('formas_pagamento').select('*').order('name');
+  if (error) {
+    console.error('Error fetching payment methods:', error);
+    return [];
+  }
+  return data.map(mapPaymentMethodFromDB);
+};
+
+export const createPaymentMethod = async (name: string): Promise<import('../types').PaymentMethod> => {
+  // Get current user to ensure we set ownership
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const { data, error } = await supabase.from('formas_pagamento').insert({
+    name,
+    active: true,
+    user_id: user.id
+  }).select().single();
+
+  if (error) throw error;
+  return mapPaymentMethodFromDB(data);
+};
+
+export const togglePaymentMethod = async (id: string, active: boolean) => {
+  const { error } = await supabase.from('formas_pagamento').update({ active }).eq('id', id);
+  if (error) throw error;
+};
+
+export const deletePaymentMethod = async (id: string) => {
+  const { error } = await supabase.from('formas_pagamento').delete().eq('id', id);
   if (error) throw error;
 };
 

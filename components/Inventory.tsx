@@ -1,12 +1,12 @@
 
 import React, { useContext, useState } from 'react';
 import { WorkshopContext } from '../App';
-import { Search, AlertTriangle, Package, TrendingUp, Plus, Settings2, Cpu, Trash2, Edit3, X, Save, Clock } from 'lucide-react';
-import { InventoryItem, Service, Gearbox } from '../types';
+import { Search, AlertTriangle, Package, TrendingUp, Plus, Settings2, Cpu, Trash2, Edit3, X, Save, Clock, CreditCard } from 'lucide-react';
+import { InventoryItem, Service, Gearbox, PaymentMethod } from '../types';
 
 const Inventory: React.FC = () => {
   const context = useContext(WorkshopContext);
-  const [activeTab, setActiveTab] = useState<'parts' | 'services' | 'gearboxes' | 'brands'>('parts');
+  const [activeTab, setActiveTab] = useState<'parts' | 'services' | 'gearboxes' | 'brands' | 'payment-methods'>('parts');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
 
@@ -21,7 +21,8 @@ const Inventory: React.FC = () => {
     addInventoryItem, updateInventoryItem, deleteInventoryItem,
     addService, updateService, deleteService,
     addGearbox, updateGearbox, deleteGearbox,
-    addBrand, deleteBrand
+    addBrand, deleteBrand,
+    paymentMethods, addPaymentMethod, deletePaymentMethod, togglePaymentMethod
   } = context;
 
   const filteredInventory = inventory.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()) || i.code.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -38,6 +39,7 @@ const Inventory: React.FC = () => {
     { label: 'Abaixo do Mínimo', value: inventory.filter(i => i.stock < i.minStock).length, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
     { label: 'Marcas Cadastradas', value: brands.length, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: 'Câmbios em Base', value: gearboxes.length, icon: Cpu, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Formas Pagto', value: paymentMethods?.length || 0, icon: CreditCard, color: 'text-violet-600', bg: 'bg-violet-50' },
   ];
 
   const handleOpenModal = (item?: any) => {
@@ -55,6 +57,7 @@ const Inventory: React.FC = () => {
     else if (activeTab === 'services') deleteService(itemToDelete);
     else if (activeTab === 'gearboxes') deleteGearbox(itemToDelete);
     else if (activeTab === 'brands') deleteBrand(itemToDelete);
+    else if (activeTab === 'payment-methods') deletePaymentMethod(itemToDelete);
     setItemToDelete(null);
   };
 
@@ -70,7 +73,7 @@ const Inventory: React.FC = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder={`Filtrar ${activeTab === 'parts' ? 'peças' : activeTab === 'services' ? 'serviços' : activeTab === 'gearboxes' ? 'câmbios' : 'marcas'}...`}
+              placeholder={`Filtrar ${activeTab === 'parts' ? 'peças' : activeTab === 'services' ? 'serviços' : activeTab === 'gearboxes' ? 'câmbios' : activeTab === 'payment-methods' ? 'pagamento' : 'marcas'}...`}
               className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] w-64 focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm font-bold text-slate-900"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -142,6 +145,13 @@ const Inventory: React.FC = () => {
               }`}
           >
             <Settings2 className="w-3.5 h-3.5" /> Serviços
+          </button>
+          <button
+            onClick={() => { setActiveTab('payment-methods'); setSearchTerm(''); }}
+            className={`px-8 py-4 text-[10px] font-black transition-all flex items-center gap-2 uppercase tracking-widest border-b-2 shrink-0 ${activeTab === 'payment-methods' ? 'bg-white text-indigo-600 border-indigo-600' : 'text-slate-400 hover:text-slate-600 border-transparent'
+              }`}
+          >
+            <CreditCard className="w-3.5 h-3.5" /> Pagamento
           </button>
         </div>
 
@@ -279,6 +289,40 @@ const Inventory: React.FC = () => {
               </tbody>
             </table>
           )}
+          {activeTab === 'payment-methods' && (
+            <table className="w-full text-left min-w-[800px]">
+              <thead className="bg-slate-50/50 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nome do Método</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paymentMethods?.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map(method => (
+                  <tr key={method.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-bold text-slate-700 uppercase">{method.name}</span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => togglePaymentMethod(method.id, !method.active)}
+                        className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider ${method.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                      >
+                        {method.active ? 'Ativo' : 'Inativo'}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
+                        <button onClick={() => handleDelete(method.id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
         </div>
       </div>
 
@@ -291,7 +335,8 @@ const Inventory: React.FC = () => {
             addInventoryItem, updateInventoryItem,
             addService, updateService,
             addGearbox, updateGearbox,
-            addBrand, brands
+            addBrand, brands,
+            addPaymentMethod
           }}
         />
       )}
@@ -332,7 +377,7 @@ const Inventory: React.FC = () => {
 };
 
 interface InventoryModalProps {
-  type: 'parts' | 'services' | 'gearboxes' | 'brands';
+  type: 'parts' | 'services' | 'gearboxes' | 'brands' | 'payment-methods';
   item?: any;
   onClose: () => void;
   context: any;
@@ -382,6 +427,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
       item ? context.updateGearbox(item.id, formData) : context.addGearbox(formData);
     } else if (type === 'brands') {
       item ? null : context.addBrand(formData);
+    } else if (type === 'payment-methods') {
+      item ? null : context.addPaymentMethod(formData.name);
     }
     onClose();
   };
@@ -393,7 +440,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
         <header className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{item ? 'Editar' : 'Novo'} {type === 'parts' ? 'Peça' : type === 'services' ? 'Serviço' : type === 'gearboxes' ? 'Câmbio' : 'Marca'}</h3>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{item ? 'Editar' : 'Novo'} {type === 'parts' ? 'Peça' : type === 'services' ? 'Serviço' : type === 'gearboxes' ? 'Câmbio' : type === 'payment-methods' ? 'Pagamento' : 'Marca'}</h3>
             <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Gestão de Catálogo</p>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-200 rounded-lg"><X className="w-4 h-4 text-slate-400" /></button>
@@ -404,13 +451,17 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
             <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome da Marca</label><input required className={inputClasses} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></div>
           )}
 
-          {type !== 'brands' && (
+          {type === 'payment-methods' && (
+            <div><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição (Ex: Pix, Crédito)</label><input required className={inputClasses} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} /></div>
+          )}
+
+          {(type !== 'brands' && type !== 'payment-methods') && (
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-1">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Código / Ref</label>
                 <input
                   required={type === 'gearboxes'} // Only required for gearboxes now vs optional/auto
-                  className={`${inputClasses} ${type !== 'brands' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
+                  className={`${inputClasses} ${type !== 'brands' && type !== 'payment-methods' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                   value={type === 'gearboxes' ? formData.code : 'Automático'}
                   onChange={e => type === 'gearboxes' && setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                   readOnly={true} // Always read-only as per request (auto-generated or auto-filled)
@@ -429,7 +480,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ type, item, onClose, co
             </div>
           )}
 
-          {type !== 'brands' && (
+          {(type !== 'brands' && type !== 'payment-methods') && (
             <div className="space-y-1">
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">{type === 'parts' ? 'Descrição da Peça' : type === 'services' ? 'Nome do Serviço' : 'Modelo do Câmbio'}</label>
               <input required className={inputClasses} value={type === 'parts' ? formData.name : type === 'services' ? formData.name : formData.model} onChange={e => setFormData({ ...formData, [type === 'gearboxes' ? 'model' : 'name']: e.target.value })} />

@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { WorkshopContext } from '../App';
 import { WorkshopOrder, OSStatus, Priority, VehicleCategory, ChecklistItem, OrderItem, OrderDocument } from '../types';
-import { X, ArrowRight, Activity, Wrench, Package, History, Briefcase, UserCheck, Sparkles, FileText, Printer, Share2, Save, CheckCircle2, Calendar, ListChecks, Plus, Trash2, Clock, AlertCircle, ShoppingCart, Upload, File as FileIcon, Image as ImageIcon, Eye, Undo2, Download } from 'lucide-react';
+import { X, ArrowRight, Activity, Wrench, Package, History, Briefcase, UserCheck, Sparkles, FileText, Printer, Share2, Save, CheckCircle2, Calendar, ListChecks, Plus, Trash2, Clock, AlertCircle, ShoppingCart, Upload, File as FileIcon, Image as ImageIcon, Eye, Undo2, Download, CreditCard } from 'lucide-react';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
 import { uploadDocument, deleteDocument } from '../services/supabase'; // We need to import these locally if not in context, or add to context. 
@@ -77,6 +77,10 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const [tempTime, setTempTime] = useState('');
   const [previewDoc, setPreviewDoc] = useState<OrderDocument | null>(null);
   const [newChecklistItem, setNewChecklistItem] = useState('');
+
+  // Payment Method State
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
 
   // Documents State
   const [documents, setDocuments] = useState<import('../types').OrderDocument[]>(initialOrder.documents || []);
@@ -248,7 +252,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   }, [onClose]);
 
   if (!context) return null;
-  const { vehicles, clients, orders, inventory, services, mechanics, updateOrderStatus, updateOrder, history, addHistoryLog, gearboxes, settings, deleteOrder } = context;
+  const { vehicles, clients, orders, inventory, services, mechanics, updateOrderStatus, updateOrder, history, addHistoryLog, gearboxes, settings, deleteOrder, paymentMethods } = context;
 
   const order = context.orders.find(o => o.id === initialOrder.id) || initialOrder;
   const vehicle = vehicles.find(v => v.id === order.vehicleId);
@@ -265,6 +269,10 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     }
     return slots;
   }, []);
+
+  const subtotalValue = useMemo(() => order.items?.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0) || 0, [order.items]);
+  const discountValue = useMemo(() => discountType === 'value' ? discount : (subtotalValue * discount / 100), [subtotalValue, discount, discountType]);
+  const totalValue = subtotalValue - discountValue;
 
   const slotStatus = useMemo(() => {
     if (!tempMechanicId || !tempDate) return {};
@@ -447,16 +455,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     }
 
     if (order.status === OSStatus.EXECUTION) {
-      setConfirmModal({
-        isOpen: true,
-        title: "Finalizar Serviço",
-        message: "Deseja finalizar este serviço e encaminhar para Qualidade/Entregue?",
-        confirmLabel: "Sim, Finalizar",
-        onConfirm: () => {
-          setConfirmModal(null);
-          finalizeStageChange();
-        }
-      });
+      setPaymentModalOpen(true);
       return;
     }
 
@@ -736,7 +735,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
           type: 'IN',
           status: 'PAID',
           date: new Date().toISOString().split('T')[0],
-          orderId: order.id
+          orderId: order.id,
+          paymentMethod: selectedPaymentMethod || undefined
         }).then(() => {
           addHistoryLog(order.id, 'FINANCEIRO', `Gerou receita de R$ ${transactionValue.toFixed(2)}`);
         }).catch(err => {
@@ -991,9 +991,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     setNewObservation('');
   };
 
-  const subtotalValue = order.items.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
-  const discountValue = discountType === 'value' ? discount : (subtotalValue * discount / 100);
-  const totalValue = subtotalValue - discountValue;
+
 
   return (
     <>
@@ -1624,6 +1622,54 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                       onClick={handleDeleteDocument}
                     >
                       Sim, Excluir
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Selection Modal */}
+          {paymentModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-1">
+                    <CreditCard className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 leading-tight mb-2">Finalizar Serviço</h3>
+                    <p className="text-sm text-slate-500 font-medium mb-4">
+                      Selecione a forma de pagamento para registrar a receita de <span className="text-emerald-600 font-black">R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>.
+                    </p>
+                    <select
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none mb-4"
+                      value={selectedPaymentMethod}
+                      onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    >
+                      <option value="">Selecione...</option>
+                      {paymentMethods?.filter(p => p.active).map(p => (
+                        <option key={p.id} value={p.name}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 w-full pt-2">
+                    <button
+                      className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-widest rounded-xl transition-colors"
+                      onClick={() => setPaymentModalOpen(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-colors shadow-lg shadow-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        if (!selectedPaymentMethod) return;
+                        setPaymentModalOpen(false);
+                        finalizeStageChange();
+                      }}
+                      disabled={!selectedPaymentMethod}
+                    >
+                      Confirmar
                     </button>
                   </div>
                 </div>

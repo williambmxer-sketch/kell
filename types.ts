@@ -151,6 +151,7 @@ export interface Transaction {
   status: 'PENDING' | 'PAID';
   date: string;
   orderId?: string;
+  paymentMethod?: string;
 }
 
 export interface WorkshopSettings {
@@ -168,4 +169,10 @@ export interface WorkshopSettings {
   logo_url?: string;
   horario_funcionamento?: Record<string, { ativo: boolean; inicio: string; fim: string }>;
   whatsappMessageTemplate?: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  active: boolean;
 }

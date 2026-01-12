@@ -22,9 +22,10 @@ import {
   fetchSettings as fetchSettingsService, updateSettings as updateSettingsService,
   createUser as createUserService, updateUser as updateUserService, deleteUser as deleteUserService,
   fetchBrands as fetchBrandsService, createBrand as createBrandService, deleteBrand as deleteBrandService,
+  fetchPaymentMethods as fetchPaymentMethodsService, createPaymentMethod as createPaymentMethodService, deletePaymentMethod as deletePaymentMethodService, togglePaymentMethod as togglePaymentMethodService,
   supabase, getSession
 } from './services/supabase';
-import { WorkshopOrder, Client, Vehicle, InventoryItem, OSStatus, OrderHistory, Gearbox, Service, User, Transaction, WorkshopSettings, Brand } from './types';
+import { WorkshopOrder, Client, Vehicle, InventoryItem, OSStatus, OrderHistory, Gearbox, Service, User, Transaction, WorkshopSettings, Brand, PaymentMethod } from './types';
 
 export const WorkshopContext = React.createContext<{
   orders: WorkshopOrder[];
@@ -46,6 +47,8 @@ export const WorkshopContext = React.createContext<{
   setInventory: React.Dispatch<React.SetStateAction<InventoryItem[]>>;
   setSettings: React.Dispatch<React.SetStateAction<WorkshopSettings | null>>;
   setBrands: React.Dispatch<React.SetStateAction<Brand[]>>;
+  paymentMethods: PaymentMethod[];
+  setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethod[]>>;
   updateOrderStatus: (orderId: string, status: OSStatus) => Promise<void>;
   updateOrder: (orderId: string, data: Partial<WorkshopOrder>) => Promise<void>;
   addHistoryLog: (orderId: string, action: string, diff?: string) => Promise<void>;
@@ -60,6 +63,9 @@ export const WorkshopContext = React.createContext<{
   deleteGearbox: (id: string) => Promise<void>;
   addBrand: (brand: Brand) => Promise<void>;
   deleteBrand: (id: string) => Promise<void>;
+  addPaymentMethod: (name: string) => Promise<void>;
+  deletePaymentMethod: (id: string) => Promise<void>;
+  togglePaymentMethod: (id: string, active: boolean) => Promise<void>;
   addService: (service: Service) => Promise<void>;
   updateService: (id: string, service: Service) => void;
   deleteService: (id: string) => void;
@@ -87,6 +93,7 @@ const App: React.FC = () => {
   const [gearboxes, setGearboxes] = useState<Gearbox[]>([]);
   const [settings, setSettings] = useState<WorkshopSettings | null>(null);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
   useBranding(settings);
 
@@ -120,7 +127,7 @@ const App: React.FC = () => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const [ordersData, clientsData, vehiclesData, inventoryData, servicesData, usersData, historyData, transactionsData, enginesData, settingsData, brandsData] = await Promise.all([
+        const [ordersData, clientsData, vehiclesData, inventoryData, servicesData, usersData, historyData, transactionsData, enginesData, settingsData, brandsData, paymentMethodsData] = await Promise.all([
           fetchOrders(),
           fetchClients(),
           fetchVehicles(),
@@ -131,7 +138,8 @@ const App: React.FC = () => {
           fetchTransactionsService(),
           fetchGearboxesService(),
           fetchSettingsService(),
-          fetchBrandsService()
+          fetchBrandsService(),
+          fetchPaymentMethodsService()
         ]);
 
         setOrders(ordersData);
@@ -145,6 +153,7 @@ const App: React.FC = () => {
         setGearboxes(enginesData);
         setSettings(settingsData || null);
         setBrands(brandsData);
+        setPaymentMethods(paymentMethodsData);
       } catch (error) {
         console.error('Error loading data from Supabase:', error);
       } finally {
@@ -405,9 +414,29 @@ const App: React.FC = () => {
     await deleteUserService(id);
   };
 
+
+  const addPaymentMethod = async (name: string) => {
+    try {
+      const newMethod = await createPaymentMethodService(name);
+      setPaymentMethods(prev => [...prev, newMethod]);
+    } catch (err) {
+      console.error("Failed to add payment method", err);
+    }
+  };
+
+  const deletePaymentMethod = async (id: string) => {
+    setPaymentMethods(prev => prev.filter(p => p.id !== id));
+    await deletePaymentMethodService(id);
+  };
+
+  const togglePaymentMethod = async (id: string, active: boolean) => {
+    setPaymentMethods(prev => prev.map(p => p.id === id ? { ...p, active } : p));
+    await togglePaymentMethodService(id, active);
+  };
+
   const contextValue = useMemo(() => ({
-    orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands,
-    setOrders, setClients, setVehicles, setGearboxes, setServices, setInventory, setSettings, setBrands,
+    orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands, paymentMethods,
+    setOrders, setClients, setVehicles, setGearboxes, setServices, setInventory, setSettings, setBrands, setPaymentMethods,
     updateOrderStatus, updateOrder, addHistoryLog,
     addClient, updateClient, deleteClient,
     addVehicle, updateVehicle, deleteVehicle,
@@ -418,8 +447,9 @@ const App: React.FC = () => {
     addNewOrder,
     deleteOrder,
     addTransaction, deleteTransaction,
-    addUser, updateUser, deleteUser
-  }), [orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands, isLoading]);
+    addUser, updateUser, deleteUser,
+    addPaymentMethod, deletePaymentMethod, togglePaymentMethod
+  }), [orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands, paymentMethods, isLoading]);
 
   // Auth Loading State
   if (isAuthenticated === null) {
