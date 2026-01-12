@@ -1,14 +1,19 @@
 
 import React, { useContext, useState } from 'react';
 import { WorkshopContext } from '../App';
-import { Search, AlertTriangle, Package, TrendingUp, Plus, Settings2, Cpu, Trash2, Edit3, X, Save, Clock, CreditCard } from 'lucide-react';
+import { Search, AlertTriangle, Package, TrendingUp, Plus, Settings2, Cpu, Trash2, Edit3, X, Save, Clock, CreditCard, FileText } from 'lucide-react';
 import { InventoryItem, Service, Gearbox, PaymentMethod } from '../types';
+import GearboxReport from './Reports/GearboxReport';
 
 const Inventory: React.FC = () => {
   const context = useContext(WorkshopContext);
   const [activeTab, setActiveTab] = useState<'parts' | 'services' | 'gearboxes' | 'brands' | 'payment-methods'>('parts');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
+
+  // Report State
+  const [showReport, setShowReport] = useState(false);
+  const [reportMonth, setReportMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
 
   // CRUD states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +22,7 @@ const Inventory: React.FC = () => {
 
   if (!context) return null;
   const {
-    inventory, gearboxes, services, brands,
+    inventory, gearboxes, services, brands, orders, vehicles, // Added orders, vehicles
     addInventoryItem, updateInventoryItem, deleteInventoryItem,
     addService, updateService, deleteService,
     addGearbox, updateGearbox, deleteGearbox,
@@ -34,6 +39,7 @@ const Inventory: React.FC = () => {
   });
   const filteredBrands = brands.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
+  // ... (stats array - same as before)
   const stats = [
     { label: 'Peças em Estoque', value: inventory.reduce((acc, i) => acc + i.stock, 0), icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Abaixo do Mínimo', value: inventory.filter(i => i.stock < i.minStock).length, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
@@ -81,17 +87,37 @@ const Inventory: React.FC = () => {
           </div>
 
           {activeTab === 'gearboxes' && (
-            <select
-              value={selectedBrand}
-              onChange={(e) => setSelectedBrand(e.target.value)}
-              className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm font-bold text-slate-700 uppercase"
-            >
-              <option value="">Todas as Marcas</option>
-              {brands.map(b => (
-                <option key={b.id} value={b.name}>{b.name}</option>
-              ))}
-            </select>
+            <>
+              <select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm font-bold text-slate-700 uppercase"
+              >
+                <option value="">Todas as Marcas</option>
+                {brands.map(b => (
+                  <option key={b.id} value={b.name}>{b.name}</option>
+                ))}
+              </select>
+
+              <div className="h-6 w-px bg-slate-200 mx-2"></div>
+
+              <input
+                type="month"
+                value={reportMonth}
+                onChange={(e) => setReportMonth(e.target.value)}
+                className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm font-bold text-slate-700 uppercase"
+              />
+
+              <button
+                onClick={() => setShowReport(true)}
+                className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all"
+              >
+                <FileText className="w-4 h-4" />
+                Relatório
+              </button>
+            </>
           )}
+
           <button
             onClick={() => handleOpenModal()}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-indigo-100 active:scale-95"
@@ -102,6 +128,22 @@ const Inventory: React.FC = () => {
         </div>
       </header>
 
+      {/* Render Report Modal */}
+      {showReport && (
+        <GearboxReport
+          orders={orders}
+          vehicles={vehicles}
+          gearboxes={filteredGearboxes}
+          filters={{
+            month: reportMonth,
+            brand: selectedBrand,
+            search: searchTerm
+          }}
+          onClose={() => setShowReport(false)}
+        />
+      )}
+
+      {/* Existing Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {stats.map((s, i) => (
           <div key={i} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 transition-transform hover:scale-[1.02]">
@@ -116,7 +158,9 @@ const Inventory: React.FC = () => {
         ))}
       </div>
 
+      {/* Rest of the component continues... we match content until first button group maybe? */}
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        {/* ... */}
         <div className="flex border-b border-slate-100 bg-slate-50/30 overflow-x-auto">
           <button
             onClick={() => { setActiveTab('parts'); setSearchTerm(''); }}
