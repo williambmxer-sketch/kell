@@ -596,13 +596,19 @@ export const deleteGearbox = async (id: string) => {
 };
 
 // Settings
+// Settings
 export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
-  const { data, error } = await supabase.from('configuracoes').select('*').eq('id', 'geral').single();
+  // RLS will ensure we only fetching the row that belongs to the current user
+  // We don't need to filter by ID 'geral' anymore, just get the single row available
+  const { data, error } = await supabase.from('configuracoes').select('*').limit(1).maybeSingle();
+
   if (error) {
-    if (error.code === 'PGRST116') return null; // Not found
     console.error('Error fetching settings:', error);
     return null;
   }
+
+  if (!data) return null;
+
   // Map DB column to app field
   return {
     ...data,
@@ -617,8 +623,10 @@ export const updateSettings = async (settings: Partial<WorkshopSettings>) => {
 
   // Map app field to DB column
   const dbPayload: any = {
-    id: 'geral',
-    user_id: user.id  // Include user_id for RLS to work with UPSERT
+    // IMPORTANT: Use user.id as the PK for the settings row
+    // This ensures 1-to-1 mapping between user and their settings
+    id: user.id,
+    user_id: user.id  // Include user_id explicitly
   };
 
   if (settings.nome_oficina !== undefined) dbPayload.nome_oficina = settings.nome_oficina;
