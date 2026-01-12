@@ -611,8 +611,15 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
 };
 
 export const updateSettings = async (settings: Partial<WorkshopSettings>) => {
+  // Get current user ID for multi-tenant isolation
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
   // Map app field to DB column
-  const dbPayload: any = { id: 'geral' };
+  const dbPayload: any = {
+    id: 'geral',
+    user_id: user.id  // Include user_id for RLS to work with UPSERT
+  };
 
   if (settings.nome_oficina !== undefined) dbPayload.nome_oficina = settings.nome_oficina;
   if (settings.cnpj !== undefined) dbPayload.cnpj = settings.cnpj;
