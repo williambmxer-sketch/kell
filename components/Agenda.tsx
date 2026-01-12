@@ -14,7 +14,6 @@ const Agenda: React.FC = () => {
   const context = useContext(WorkshopContext);
   const { orders, vehicles, clients, mechanics, settings } = context || { orders: [], vehicles: [], clients: [], mechanics: [], settings: null };
 
-  // --- Dynamic Business Hours Calculation ---
   const { businessStartHour, businessDayMinutes, hours } = useMemo(() => {
     let start = 8;
     let end = 18;
@@ -27,10 +26,13 @@ const Agenda: React.FC = () => {
       Object.values(settings.horario_funcionamento).forEach((conf: any) => {
         if (conf.ativo !== false) {
           hasActive = true;
-          const [s] = conf.inicio.split(':').map(Number);
-          const [e] = conf.fim.split(':').map(Number);
-          if (s < minS) minS = s;
-          if (e > maxE) maxE = e;
+          const [sH] = conf.inicio.split(':').map(Number);
+          const [eH, eM] = conf.fim.split(':').map(Number);
+
+          if (sH < minS) minS = sH;
+          // If the end time has minutes (e.g. 17:30), extend the grid to the next full hour (18:00)
+          const effectiveEndHour = eM > 0 ? eH + 1 : eH;
+          if (effectiveEndHour > maxE) maxE = effectiveEndHour;
         }
       });
 
