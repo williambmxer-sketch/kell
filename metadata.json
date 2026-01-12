@@ -1,0 +1,7 @@
+{
+  "name": "Oficina Master Pro",
+  "description": "A premium ERP/CRM solution for automotive workshops featuring a high-performance Kanban board, mechanic-centric scheduling, and AI-driven diagnostics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
