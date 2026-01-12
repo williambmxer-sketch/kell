@@ -1,0 +1,1 @@
+c:\GMPG\DEPLOY_SUMMARY.md

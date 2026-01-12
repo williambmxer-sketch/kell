@@ -12,6 +12,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey);
 
 /**
+ * MULTI-TENANT HELPER
+ */
+const getCurrentUserId = async (): Promise<string> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+  return user.id;
+};
+
+/**
  * MAPPERS (Portuguese DB <-> English App Types)
  */
 
@@ -137,9 +146,11 @@ export const fetchUsers = async (): Promise<User[]> => {
 };
 
 export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
+  const user_id = await getCurrentUserId();
   const id = await getNextId('usuarios');
   const { data, error } = await supabase.from('usuarios').insert({
     id,
+    user_id,
     nome: user.name,
     papel: user.role
   }).select().single();
@@ -170,9 +181,11 @@ export const fetchClients = async (): Promise<Client[]> => {
 };
 
 export const createClient = async (client: Omit<Client, 'id'>): Promise<Client> => {
+  const user_id = await getCurrentUserId();
   const id = await getNextId('clientes');
   const { data, error } = await supabase.from('clientes').insert({
     id,
+    user_id,
     nome: client.name,
     email: client.email,
     telefone: client.phone,
@@ -214,9 +227,11 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
 };
 
 export const createVehicle = async (vehicle: Omit<Vehicle, 'id'>): Promise<Vehicle> => {
+  const user_id = await getCurrentUserId();
   const id = await getNextId('veiculos');
   const { data, error } = await supabase.from('veiculos').insert({
     id,
+    user_id,
     id_cliente: vehicle.clientId,
     placa: vehicle.plate,
     modelo: vehicle.model,
@@ -250,11 +265,13 @@ export const fetchInventory = async (): Promise<InventoryItem[]> => {
 };
 
 export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Promise<InventoryItem> => {
+  const user_id = await getCurrentUserId();
   const id = await getNextId('itens_estoque');
   const code = id; // Auto-generate code equal to ID
 
   const { data, error } = await supabase.from('itens_estoque').insert({
     id,
+    user_id,
     codigo: code,
     nome: item.name,
     fornecedor: item.supplier,
@@ -314,9 +331,11 @@ export const fetchOrders = async (): Promise<WorkshopOrder[]> => {
 
 export const createOrder = async (order: WorkshopOrder): Promise<WorkshopOrder> => {
   // 1. Insert Order
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('ordens_servico');
   const { data: newOrder, error } = await supabase.from('ordens_servico').insert({
     id: newId,
+    user_id,
     id_veiculo: order.vehicleId,
     status: order.status,
     prioridade: order.priority,
@@ -365,6 +384,7 @@ export const updateOrder = async (orderId: string, updates: Partial<WorkshopOrde
 
   // Handle Checklist Updates
   if (updates.checklist) {
+    const user_id = await getCurrentUserId();
     // 1. Delete existing items (simplest strategy to handle reordering/deletions)
     const { error: deleteError } = await supabase.from('itens_checklist').delete().eq('id_ordem', orderId);
     if (deleteError) throw deleteError;
@@ -374,6 +394,7 @@ export const updateOrder = async (orderId: string, updates: Partial<WorkshopOrde
       const { error: insertError } = await supabase.from('itens_checklist').insert(
         updates.checklist.map(item => {
           const dbItem: any = {
+            user_id,
             id_ordem: orderId,
             rotulo: item.label,
             marcado: item.checked
@@ -391,9 +412,11 @@ export const updateOrder = async (orderId: string, updates: Partial<WorkshopOrde
 };
 
 export const addOrderItem = async (orderId: string, item: OrderItem): Promise<OrderItem> => {
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('itens_ordem');
   const { data, error } = await supabase.from('itens_ordem').insert({
     id: newId,
+    user_id,
     id_ordem: orderId,
     tipo: item.type,
     descricao: item.description,
@@ -435,8 +458,10 @@ export const fetchHistory = async (): Promise<OrderHistory[]> => {
 
 
 export const addHistory = async (log: OrderHistory) => {
+  const user_id = await getCurrentUserId();
   const { error } = await supabase.from('historico_ordem').insert({
     id: log.id,
+    user_id,
     id_ordem: log.orderId,
     acao: log.action,
     diff: log.diff,
@@ -465,11 +490,13 @@ export const deleteInventoryItem = async (id: string) => {
 
 // Services Table CRUD
 export const createService = async (service: Service): Promise<Service> => {
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('servicos');
   const code = newId; // Auto-generate code equal to ID
 
   const { data, error } = await supabase.from('servicos').insert({
     id: newId,
+    user_id,
     codigo: code,
     nome: service.name,
     categoria: service.category,
@@ -520,9 +547,11 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
 };
 
 export const createTransaction = async (transaction: Transaction): Promise<Transaction> => {
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('transacoes');
   const { data, error } = await supabase.from('transacoes').insert({
     id: newId,
+    user_id,
     descricao: transaction.description,
     categoria: transaction.category,
     valor: transaction.amount,
@@ -562,9 +591,11 @@ export const fetchGearboxes = async (): Promise<Gearbox[]> => {
 };
 
 export const createGearbox = async (engine: Gearbox): Promise<Gearbox> => {
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('cambios');
   const { data, error } = await supabase.from('cambios').insert({
     id: newId,
+    user_id,
     codigo: engine.code,
     modelo: engine.model,
     marca: engine.brand,
@@ -668,9 +699,11 @@ export const fetchBrands = async (): Promise<import('../types').Brand[]> => {
 };
 
 export const createBrand = async (brand: import('../types').Brand): Promise<import('../types').Brand> => {
+  const user_id = await getCurrentUserId();
   const newId = await getNextId('marcas');
   const { data, error } = await supabase.from('marcas').insert({
     id: newId,
+    user_id,
     nome: brand.name,
     logo_url: brand.logo
   }).select().single();
@@ -708,8 +741,10 @@ export const uploadDocument = async (orderId: string, file: File, customName?: s
   // Reverting to Public URL because custom domain routing (Worker) is not active/working yet.
   // const customUrl = `https://kellretifica.online/orcamentos/${fileName}`;
 
+  const user_id = await getCurrentUserId();
   const { data: docData, error: docError } = await supabase.from('order_documents').insert({
     id: newId,
+    user_id,
     order_id: orderId,
     name: customName || file.name,
     url: publicUrl, // Use correct publicUrl
