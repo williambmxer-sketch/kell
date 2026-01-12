@@ -115,6 +115,8 @@ const App: React.FC = () => {
 
   // Load Initial Data
   useEffect(() => {
+    if (!isAuthenticated) return; // Only load data if authenticated
+
     const loadData = async () => {
       try {
         setIsLoading(true);
@@ -151,7 +153,7 @@ const App: React.FC = () => {
     };
 
     loadData();
-  }, []);
+  }, [isAuthenticated]);
 
   const addHistoryLog = async (orderId: string, action: string, diff?: string) => {
     // Optimistic update
