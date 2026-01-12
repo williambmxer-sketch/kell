@@ -102,9 +102,9 @@ const Inventory: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {stats.map((s, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 transition-transform hover:scale-[1.02]">
+          <div key={i} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 transition-transform hover:scale-[1.02]">
             <div className={`p-3 rounded-xl ${s.bg}`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>

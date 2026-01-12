@@ -54,7 +54,7 @@ const Sidebar: React.FC = () => {
     { to: '/dashboard', imgSrc: '/icon/kanban.png', label: 'Dashboard' },
     { to: '/agenda', imgSrc: '/icon/agenda.png', label: 'Agenda' },
     { to: '/clients', imgSrc: '/icon/clientes.png', label: 'Clientes' },
-    { to: '/inventory', imgSrc: '/icon/pecas e servicos.png', label: 'Peças/Serviços' },
+    { to: '/inventory', imgSrc: '/icon/pecas e servicos.png', label: 'Cadastros' },
     { to: '/finance', imgSrc: '/icon/financeiro.png', label: 'Financeiro' },
     { to: '/settings', imgSrc: '/icon/configuracoes.png', label: 'Configurações' },
   ];
