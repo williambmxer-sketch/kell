@@ -148,10 +148,10 @@ export const fetchUsers = async (): Promise<User[]> => {
 
 export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
   const id = await getNextId('usuarios');
-  const user_id = await getUserId();
+  // const user_id = await getUserId();
   const { data, error } = await supabase.from('usuarios').insert({
     id,
-    user_id,
+    // user_id,
     nome: user.name,
     papel: user.role
   }).select().single();
@@ -183,10 +183,10 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 export const createClient = async (client: Omit<Client, 'id'>): Promise<Client> => {
   const id = await getNextId('clientes');
-  const user_id = await getUserId();
+  // const user_id = await getUserId();
   const { data, error } = await supabase.from('clientes').insert({
     id,
-    user_id,
+    // user_id,
     nome: client.name,
     email: client.email,
     telefone: client.phone,
@@ -332,10 +332,10 @@ export const fetchOrders = async (): Promise<WorkshopOrder[]> => {
 export const createOrder = async (order: WorkshopOrder): Promise<WorkshopOrder> => {
   // 1. Insert Order
   const newId = await getNextId('ordens_servico');
-  const user_id = await getUserId();
+  // const user_id = await getUserId();
   const { data: newOrder, error } = await supabase.from('ordens_servico').insert({
     id: newId,
-    user_id,
+    // user_id,
     id_veiculo: order.vehicleId,
     status: order.status,
     prioridade: order.priority,
