@@ -44,9 +44,22 @@ const GeneralSettings: React.FC = () => {
                     ...acc, [day.key]: { ativo: true, inicio: '08:00', fim: '18:00' }
                 }), {});
 
+                // Robust handling for horario_funcionamento (string or object)
+                let fetchedHours = data.horario_funcionamento || {};
+
+                // If it comes as a string (Supabase sometimes does this for JSONB), valid parse it
+                if (typeof fetchedHours === 'string') {
+                    try {
+                        fetchedHours = JSON.parse(fetchedHours);
+                    } catch (e) {
+                        console.error("Error parsing horario_funcionamento JSON:", e);
+                        fetchedHours = {};
+                    }
+                }
+
                 setSettings({
                     ...data,
-                    horario_funcionamento: { ...defaultHours, ...(data.horario_funcionamento || {}) }
+                    horario_funcionamento: { ...defaultHours, ...fetchedHours }
                 });
             }
         } catch (err) {
