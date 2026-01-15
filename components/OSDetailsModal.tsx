@@ -694,7 +694,12 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     const updateData: Partial<WorkshopOrder> = {};
     if (showScheduling) {
       updateData.mechanicId = tempMechanicId;
-      updateData.scheduledDate = `${tempDate}T${tempTime}:00`;
+      // Create a Date object in local time (browser's timezone)
+      const [year, month, day] = tempDate.split('-').map(Number);
+      const [hour, minute] = tempTime.split(':').map(Number);
+      const localDate = new Date(year, month - 1, day, hour, minute);
+
+      updateData.scheduledDate = localDate.toISOString();
 
       // Calculate and save Estimated Duration from Gearbox if available
       if (gearbox?.assemblyTime) {

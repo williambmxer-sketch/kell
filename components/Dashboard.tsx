@@ -1,4 +1,3 @@
-
 import React, { useContext, useState } from 'react';
 import { WorkshopContext } from '../App';
 import { OSStatus, WorkshopOrder, Priority } from '../types';
@@ -6,6 +5,7 @@ import { STATUS_CONFIG, PRIORITY_CONFIG } from '../constants';
 import { Plus, Search, MoreHorizontal, Clock, User as UserIcon, ArrowUp, ArrowDown, ListOrdered, Sparkles, Briefcase } from 'lucide-react';
 import OSDetailsModal from './OSDetailsModal';
 import NewOSModal from './NewOSModal';
+import { formatScheduledDate, formatScheduledTime } from '../utils/date';
 
 const Dashboard: React.FC = () => {
   const context = useContext(WorkshopContext);
@@ -221,7 +221,7 @@ const Dashboard: React.FC = () => {
                                     (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
                             </span>
                             <span className="text-[9px] font-bold text-slate-700 font-mono">
-                              {new Date(order.scheduledDate).toLocaleDateString([], { day: '2-digit', month: '2-digit' })} {new Date(order.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {formatScheduledDate(order.scheduledDate)} {formatScheduledTime(order.scheduledDate)}
                             </span>
                           </div>
                         )}
