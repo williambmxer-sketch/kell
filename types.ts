@@ -51,6 +51,8 @@ export interface OrderItem {
   description: string;
   quantity: number;
   price: number;
+  waitingForParts?: boolean;
+  expectedArrival?: string;
 }
 
 export interface ChecklistItem {

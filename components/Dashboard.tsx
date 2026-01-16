@@ -231,16 +231,24 @@ const Dashboard: React.FC = () => {
                             <Clock className="w-3.5 h-3.5" />
                             <span>{new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
-                          {order.mechanicId ? (
+                          {order.items?.some(i => i.waitingForParts) ? (
+                            (() => {
+                              const waitingItem = order.items.find(i => i.waitingForParts);
+                              const date = waitingItem?.expectedArrival ? new Date(waitingItem.expectedArrival) : null;
+                              const dateStr = date ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '---';
+                              return (
+                                <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
+                                  <Clock className="w-3 h-3 text-amber-600" />
+                                  <span className="text-[9px] font-black text-amber-700 uppercase tracking-tight">Aguardando peça {dateStr}</span>
+                                </div>
+                              )
+                            })()
+                          ) : order.mechanicId ? (
                             <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
                               <UserIcon className="w-3.5 h-3.5" />
                               <span>{mechanics.find(m => m.id === order.mechanicId)?.name || 'Mecânico'}</span>
                             </div>
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
-                              <Plus className="w-3 h-3" />
-                            </div>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     );

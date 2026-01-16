@@ -239,6 +239,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void; confirmLabel?: string } | null>(null);
   const [showBudgetSentModal, setShowBudgetSentModal] = useState(false);
   const [isRescheduling, setIsRescheduling] = useState(false); // New state for rescheduling mode
+  const [isWaitingParts, setIsWaitingParts] = useState(false);
+  const [daysToArrive, setDaysToArrive] = useState(2);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -783,7 +785,9 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
           type: newItemType,
           description: newItemDesc,
           quantity: newItemQty,
-          price: newItemPrice
+          price: newItemPrice,
+          waitingForParts: isWaitingParts,
+          expectedArrival: isWaitingParts ? new Date(Date.now() + daysToArrive * 24 * 60 * 60 * 1000).toISOString() : undefined
         };
 
         const savedItem = await addOrderItemService(order.id, itemPayload);
@@ -797,6 +801,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       setNewItemDesc('');
       setNewItemQty(1);
       setNewItemPrice(0);
+      setIsWaitingParts(false);
+      setDaysToArrive(2);
     } catch (error) {
       console.error("Failed to add/update item", error);
       alert("Erro ao salvar item no banco de dados.");
@@ -1587,6 +1593,37 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                             <div><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Qtd</label><input type="number" min="1" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemQty} onChange={(e) => setNewItemQty(Number(e.target.value))} /></div>
                             <div><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Preço R$</label><input type="number" step="0.01" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemPrice} onChange={(e) => setNewItemPrice(Number(e.target.value))} /></div>
                           </div>
+
+                          {/* Waiting Parts Toggle */}
+                          {newItemType === 'PART' && (
+                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col gap-3">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[9px] font-black text-amber-700 uppercase tracking-widest">Aguardar Peça?</label>
+                                <div onClick={() => setIsWaitingParts(!isWaitingParts)} className={`w-8 h-4 rounded-full p-0.5 cursor-pointer transition-colors ${isWaitingParts ? 'bg-amber-500' : 'bg-slate-300'}`}>
+                                  <div className={`w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${isWaitingParts ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                                </div>
+                              </div>
+
+                              {isWaitingParts && (
+                                <div className="space-y-1 animate-in slide-in-from-top-2">
+                                  <label className="text-[8px] font-black text-amber-600 uppercase tracking-widest ml-1">Dias para chegar</label>
+                                  <div className="flex gap-2 items-center">
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      className="w-16 p-1.5 bg-white border border-amber-200 rounded-lg text-[10px] font-bold text-amber-900 outline-none text-center"
+                                      value={daysToArrive}
+                                      onChange={(e) => setDaysToArrive(Number(e.target.value))}
+                                    />
+                                    <span className="text-[9px] font-bold text-amber-700">
+                                      Chegada: {new Date(Date.now() + daysToArrive * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           <div className="flex gap-2 mt-2">
                             <button type="button" onClick={() => setIsAddingItem(false)} className="flex-1 py-2 text-slate-400 text-[9px] font-black uppercase border border-slate-200 rounded-lg hover:bg-slate-50">Concluir Adição</button>
                             <button type="submit" className="flex-[2] py-2 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-lg shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5"><ShoppingCart className="w-3.5 h-3.5" /> Adicionar</button>

@@ -168,7 +168,9 @@ CREATE TABLE "itens_ordem" (
     "tipo" TEXT NOT NULL,
     "descricao" TEXT NOT NULL,
     "quantidade" NUMERIC(10, 2) DEFAULT 1,
-    "preco" NUMERIC(10, 2) DEFAULT 0
+    "preco" NUMERIC(10, 2) DEFAULT 0,
+    "waiting_parts" BOOLEAN DEFAULT FALSE,
+    "expected_arrival" TIMESTAMP WITH TIME ZONE
 );
 
 -- Checklist

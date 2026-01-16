@@ -107,7 +107,9 @@ const mapOrderFromDB = (o: any, items: any[] = [], checklist: any[] = []): Works
     type: i.tipo,
     description: i.descricao,
     quantity: Number(i.quantidade),
-    price: Number(i.preco)
+    price: Number(i.preco),
+    waitingForParts: i.waiting_parts,
+    expectedArrival: i.expected_arrival
   })),
   checklist: checklist.map(c => ({
     id: c.id,
@@ -417,7 +419,9 @@ export const addOrderItem = async (orderId: string, item: OrderItem): Promise<Or
     tipo: item.type,
     descricao: item.description,
     quantidade: item.quantity,
-    preco: item.price
+    preco: item.price,
+    waiting_parts: item.waitingForParts,
+    expected_arrival: item.expectedArrival
   }).select().single();
 
   if (error) throw error;
@@ -427,7 +431,9 @@ export const addOrderItem = async (orderId: string, item: OrderItem): Promise<Or
     type: data.tipo,
     description: data.descricao,
     quantity: Number(data.quantidade),
-    price: Number(data.preco)
+    price: Number(data.preco),
+    waitingForParts: data.waiting_parts,
+    expectedArrival: data.expected_arrival
   };
 };
 
