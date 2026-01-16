@@ -261,7 +261,31 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const order = context.orders.find(o => o.id === initialOrder.id) || initialOrder;
   const vehicle = vehicles.find(v => v.id === order.vehicleId);
   const client = vehicle ? clients.find(c => c.id === vehicle.clientId) : null;
-  const orderHistory = history.filter(h => h.orderId === order.id);
+  // Group consecutive identical history logs (e.g. repeated prints)
+  const orderHistory = useMemo(() => {
+    const sorted = history
+      .filter(h => h.orderId === order.id)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    const grouped: (typeof sorted[0] & { count: number })[] = [];
+
+    sorted.forEach(log => {
+      const last = grouped[grouped.length - 1];
+      // Check if identical to the previous one (which is actually the newer one due to sort order, but consistent in list)
+      // We group if Action + Content is same.
+      // We also verify if it's the "same day" to avoid grouping things days apart? 
+      // User asked to "clean up", usually repeated prints happen in session.
+      // Let's strict equality on content.
+
+      if (last && last.action === log.action && last.diff === log.diff) {
+        last.count = (last.count || 1) + 1;
+      } else {
+        grouped.push({ ...log, count: 1 });
+      }
+    });
+
+    return grouped;
+  }, [history, order.id]);
 
   // Find linked gearbox/engine to get assembly time (match by vehicle brand)
   const gearbox = vehicle ? gearboxes.find(e => e.brand.toLowerCase() === vehicle.brand.toLowerCase()) : null;
@@ -1817,8 +1841,11 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                         <div key={log.id} className={`p-4 ${bgClass} border border-slate-100 rounded-2xl relative overflow-hidden shadow-sm transition-all hover:shadow-md`}>
                           <div className={`absolute left-0 top-0 bottom-0 w-1 ${colorClass}`}></div>
                           <div className="flex justify-between items-center mb-1.5">
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${colorClass.replace('bg-', 'text-')}`}>{label}</span>
-                            <span className="text-[9px] font-bold text-slate-300 font-mono tracking-tight">{new Date(log.timestamp).toLocaleDateString()} • {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${colorClass.replace('bg-', 'text-')}`}>
+                              {label}
+                              {log.count > 1 && <span className="ml-2 bg-slate-100 text-slate-600 text-[8px] px-1.5 py-0.5 rounded-full border border-slate-200">{log.count}x</span>}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-300 font-mono tracking-tight font-mono">{new Date(log.timestamp).toLocaleDateString()} • {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           {diffText && <p className="text-[10px] text-slate-600 font-medium leading-relaxed whitespace-pre-wrap pl-2 border-l border-slate-200">{diffText}</p>}
                         </div>
