@@ -621,24 +621,59 @@ export const deleteGearbox = async (id: string) => {
 // Settings
 // Settings
 export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
-  // Get current user to ensure we fetch the EXACT row we write to (id = user.id)
+  // Get current user to see if we should filter by ID
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
 
-  // Explicitly fetch the row for this user Key
-  const { data, error } = await supabase.from('configuracoes').select('*').eq('id', user.id).maybeSingle();
+  // 1. Always prioritize Global Settings ('01')
+  const { data: globalData } = await supabase
+    .from('configuracoes')
+    .select('*')
+    .eq('id', '01')
+    .maybeSingle();
 
-  if (error) {
-    console.error('Error fetching settings:', error);
-    return null;
+  // If we have a valid global config that has a real name (not just default placeholder), use it.
+  if (globalData && globalData.nome_oficina && globalData.nome_oficina !== 'Oficina Master Pro') {
+    return {
+      ...globalData,
+      whatsappMessageTemplate: globalData.whatsapp_message_template
+    };
   }
 
-  if (!data) return null;
+  // 2. If Global is missing or default, and we are logged in, try User Specific (Legacy/Migration context)
+  if (user) {
+    const { data: userData } = await supabase
+      .from('configuracoes')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (userData) {
+      return {
+        ...userData,
+        whatsappMessageTemplate: userData.whatsapp_message_template
+      };
+    }
+  }
+
+  // 3. Public Fallback (Login Screen, no Global 'geral' defined yet)
+  if (!user && (!globalData || globalData.nome_oficina === 'Oficina Master Pro')) {
+    const { data: anyData } = await supabase.from('configuracoes').select('*').limit(1).maybeSingle();
+    if (anyData) {
+      return {
+        ...anyData,
+        whatsappMessageTemplate: anyData.whatsapp_message_template
+      };
+    }
+  }
+
+  // 4. Last resort: Return Global even if default (so it's not null)
+  let finalData = globalData;
+  if (!finalData) return null;
 
   // Map DB column to app field
   return {
-    ...data,
-    whatsappMessageTemplate: data.whatsapp_message_template
+    ...finalData,
+    whatsappMessageTemplate: finalData.whatsapp_message_template
   };
 };
 
@@ -649,10 +684,10 @@ export const updateSettings = async (settings: Partial<WorkshopSettings>) => {
 
   // Map app field to DB column
   const dbPayload: any = {
-    // IMPORTANT: Use user.id as the PK for the settings row
-    // This ensures 1-to-1 mapping between user and their settings
-    id: user.id,
-    user_id: user.id  // Include user_id explicitly
+    // IMPORTANT: Force ID to '01' to ensure Global Settings for the application
+    // This allows the Login screen (Public) to find the correct settings easily.
+    id: '01',
+    user_id: user.id  // Update owner to current user
   };
 
   if (settings.nome_oficina !== undefined) dbPayload.nome_oficina = settings.nome_oficina;

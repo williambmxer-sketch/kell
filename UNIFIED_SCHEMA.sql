@@ -299,6 +299,6 @@ INSERT INTO "itens_estoque" ("id", "codigo", "nome", "fornecedor", "preco_custo"
 ('peca-010', 'PE-0010', 'Eixo secundário', 'Fornecedor Geral', 480.00, 720.00, 4, 1);
 
 INSERT INTO configuracoes (id, nome_oficina, horario_funcionamento) 
-VALUES ('geral', 'Oficina Master Pro', '{"segunda": {" ativo": true, "inicio": "08:00", "fim": "18:00"}}')
+VALUES ('01', 'Oficina Master Pro', '{"segunda": {" ativo": true, "inicio": "08:00", "fim": "18:00"}}')
 ON CONFLICT (id) DO NOTHING;
 
