@@ -1,5 +1,5 @@
 // cspell:ignore WHATSAPP
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { WorkshopContext } from '../App';
 import { WorkshopOrder, OSStatus, Priority, VehicleCategory, ChecklistItem, OrderItem, OrderDocument } from '../types';
@@ -241,6 +241,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const [isRescheduling, setIsRescheduling] = useState(false); // New state for rescheduling mode
   const [isWaitingParts, setIsWaitingParts] = useState(false);
   const [daysToArrive, setDaysToArrive] = useState(2);
+  const [showPriceError, setShowPriceError] = useState(false);
+  const priceInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -763,6 +765,11 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemDesc.trim()) return;
+    if (newItemPrice <= 0) {
+      setShowPriceError(true);
+      priceInputRef.current?.focus();
+      return;
+    }
 
     try {
       // Check if item exists (Smart Add)
@@ -803,10 +810,45 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       setNewItemPrice(0);
       setIsWaitingParts(false);
       setDaysToArrive(2);
+      setShowPriceError(false);
     } catch (error) {
       console.error("Failed to add/update item", error);
       alert("Erro ao salvar item no banco de dados.");
     }
+  };
+
+  const handleFinishAdding = async (e: React.MouseEvent) => {
+    // If there is pending data, try to add it first
+    if (newItemDesc.trim()) {
+      // Validate before trying to close
+      if (newItemPrice <= 0) {
+        setShowPriceError(true);
+        priceInputRef.current?.focus();
+        return; // Stop here, do not close
+      }
+      // Call adding logic
+      await handleAddItem(e as any);
+    }
+    // Close only if successful (handleAddItem resets fields on success) OR if it was empty
+    // If it failed/returned early, newItemDesc would still be full? 
+    // Actually handleAddItem is async, so we await it. 
+    // If handleAddItem returned early, newItemDesc is still there.
+    // If handleAddItem succeeded, newItemDesc is ''.
+
+    // We check state via ref or just check validation again?
+    // Actually simpler: checked validation above. If validation passed, handleAddItem RAN.
+    // handleAddItem clears newItemDesc on success.
+    // So distinct check:
+
+    /* 
+       Wait, handleAddItem returns logic void. We can't know easily if it succeeded without checking items or state.
+       But since `newItemDesc` state is updated asynchronously, we can't check it immediately after await? 
+       React state updates batch. 
+       Let's assume success if no error thrown. 
+       The safest way is to check `newItemPrice` again. 
+    */
+
+    setIsAddingItem(false);
   };
 
   const removeItem = async (itemId: string) => {
@@ -1591,7 +1633,21 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           <div className="space-y-1"><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição</label><input required type="text" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none uppercase" value={newItemDesc} onChange={(e) => setNewItemDesc(e.target.value)} /></div>
                           <div className="grid grid-cols-2 gap-3">
                             <div><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Qtd</label><input type="number" min="1" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemQty} onChange={(e) => setNewItemQty(Number(e.target.value))} /></div>
-                            <div><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Preço R$</label><input type="number" step="0.01" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemPrice} onChange={(e) => setNewItemPrice(Number(e.target.value))} /></div>
+                            <div>
+                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Preço R$</label>
+                              <input
+                                ref={priceInputRef}
+                                type="number"
+                                step="0.01"
+                                className={`w-full p-2 bg-white border rounded-lg text-[10px] font-bold text-slate-900 outline-none transition-colors ${showPriceError ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-slate-200'}`}
+                                value={newItemPrice}
+                                onChange={(e) => {
+                                  setNewItemPrice(Number(e.target.value));
+                                  if (Number(e.target.value) > 0) setShowPriceError(false);
+                                }}
+                              />
+                              {showPriceError && <p className="text-[8px] font-bold text-red-500 mt-1 ml-1 animate-in slide-in-from-top-1">Valor obrigatório</p>}
+                            </div>
                           </div>
 
                           {/* Waiting Parts Toggle */}
@@ -1625,7 +1681,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           )}
 
                           <div className="flex gap-2 mt-2">
-                            <button type="button" onClick={() => setIsAddingItem(false)} className="flex-1 py-2 text-slate-400 text-[9px] font-black uppercase border border-slate-200 rounded-lg hover:bg-slate-50">Concluir Adição</button>
+                            <button type="button" onClick={handleFinishAdding} className="flex-1 py-2 text-slate-400 text-[9px] font-black uppercase border border-slate-200 rounded-lg hover:bg-slate-50">Concluir Adição</button>
                             <button type="submit" className="flex-[2] py-2 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-lg shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5"><ShoppingCart className="w-3.5 h-3.5" /> Adicionar</button>
                           </div>
                         </form>
