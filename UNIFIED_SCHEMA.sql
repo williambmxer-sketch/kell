@@ -42,7 +42,8 @@ CREATE TABLE "configuracoes" (
     "estado" TEXT,
     "logo_url" TEXT,
     "horario_funcionamento" JSONB,
-    "whatsapp_message_template" TEXT
+    "whatsapp_message_template" TEXT,
+    auth_term_template TEXT
 );
 
 -- Usuários

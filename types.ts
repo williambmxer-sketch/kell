@@ -169,6 +169,7 @@ export interface WorkshopSettings {
   logo_url?: string;
   horario_funcionamento?: Record<string, { ativo: boolean; inicio: string; fim: string }>;
   whatsappMessageTemplate?: string;
+  authTermTemplate?: string;
 }
 
 export interface PaymentMethod {

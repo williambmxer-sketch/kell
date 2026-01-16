@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Loader2, Check, MessageSquare } from 'lucide-react';
+import { Save, Loader2, Check, MessageSquare, FileSignature } from 'lucide-react';
 import { WorkshopSettings } from '../../types';
 import { WorkshopContext } from '../../App';
 import { fetchSettings, updateSettings } from '../../services/supabase';
@@ -76,6 +76,29 @@ const NotificationSettings: React.FC = () => {
                 </div>
             </section>
 
+            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+                    <FileSignature className="w-4 h-4 text-indigo-500" /> Termo de Autorização
+                </h3>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Modelo do Termo de Abertura/Montagem</label>
+                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                            Configure o texto que será impresso para o cliente assinar autorizando o serviço.
+                            <br />
+                            Variáveis: <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{CLIENTE}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{MARCA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{VEICULO}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{PLACA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{DATA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{OFICINA}`}</code>
+                        </p>
+                        <textarea
+                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 min-h-[200px] leading-relaxed"
+                            placeholder="Eu, {CLIENTE}, autorizo..."
+                            value={settings.authTermTemplate || ''}
+                            onChange={e => setSettings({ ...settings, authTermTemplate: e.target.value })}
+                        />
+                    </div>
+                </div>
+            </section>
+
             <div className="flex justify-end pt-4">
                 <button
                     type="submit"
@@ -103,7 +126,7 @@ const NotificationSettings: React.FC = () => {
                     )}
                 </button>
             </div>
-        </form>
+        </form >
     );
 };
 

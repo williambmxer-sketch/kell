@@ -635,7 +635,8 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
   if (globalData && globalData.nome_oficina && globalData.nome_oficina !== 'Oficina Master Pro') {
     return {
       ...globalData,
-      whatsappMessageTemplate: globalData.whatsapp_message_template
+      whatsappMessageTemplate: globalData.whatsapp_message_template,
+      authTermTemplate: globalData.auth_term_template
     };
   }
 
@@ -650,7 +651,8 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
     if (userData) {
       return {
         ...userData,
-        whatsappMessageTemplate: userData.whatsapp_message_template
+        whatsappMessageTemplate: userData.whatsapp_message_template,
+        authTermTemplate: userData.auth_term_template
       };
     }
   }
@@ -661,7 +663,8 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
     if (anyData) {
       return {
         ...anyData,
-        whatsappMessageTemplate: anyData.whatsapp_message_template
+        whatsappMessageTemplate: anyData.whatsapp_message_template,
+        authTermTemplate: anyData.auth_term_template
       };
     }
   }
@@ -673,7 +676,8 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
   // Map DB column to app field
   return {
     ...finalData,
-    whatsappMessageTemplate: finalData.whatsapp_message_template
+    whatsappMessageTemplate: finalData.whatsapp_message_template,
+    authTermTemplate: finalData.auth_term_template
   };
 };
 
@@ -703,6 +707,7 @@ export const updateSettings = async (settings: Partial<WorkshopSettings>) => {
   if (settings.logo_url !== undefined) dbPayload.logo_url = settings.logo_url;
   if (settings.horario_funcionamento !== undefined) dbPayload.horario_funcionamento = settings.horario_funcionamento;
   if (settings.whatsappMessageTemplate !== undefined) dbPayload.whatsapp_message_template = settings.whatsappMessageTemplate;
+  if (settings.authTermTemplate !== undefined) dbPayload.auth_term_template = settings.authTermTemplate;
 
   const { error } = await supabase.from('configuracoes').upsert(dbPayload);
   if (error) throw error;

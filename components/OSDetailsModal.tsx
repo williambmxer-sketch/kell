@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { WorkshopContext } from '../App';
 import { WorkshopOrder, OSStatus, Priority, VehicleCategory, ChecklistItem, OrderItem, OrderDocument } from '../types';
-import { X, ArrowRight, Activity, Wrench, Package, History, Briefcase, UserCheck, Sparkles, FileText, Printer, Share2, Save, CheckCircle2, Calendar, ListChecks, Plus, Trash2, Clock, AlertCircle, ShoppingCart, Upload, File as FileIcon, Image as ImageIcon, Eye, Undo2, Download, CreditCard } from 'lucide-react';
+import { X, ArrowRight, Activity, Wrench, Package, History, Briefcase, UserCheck, Sparkles, FileText, Printer, Share2, Save, CheckCircle2, Calendar, ListChecks, Plus, Trash2, Clock, AlertCircle, ShoppingCart, Upload, File as FileIcon, Image as ImageIcon, Eye, Undo2, Download, CreditCard, FileSignature } from 'lucide-react';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
 import { uploadDocument, deleteDocument } from '../services/supabase'; // We need to import these locally if not in context, or add to context. 
@@ -931,6 +931,142 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     }
   };
 
+  const handlePrintAuthTerm = () => {
+    if (!client || !vehicle) return;
+
+    addHistoryLog(order.id, 'IMPRESSÃO', 'Imprimiu Termo de Autorização');
+
+    // Default template if none configured
+    const defaultTemplate = "Eu, {CLIENTE}, proprietário(a) do veículo {MARCA} {VEICULO}, placa {PLACA}, autorizo a oficina {OFICINA} a realizar a abertura e desmontagem do câmbio para fins de diagnóstico e elaboração de orçamento.\n\nDeclaro estar ciente de que, após a desmontagem, caso o serviço não seja aprovado, será cobrada uma taxa de montagem ou o veículo será devolvido com o câmbio desmontado, conforme previamente acordado.\n\n{DATA}";
+
+    let template = settings?.authTermTemplate || defaultTemplate;
+
+    // Replace variables
+    const vars: Record<string, string> = {
+      '{CLIENTE}': client.name,
+      '{MARCA}': vehicle.brand,
+      '{VEICULO}': `${vehicle.model} (${vehicle.year || ''})`,
+      '{PLACA}': vehicle.plate,
+      '{DATA}': new Date().toLocaleDateString('pt-BR'),
+      '{OFICINA}': settings?.nome_oficina || 'Oficina Master Pro'
+    };
+
+    Object.keys(vars).forEach(key => {
+      // Use split/join or replaceAll to avoid Regex special character issues with curly braces
+      template = template.split(key).join(vars[key]);
+    });
+
+    // Create hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write('<html><head><title>Imprimir Autorização</title>');
+      // Inline styles for the term matching Budget Layout
+      doc.write(`
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+          /* Reduced margins to maximize space */
+          @page { margin: 5mm; }
+          body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 10mm; 
+            color: #1e293b; 
+            line-height: 1.5;
+            min-height: 98vh; /* Force full height */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+          }
+          
+          /* Utility-like classes to mimic Tailwind */
+          .box { border: 1px solid #94a3b8; border-radius: 12px; padding: 25px; margin-bottom: 15px; }
+          .flex { display: flex; }
+          .items-center { align-items: center; }
+          .justify-between { justify-content: space-between; }
+          .text-right { text-align: right; }
+          .font-bold { font-weight: 700; }
+          .text-sm { font-size: 14px; }
+          .text-xs { font-size: 12px; }
+          .uppercase { text-transform: uppercase; }
+          .text-slate-500 { color: #64748b; }
+          .mb-1 { margin-bottom: 4px; }
+          
+          /* Specifics */
+          .logo-container { width: 80px; height: 80px; margin-right: 20px; display: flex; align-items: center; justify-content: center; }
+          .logo { max-width: 100%; max-height: 100%; object-fit: contain; }
+          
+          .company-name { font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 4px; line-height: 1.2; }
+          
+          .term-title { text-align: center; font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; letter-spacing: 1px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+          .term-content { font-size: 14px; text-align: justify; line-height: 1.8; white-space: pre-wrap; }
+          
+          .signatures { margin-top: auto; display: flex; gap: 40px; width: 100%; }
+          .sig-line { flex: 1; border-top: 1px solid #334155; padding-top: 8px; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        </style>
+      `);
+
+      doc.write('</head><body>');
+
+      // 1. Header Box (Company Info Only)
+      doc.write('<div class="box flex items-center justify-between">');
+      // Logo
+      doc.write('<div class="logo-container">');
+      if (settings?.logo_url) {
+        doc.write(`<img src="${settings.logo_url}" class="logo" />`);
+      } else {
+        doc.write('<span style="color:#cbd5e1; font-size: 10px;">SEM LOGO</span>');
+      }
+      doc.write('</div>');
+
+      // Company Info
+      doc.write('<div class="text-right">');
+      doc.write(`<div class="company-name">${settings?.nome_oficina || 'OFICINA MECÂNICA'}</div>`);
+      doc.write('<div class="text-xs text-slate-500">');
+      doc.write(`<p class="mb-1">${settings?.endereco || ''}${settings?.numero ? ', ' + settings.numero : ''}</p>`);
+      doc.write(`<p class="mb-1">${settings?.cidade || ''} - ${settings?.estado || ''}</p>`);
+      doc.write(`<p class="mb-1">Tel: ${settings?.telefone || ''} | Email: ${settings?.email || ''}</p>`);
+      if (settings?.cnpj) doc.write(`<p class="font-bold">CNPJ: ${settings.cnpj}</p>`);
+      doc.write('</div>');
+      doc.write('</div>');
+      doc.write('</div>');
+
+      // 2. Term Body Box (Contains Title and Text only)
+      doc.write('<div class="box">');
+      doc.write('<h2 class="term-title">Termo de Autorização de Serviço</h2>');
+      doc.write(`<div class="term-content">${template}</div>`);
+      doc.write('</div>');
+
+      // 3. Signatures (Outside the box now)
+      doc.write('<div class="signatures">');
+      doc.write(`<div class="sig-line">${client.name}<br><span style="font-weight:400; color:#64748b">Cliente / Responsável</span></div>`);
+      doc.write(`<div class="sig-line">${settings?.nome_oficina || 'Oficina'}<br><span style="font-weight:400; color:#64748b">Responsável Técnico</span></div>`);
+      doc.write('</div>');
+
+      doc.write('</body></html>');
+      doc.close();
+
+      // Print
+      setTimeout(() => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        }, 2000);
+      }, 500);
+    }
+  };
+
 
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -1406,6 +1542,11 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           <button onClick={handlePrint} type="button" className="p-2 text-slate-400 hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 rounded-lg flex items-center gap-2" title="Imprimir Orçamento">
                             <Printer className="w-4 h-4" />
                           </button>
+                          {(order.status === OSStatus.BUDGET || order.status === OSStatus.APPROVAL) && (
+                            <button onClick={handlePrintAuthTerm} type="button" className="p-2 text-slate-400 hover:text-indigo-600 transition-all border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 rounded-lg flex items-center gap-2" title="Imprimir Termo de Autorização">
+                              <FileSignature className="w-4 h-4" />
+                            </button>
+                          )}
                           {!isAddingItem && !isFinished && (order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) && <button type="button" onClick={() => setIsAddingItem(true)} className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase shadow-sm hover:bg-indigo-700 transition-all flex items-center gap-1.5"><Plus className="w-3 h-3" /> Novo Item</button>}
                         </div>
                       </div>
