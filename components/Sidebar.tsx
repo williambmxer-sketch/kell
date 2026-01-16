@@ -120,42 +120,59 @@ const Sidebar: React.FC = () => {
       </div>
 
       <div className={`mt-auto p-5 py-6 border-t border-slate-100 text-slate-400 group-hover:text-red-600 transition-all duration-300 space-y-2`}>
-        <button
+        <div
           onClick={togglePin}
-          className={`flex items-center gap-3 w-full pl-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group/pin relative overflow-hidden ${isPinned ? 'text-indigo-600 bg-indigo-50' : ''}`}
+          className={`flex items-center justify-between w-full pl-2 pr-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group/pin relative overflow-hidden cursor-pointer ${isPinned ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
         >
-          {isPinned ? (
-            <PinOff className={`w-5 h-5 shrink-0 transition-transform ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'} relative z-10`} />
-          ) : (
-            <Pin className={`w-5 h-5 shrink-0 transition-transform ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'} relative z-10`} />
+          <div className="flex items-center gap-3">
+            {isPinned ? (
+              <PinOff className={`w-5 h-5 shrink-0 transition-transform ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'} relative z-10`} />
+            ) : (
+              <Pin className={`w-5 h-5 shrink-0 transition-transform ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'} relative z-10`} />
+            )}
+
+            <span className={`font-semibold text-sm whitespace-nowrap transition-all duration-300 ease-in-out ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'
+              } ${isCollapsed
+                ? 'opacity-0 w-0 translate-x-[-10px]'
+                : 'opacity-100 w-auto translate-x-0 delay-100'
+              }`}>
+              {isPinned ? 'Desafixar Menu' : 'Fixar Menu'}
+            </span>
+          </div>
+
+          {!isCollapsed && (
+            <div className={`w-8 h-4 rounded-full p-0.5 transition-colors ${isPinned ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+              <div className={`w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${isPinned ? 'translate-x-4' : 'translate-x-0'}`}></div>
+            </div>
           )}
+        </div>
 
-          <span className={`font-semibold text-sm whitespace-nowrap transition-all duration-300 ease-in-out ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'
-            } ${isCollapsed
-              ? 'opacity-0 w-0 translate-x-[-10px]'
-              : 'opacity-100 w-auto translate-x-0 delay-100'
-            }`}>
-            {isPinned ? 'Desafixar Menu' : 'Fixar Menu'}
-          </span>
-        </button>
-
-        <button
+        <div
           onClick={toggleFullScreen}
-          className="flex items-center gap-3 w-full pl-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group relative overflow-hidden"
+          className={`flex items-center justify-between w-full pl-2 pr-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group relative overflow-hidden cursor-pointer ${isFullScreen ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
         >
-          {isFullScreen ? (
-            <Minimize className="w-5 h-5 shrink-0 transition-transform text-slate-400 group-hover:text-indigo-600 relative z-10" />
-          ) : (
-            <Maximize className="w-5 h-5 shrink-0 transition-transform text-slate-400 group-hover:text-indigo-600 relative z-10" />
-          )}
+          <div className="flex items-center gap-3">
+            {isFullScreen ? (
+              <Minimize className={`w-5 h-5 shrink-0 transition-transform ${isFullScreen ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'} relative z-10`} />
+            ) : (
+              <Maximize className={`w-5 h-5 shrink-0 transition-transform ${isFullScreen ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'} relative z-10`} />
+            )}
 
-          <span className={`font-semibold text-sm text-slate-400 group-hover:text-indigo-600 whitespace-nowrap transition-all duration-300 ease-in-out ${isCollapsed
-            ? 'opacity-0 w-0 translate-x-[-10px]'
-            : 'opacity-100 w-auto translate-x-0 delay-100'
-            }`}>
-            {isFullScreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
-          </span>
-        </button>
+            <span className={`font-semibold text-sm whitespace-nowrap transition-all duration-300 ease-in-out ${isFullScreen ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'
+              } ${isCollapsed
+                ? 'opacity-0 w-0 translate-x-[-10px]'
+                : 'opacity-100 w-auto translate-x-0 delay-100'
+              }`}>
+              {isFullScreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
+            </span>
+          </div>
+
+          {!isCollapsed && (
+            <div className={`w-8 h-4 rounded-full p-0.5 transition-colors ${isFullScreen ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+              <div className={`w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${isFullScreen ? 'translate-x-4' : 'translate-x-0'}`}></div>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={async () => {
