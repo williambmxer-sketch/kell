@@ -1633,10 +1633,22 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           <div className="grid grid-cols-2 gap-3">
                             <div className="col-span-1">
                               <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo</label>
-                              <select className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemType} onChange={(e) => { setNewItemType(e.target.value as 'PART' | 'SERVICE'); setNewItemDesc(''); setNewItemPrice(0); }}>
-                                <option value="PART">Peça / Produto</option>
-                                <option value="SERVICE">Serviço / Mão de Obra</option>
-                              </select>
+                              <div className="flex bg-slate-100 p-1 rounded-lg">
+                                <button
+                                  type="button"
+                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'PART' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                  onClick={() => { setNewItemType('PART'); setNewItemDesc(''); setNewItemPrice(0); }}
+                                >
+                                  Peças
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'SERVICE' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                  onClick={() => { setNewItemType('SERVICE'); setNewItemDesc(''); setNewItemPrice(0); }}
+                                >
+                                  Serviços
+                                </button>
+                              </div>
                             </div>
                             <div className="col-span-1">
                               <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Catálogo</label>
