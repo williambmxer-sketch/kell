@@ -122,6 +122,7 @@ const Sidebar: React.FC = () => {
       <div className={`mt-auto p-5 py-6 border-t border-slate-100 text-slate-400 group-hover:text-red-600 transition-all duration-300 space-y-2`}>
         <div
           onClick={togglePin}
+          title={isPinned ? 'Desafixar Menu' : 'Fixar Menu'}
           className={`flex items-center justify-between w-full pl-2 pr-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group/pin relative overflow-hidden cursor-pointer ${isPinned ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
         >
           <div className="flex items-center gap-3">
@@ -131,13 +132,7 @@ const Sidebar: React.FC = () => {
               <Pin className={`w-5 h-5 shrink-0 transition-transform ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'} relative z-10`} />
             )}
 
-            <span className={`font-semibold text-sm whitespace-nowrap transition-all duration-300 ease-in-out ${isPinned ? 'text-indigo-600' : 'text-slate-400 group-hover/pin:text-indigo-600'
-              } ${isCollapsed
-                ? 'opacity-0 w-0 translate-x-[-10px]'
-                : 'opacity-100 w-auto translate-x-0 delay-100'
-              }`}>
-              {isPinned ? 'Desafixar Menu' : 'Fixar Menu'}
-            </span>
+
           </div>
 
           {!isCollapsed && (
@@ -149,6 +144,7 @@ const Sidebar: React.FC = () => {
 
         <div
           onClick={toggleFullScreen}
+          title={isFullScreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
           className={`flex items-center justify-between w-full pl-2 pr-2 py-2 hover:bg-slate-50 rounded-xl transition-colors group relative overflow-hidden cursor-pointer ${isFullScreen ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400'}`}
         >
           <div className="flex items-center gap-3">
@@ -158,13 +154,7 @@ const Sidebar: React.FC = () => {
               <Maximize className={`w-5 h-5 shrink-0 transition-transform ${isFullScreen ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'} relative z-10`} />
             )}
 
-            <span className={`font-semibold text-sm whitespace-nowrap transition-all duration-300 ease-in-out ${isFullScreen ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-600'
-              } ${isCollapsed
-                ? 'opacity-0 w-0 translate-x-[-10px]'
-                : 'opacity-100 w-auto translate-x-0 delay-100'
-              }`}>
-              {isFullScreen ? 'Sair da Tela Cheia' : 'Tela Cheia'}
-            </span>
+
           </div>
 
           {!isCollapsed && (
