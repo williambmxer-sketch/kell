@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useBranding } from './hooks/useBranding';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -481,24 +482,26 @@ const App: React.FC = () => {
   }
 
   return (
-    <WorkshopContext.Provider value={contextValue}>
-      <Router>
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/agenda" element={<Agenda />} />
-              <Route path="/clients" element={<Clients />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/finance" element={<Finance />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </WorkshopContext.Provider>
+    <ThemeProvider>
+      <WorkshopContext.Provider value={contextValue}>
+        <Router>
+          <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
+            <Sidebar />
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/finance" element={<Finance />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </WorkshopContext.Provider>
+    </ThemeProvider>
   );
 };
 

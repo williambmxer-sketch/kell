@@ -56,7 +56,7 @@ const Agenda: React.FC = () => {
     }
     return d;
   });
-  const [viewMode, setViewMode] = useState<ViewMode>('week');
+  const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [mechanicFilter, setMechanicFilter] = useState<string>('all');
   const [viewOnlyOrder, setViewOnlyOrder] = useState<WorkshopOrder | null>(null);
   const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; content: React.ReactNode } | null>(null);
@@ -341,58 +341,58 @@ const Agenda: React.FC = () => {
 
 
   return (
-    <div className="flex-1 flex flex-col p-6 overflow-hidden bg-slate-100/80">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div className="flex-1 flex flex-col p-6 overflow-hidden bg-slate-100/80 dark:bg-slate-950/50 transition-colors duration-300">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Agenda Operacional</h2>
-          <p className="text-slate-700 text-sm font-semibold">Carga técnica e cronograma de serviços.</p>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors">Agenda Operacional</h2>
+          <p className="text-slate-700 dark:text-slate-400 text-sm font-semibold">Carga técnica e cronograma de serviços.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Mechanic Filter (Week View Only) */}
           {viewMode === 'week' && (
-            <div className="flex items-center bg-white border border-slate-300 rounded-xl p-1 shadow-md mr-2">
-              <div className="flex items-center gap-2 px-3 border-r border-slate-200">
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-1 shadow-md mr-2 transition-colors">
+              <div className="flex items-center gap-2 px-3 border-r border-slate-200 dark:border-slate-700">
                 <UserIcon className="w-3.5 h-3.5 text-slate-400" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Técnico:</span>
               </div>
               <select
                 value={mechanicFilter}
                 onChange={(e) => setMechanicFilter(e.target.value)}
-                className="bg-transparent border-none text-[10px] font-bold text-slate-900 focus:ring-0 cursor-pointer pl-2 pr-8 py-1 uppercase tracking-tight"
+                className="bg-transparent border-none text-[10px] font-bold text-slate-900 dark:text-slate-200 focus:ring-0 cursor-pointer pl-2 pr-8 py-1 uppercase tracking-tight"
               >
-                <option value="all">TODOS</option>
+                <option value="all" className="dark:bg-slate-900">TODOS</option>
                 {mechanics.map(m => (
-                  <option key={m.id} value={m.id}>{m.name.split(' ')[0]}</option>
+                  <option key={m.id} value={m.id} className="dark:bg-slate-900">{m.name.split(' ')[0]}</option>
                 ))}
               </select>
             </div>
           )}
 
-          <div className="flex items-center bg-white border border-slate-300 rounded-xl p-1 shadow-md">
+          <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-1 shadow-md transition-colors">
             <button
               onClick={() => setViewMode('day')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === 'day' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === 'day' ? 'bg-slate-900 dark:bg-indigo-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" /> DIA
             </button>
             <button
               onClick={() => setViewMode('week')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === 'week' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all ${viewMode === 'week' ? 'bg-slate-900 dark:bg-indigo-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
             >
               <CalendarDays className="w-3.5 h-3.5" /> SEMANA
             </button>
           </div>
 
-          <div className="flex items-center bg-white border border-slate-300 rounded-xl p-1 shadow-md">
-            <button onClick={() => navigateDate(-1)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-800 hover:text-slate-900">
+          <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-1 shadow-md transition-colors">
+            <button onClick={() => navigateDate(-1)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-800 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="px-4 flex flex-col items-center min-w-[140px]">
-              <span className="text-[9px] font-black text-indigo-700 uppercase tracking-widest leading-none mb-1">{monthYearLabel}</span>
-              <span className="text-xs font-black text-slate-900 uppercase">
+              <span className="text-[9px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest leading-none mb-1">{monthYearLabel}</span>
+              <span className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase">
                 {viewMode === 'day'
                   ? currentDate.toLocaleDateString('pt-BR', { day: '2-digit', weekday: 'long' })
                   : weekDays.length > 0
@@ -400,51 +400,50 @@ const Agenda: React.FC = () => {
                     : monthYearLabel}
               </span>
             </div>
-            <button onClick={() => navigateDate(1)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-800 hover:text-slate-900">
+            <button onClick={() => navigateDate(1)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-800 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
 
-          <button onClick={goToToday} className="bg-slate-900 border border-slate-900 px-5 py-2.5 rounded-xl text-xs font-black text-white hover:bg-slate-800 transition-all shadow-md active:scale-95 uppercase tracking-widest">
+          <button onClick={goToToday} className="bg-slate-900 dark:bg-indigo-600 border border-slate-900 dark:border-indigo-600 px-5 py-2.5 rounded-xl text-xs font-black text-white hover:bg-slate-800 dark:hover:bg-indigo-500 transition-all shadow-md active:scale-95 uppercase tracking-widest">
             Hoje
           </button>
         </div>
       </header>
 
-      <div className="flex-1 overflow-hidden bg-white border border-slate-400 rounded-2xl shadow-2xl flex flex-col">
-        <div className="flex-1 overflow-auto bg-white border border-slate-400 rounded-2xl shadow-2xl flex flex-col relative">
+      <div className="flex-1 overflow-hidden bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col transition-colors">
+        <div className="flex-1 overflow-auto bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col relative transition-colors">
           {/* VIEW MODE: DAY (Keep Table) */}
           {viewMode === 'day' ? (
             /* VIEW MODE: DAY (Horizontal / Gantt Style) */
-            <div className="flex flex-col min-w-[1200px] bg-slate-50">
+            <div className="flex flex-col min-w-[1200px] bg-slate-50 dark:bg-slate-950/50 transition-colors">
               {/* Header: Hours */}
-              {/* Header: Hours */}
-              <div className="relative h-10 bg-slate-50 border-b border-slate-300 shadow-sm ml-[200px]">
+              <div className="relative h-10 bg-slate-50 dark:bg-slate-900/80 border-b border-slate-300 dark:border-slate-700 shadow-sm ml-[200px]">
                 {hours.map((hour, idx) => (
                   <div
                     key={hour}
                     className="absolute top-0 bottom-0 flex items-center justify-center transform -translate-x-1/2"
                     style={{ left: `${(idx / (hours.length - 1)) * 100}%` }}
                   >
-                    <span className="text-[10px] font-black text-slate-500 bg-slate-50 px-1">{hour}</span>
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-1">{hour}</span>
                     {/* Tick Mark */}
-                    <div className="absolute bottom-0 h-1.5 w-px bg-slate-300"></div>
+                    <div className="absolute bottom-0 h-1.5 w-px bg-slate-300 dark:bg-slate-700"></div>
                   </div>
                 ))}
               </div>
 
               {/* Rows: Mechanics */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {mechanics.map((mechanic) => (
-                  <div key={mechanic.id} className="flex border-b border-slate-200 bg-white hover:bg-slate-50 transition-colors h-24 group">
+                  <div key={mechanic.id} className="flex border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors h-24 group">
                     {/* Mechanic Info Column (Sticky Left) */}
-                    <div className="w-[200px] shrink-0 sticky left-0 z-20 bg-white border-r border-slate-300 p-3 flex items-center gap-3 group-hover:bg-slate-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                      <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
+                    <div className="w-[200px] shrink-0 sticky left-0 z-20 bg-white dark:bg-slate-900 border-r border-slate-300 dark:border-slate-700 p-3 flex items-center gap-3 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0 transition-colors">
                         {mechanic.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-black text-slate-900 text-xs uppercase leading-tight truncate">{mechanic.name}</p>
-                        <p className="text-[9px] text-indigo-600 font-bold uppercase tracking-wider">Mecânico</p>
+                        <p className="font-black text-slate-900 dark:text-slate-200 text-xs uppercase leading-tight truncate">{mechanic.name}</p>
+                        <p className="text-[9px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">Mecânico</p>
                       </div>
                     </div>
 
@@ -453,7 +452,7 @@ const Agenda: React.FC = () => {
                       {/* Background Grid Lines */}
                       <div className="absolute inset-0 flex pointer-events-none">
                         {hours.slice(0, -1).map((h) => (
-                          <div key={h} className="flex-1 border-r border-slate-100 last:border-none"></div>
+                          <div key={h} className="flex-1 border-r border-slate-100 dark:border-slate-800/60 last:border-none"></div>
                         ))}
                       </div>
 
@@ -494,8 +493,24 @@ const Agenda: React.FC = () => {
                           const timeRange = `${startH.toString().padStart(2, '0')}:${startM.toString().padStart(2, '0')} - ${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
 
                           const isFinished = activeOrder.status === OSStatus.FINISHED;
-                          const cardBg = isFinished ? 'bg-slate-200' : priorityStyle?.bg;
-                          const cardBorder = isFinished ? 'border-slate-300' : priorityStyle?.border;
+                          let cardBg = "bg-white dark:bg-slate-800";
+                          let cardBorder = "border-slate-200 dark:border-slate-700";
+
+                          // Priority Styles (Dark Mode Enhanced)
+                          if (isFinished) {
+                            cardBg = "bg-slate-200 dark:bg-slate-800/80";
+                            cardBorder = "border-slate-300 dark:border-slate-600";
+                          } else if (activeOrder.priority === Priority.HIGH) {
+                            cardBg = "bg-red-50/90 dark:bg-red-900/20";
+                            cardBorder = "border-red-600 dark:border-red-700";
+                          } else if (activeOrder.priority === Priority.MEDIUM) {
+                            cardBg = "bg-yellow-50/90 dark:bg-yellow-900/20";
+                            cardBorder = "border-yellow-500 dark:border-yellow-700";
+                          } else if (activeOrder.priority === Priority.LOW) {
+                            cardBg = "bg-emerald-50/90 dark:bg-emerald-900/20";
+                            cardBorder = "border-emerald-600 dark:border-emerald-700";
+                          }
+
 
                           // Helper to format status (remove "Em " for brevity)
                           const statusLabel = STATUS_CONFIG[activeOrder.status].label.replace(/^Em\s+/, '');
@@ -526,23 +541,23 @@ const Agenda: React.FC = () => {
                                 top: '8px',
                                 height: 'calc(100% - 16px)'
                               }}
-                              className={`absolute z-10 rounded-lg shadow-md border-[2px] cursor-pointer hover:shadow-xl hover:scale-[1.02] hover:z-20 transition-all overflow-hidden flex flex-col justify-center px-2 ${cardBg} ${cardBorder} ${segment.isSpillover ? 'opacity-90 border-dashed' : ''} ${isFinished ? 'grayscale-0 opacity-90' : ''}`}
+                              className={`absolute z-10 rounded-lg shadow-md border-[2px] cursor-pointer hover:shadow-xl hover:scale-[1.02] hover:z-20 transition-all overflow-hidden flex flex-col justify-center px-2 ${cardBg} ${cardBorder} ${segment.isSpillover ? 'opacity-90 border-dashed' : ''} ${isFinished ? 'grayscale-[0.2] opacity-80' : ''}`}
                             >
                               <div className="flex flex-col gap-0.5 min-w-0">
                                 <div className="flex items-center justify-between gap-1 mb-0.5">
-                                  <span className="font-extrabold text-slate-900 text-[10px] truncate">
-                                    {segment.isSpillover && <span className="text-indigo-600 mr-1">↪</span>}
+                                  <span className="font-extrabold text-slate-900 dark:text-slate-100 text-[10px] truncate">
+                                    {segment.isSpillover && <span className="text-indigo-600 dark:text-indigo-400 mr-1">↪</span>}
                                     OS #{activeOrder.id}
                                   </span>
-                                  <span className={`text-[8px] font-black uppercase tracking-wider px-1 rounded border ${isFinished ? 'bg-slate-300 border-slate-400 text-slate-600' : 'bg-white/50 border-black/5 text-slate-700'}`}>
+                                  <span className={`text-[8px] font-black uppercase tracking-wider px-1 rounded border ${isFinished ? 'bg-slate-300 dark:bg-slate-600 border-slate-400 dark:border-slate-500 text-slate-600 dark:text-slate-200' : 'bg-white/50 dark:bg-black/20 border-black/5 text-slate-700 dark:text-slate-200'}`}>
                                     {statusLabel.split(' ')[0]}
                                   </span>
                                 </div>
                                 <div className="flex flex-col gap-0.5">
-                                  <span className="text-[9px] font-black text-slate-800 uppercase truncate leading-none mb-0.5">{vehicle?.model}</span>
-                                  <span className="text-[9px] font-bold text-slate-600 truncate leading-none">CLIENTE: <span className="text-slate-800">{client?.name.split(' ')[0]}</span></span>
-                                  <span className="text-[9px] font-bold text-slate-600 truncate leading-none">MECÂNICO: <span className="text-slate-800">{mechanics.find(m => m.id === activeOrder.mechanicId)?.name.split(' ')[0] || 'N/A'}</span></span>
-                                  <span className="text-[9px] font-bold text-slate-500 truncate leading-none mt-0.5">{timeRange}</span>
+                                  <span className="text-[9px] font-black text-slate-800 dark:text-slate-200 uppercase truncate leading-none mb-0.5">{vehicle?.model}</span>
+                                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 truncate leading-none">CLIENTE: <span className="text-slate-800 dark:text-slate-200">{client?.name.split(' ')[0]}</span></span>
+                                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 truncate leading-none">MECÂNICO: <span className="text-slate-800 dark:text-slate-200">{mechanics.find(m => m.id === activeOrder.mechanicId)?.name.split(' ')[0] || 'N/A'}</span></span>
+                                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-500 truncate leading-none mt-0.5">{timeRange}</span>
                                 </div>
                               </div>
                             </div>
@@ -556,9 +571,9 @@ const Agenda: React.FC = () => {
             </div>
           ) : (
             /* VIEW MODE: WEEK (Horizontal Gantt Layout) */
-            <div className="flex flex-col w-full bg-slate-50 h-full">
+            <div className="flex flex-col w-full bg-slate-50 dark:bg-slate-900 h-full transition-colors">
               {/* Header: Time Axis (Sticky Top) */}
-              <div className="sticky top-0 z-30 flex items-center bg-slate-100 border-b border-slate-300 h-10 ml-[100px] shadow-sm">
+              <div className="sticky top-0 z-30 flex items-center bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 h-10 ml-[100px] shadow-sm transition-colors">
                 <div className="relative w-full h-full">
                   {hours.map((hour, idx) => {
                     const leftPct = (idx / (hours.length - 1)) * 100;
@@ -567,7 +582,7 @@ const Agenda: React.FC = () => {
 
                     let wrapperStyle: React.CSSProperties = { left: `${leftPct}%` };
                     let tickStyle: React.CSSProperties = {};
-                    let textStyle = "text-[10px] font-black text-slate-500 relative -top-1";
+                    let textStyle = "text-[10px] font-black text-slate-500 dark:text-slate-400 relative -top-1";
 
                     if (isFirst) {
                       wrapperStyle.transform = 'translateX(0)';
@@ -594,7 +609,7 @@ const Agenda: React.FC = () => {
                         style={wrapperStyle}
                       >
                         {/* Tick Mark */}
-                        <div className="absolute bottom-0 h-1.5 w-px bg-slate-400" style={tickStyle}></div>
+                        <div className="absolute bottom-0 h-1.5 w-px bg-slate-400 dark:bg-slate-500" style={tickStyle}></div>
 
                         {/* Text Label */}
                         <span className={textStyle}>
@@ -607,7 +622,7 @@ const Agenda: React.FC = () => {
               </div>
 
               {/* Body: Days (Rows) */}
-              <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto flex flex-col min-h-0 custom-scrollbar">
                 {weekDays.map((day, dayIdx) => {
                   const isDayToday = isToday(day);
                   const dYear = day.getFullYear();
@@ -700,13 +715,13 @@ const Agenda: React.FC = () => {
                   const rowHeight = Math.max(100, maxLanes * (laneHeight + 8) + 20);
 
                   return (
-                    <div key={day.toISOString()} className={`flex-1 flex border-b border-slate-200 ${isDayToday ? 'bg-orange-50/30' : 'bg-white'}`} style={{ minHeight: '100px' }}>
+                    <div key={day.toISOString()} className={`flex-1 flex border-b border-slate-200 dark:border-slate-800 ${isDayToday ? 'bg-orange-50/30 dark:bg-orange-900/10' : 'bg-white dark:bg-slate-900'} transition-colors`} style={{ minHeight: '100px' }}>
                       {/* Left Column: Day Label */}
-                      <div className={`w-[100px] shrink-0 border-r border-slate-300 p-4 flex flex-col items-center justify-center sticky left-0 z-20 ${isDayToday ? 'bg-orange-100' : 'bg-white'}`}>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${isDayToday ? 'text-orange-600' : 'text-slate-500'}`}>
+                      <div className={`w-[100px] shrink-0 border-r border-slate-300 dark:border-slate-700 p-4 flex flex-col items-center justify-center sticky left-0 z-20 ${isDayToday ? 'bg-orange-100 dark:bg-orange-900/40' : 'bg-white dark:bg-slate-900'} transition-colors`}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${isDayToday ? 'text-orange-600 dark:text-orange-400' : 'text-slate-500 dark:text-slate-500'}`}>
                           {day.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}
                         </span>
-                        <span className={`text-2xl font-black ${isDayToday ? 'text-orange-900' : 'text-slate-800'}`}>
+                        <span className={`text-2xl font-black ${isDayToday ? 'text-orange-900 dark:text-orange-300' : 'text-slate-800 dark:text-slate-200'}`}>
                           {day.getDate()}
                         </span>
                       </div>
@@ -718,7 +733,7 @@ const Agenda: React.FC = () => {
                           {/* Map intervals */}
                           <div className="absolute inset-0 flex pointer-events-none">
                             {hours.slice(0, -1).map((_, i) => (
-                              <div key={i} className="flex-1 border-r border-slate-200 relative">
+                              <div key={i} className="flex-1 border-r border-slate-200 dark:border-slate-800/60 relative">
                               </div>
                             ))}
                           </div>
@@ -728,7 +743,7 @@ const Agenda: React.FC = () => {
                         {/* Pre-Gap Overlay */}
                         {preGapPct > 0 && (
                           <div
-                            className="absolute top-0 bottom-0 left-0 bg-slate-100/50 z-0 h-full border-r border-slate-300/50"
+                            className="absolute top-0 bottom-0 left-0 bg-slate-100/50 dark:bg-black/40 z-0 h-full border-r border-slate-300/50 dark:border-slate-700/50"
                             style={{
                               width: `${preGapPct}%`,
                               backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.03) 5px, rgba(0,0,0,0.03) 10px)'
@@ -738,7 +753,7 @@ const Agenda: React.FC = () => {
                         {/* Post-Gap Overlay */}
                         {postGapPct > 0 && (
                           <div
-                            className="absolute top-0 bottom-0 right-0 bg-slate-100/50 z-0 h-full border-l border-slate-300/50"
+                            className="absolute top-0 bottom-0 right-0 bg-slate-100/50 dark:bg-black/40 z-0 h-full border-l border-slate-300/50 dark:border-slate-700/50"
                             style={{
                               width: `${postGapPct}%`,
                               backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.03) 5px, rgba(0,0,0,0.03) 10px)'
@@ -749,7 +764,7 @@ const Agenda: React.FC = () => {
 
                         {/* Events */}
                         {placedEvents.map(ev => {
-                          const p = PRIORITY_CONFIG[ev.order.priority];
+                          const isFinished = ev.order.status === OSStatus.FINISHED;
                           const v = vehicles.find(x => x.id === ev.order.vehicleId);
                           const client = v ? clients.find(c => c.id === v.clientId) : null;
 
@@ -758,9 +773,22 @@ const Agenda: React.FC = () => {
                           const laneHeightPct = 100 / maxLanes;
                           const topPct = ev.laneIndex * laneHeightPct;
 
-                          const isFinished = ev.order.status === OSStatus.FINISHED;
-                          const cardBg = isFinished ? 'bg-slate-200' : p.bg;
-                          const cardBorder = isFinished ? 'border-slate-300' : p.border;
+                          let cardBg = "bg-white dark:bg-slate-800";
+                          let cardBorder = "border-slate-200 dark:border-slate-700";
+
+                          if (isFinished) {
+                            cardBg = "bg-slate-200 dark:bg-slate-800/80";
+                            cardBorder = "border-slate-300 dark:border-slate-600";
+                          } else if (ev.order.priority === Priority.HIGH) {
+                            cardBg = "bg-red-50/90 dark:bg-red-900/20";
+                            cardBorder = "border-red-600 dark:border-red-700";
+                          } else if (ev.order.priority === Priority.MEDIUM) {
+                            cardBg = "bg-yellow-50/90 dark:bg-yellow-900/20";
+                            cardBorder = "border-yellow-500 dark:border-yellow-700";
+                          } else if (ev.order.priority === Priority.LOW) {
+                            cardBg = "bg-emerald-50/90 dark:bg-emerald-900/20";
+                            cardBorder = "border-emerald-600 dark:border-emerald-700";
+                          }
 
                           // Helper to format status (remove "Em " for brevity without losing meaning)
                           const statusLabel = STATUS_CONFIG[ev.order.status].label.replace(/^Em\s+/, '');
@@ -794,20 +822,20 @@ const Agenda: React.FC = () => {
                               onMouseMove={(e) => setTooltip(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)}
                             >
                               <div className={`w-full h-full rounded-md border-[2px] shadow-md hover:shadow-xl hover:scale-[1.01] transition-all cursor-pointer ${cardBg} ${cardBorder} overflow-hidden flex flex-col ${ev.isSpillover ? 'opacity-90 border-dashed' : ''} text-[10px] ${isFinished ? 'grayscale-[0.5] opacity-90' : ''}`}>
-                                <div className="bg-white/40 px-1.5 py-1 flex items-center justify-between border-b border-black/5 shrink-0">
-                                  <span className="font-extrabold text-slate-900 text-[10px]">OS #{ev.order.id}</span>
+                                <div className="bg-white/40 dark:bg-black/10 px-1.5 py-1 flex items-center justify-between border-b border-black/5 shrink-0">
+                                  <span className="font-extrabold text-slate-900 dark:text-slate-100 text-[10px]">OS #{ev.order.id}</span>
                                   <div className="flex items-center gap-1">
-                                    <span className={`text-[7px] font-black uppercase tracking-wider px-1 rounded border ${isFinished ? 'bg-slate-300 border-slate-400 text-slate-600' : 'bg-white/50 border-black/5 text-slate-700'}`}>
+                                    <span className={`text-[7px] font-black uppercase tracking-wider px-1 rounded border ${isFinished ? 'bg-slate-300 dark:bg-slate-600 border-slate-400 dark:border-slate-500 text-slate-600 dark:text-slate-200' : 'bg-white/50 dark:bg-black/20 border-black/5 text-slate-700 dark:text-slate-200'}`}>
                                       {statusLabel.split(' ')[0]}
                                     </span>
                                     {ev.isSpillover && <Clock className="w-2.5 h-2.5 text-indigo-400" />}
                                   </div>
                                 </div>
                                 <div className="px-1.5 py-0.5 flex-1 min-h-0 flex flex-col justify-center gap-0.5">
-                                  <div className="font-black text-slate-800 uppercase leading-none truncate mb-0.5">{v?.model}</div>
+                                  <div className="font-black text-slate-800 dark:text-slate-200 uppercase leading-none truncate mb-0.5">{v?.model}</div>
                                   <div className="flex items-center gap-1.5 min-w-0">
-                                    <UserIcon className="w-3 h-3 text-slate-500 shrink-0" />
-                                    <span className="text-[9px] font-bold text-slate-700 truncate leading-none">{client?.name.split(' ')[0]}</span>
+                                    <UserIcon className="w-3 h-3 text-slate-500 dark:text-slate-400 shrink-0" />
+                                    <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 truncate leading-none">{client?.name.split(' ')[0]}</span>
                                   </div>
                                 </div>
                               </div>

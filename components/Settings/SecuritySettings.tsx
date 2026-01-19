@@ -100,25 +100,25 @@ const SecuritySettings: React.FC = () => {
     return (
         <div className="space-y-6 animate-fade-in">
             {/* Password / Access Section */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
-                        <KeyRound className="w-5 h-5 text-orange-600" />
+                    <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+                        <KeyRound className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-900">Acesso e Senhas</h3>
-                        <p className="text-xs text-slate-500">Gerencie sua senha de acesso ao sistema.</p>
+                        <h3 className="font-bold text-slate-900 dark:text-slate-100">Acesso e Senhas</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Gerencie sua senha de acesso ao sistema.</p>
                     </div>
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-bold text-slate-700">Senha do Administrador</p>
-                        <p className="text-xs text-slate-500 mt-1">Altere sua senha de acesso ao sistema.</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Senha do Administrador</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Altere sua senha de acesso ao sistema.</p>
                     </div>
                     <button
                         onClick={() => setShowPasswordModal(true)}
-                        className="text-xs font-bold uppercase tracking-widest text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:bg-indigo-50 px-4 py-2 rounded-lg transition-all"
+                        className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 px-4 py-2 rounded-lg transition-all"
                     >
                         Alterar Senha
                     </button>
@@ -128,29 +128,29 @@ const SecuritySettings: React.FC = () => {
             {/* Password Change Modal */}
             {showPasswordModal && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                    <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                            <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-indigo-500" /> Alterar Senha
                             </h4>
                             <button
                                 type="button"
                                 onClick={() => { setShowPasswordModal(false); setPasswordError(null); setPasswordSuccess(false); }}
-                                className="text-slate-400 hover:text-slate-600 transition-colors bg-slate-50 hover:bg-slate-100 p-2 rounded-lg"
+                                className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 p-2 rounded-lg"
                             >
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
 
                         {passwordSuccess ? (
-                            <div className="flex flex-col items-center py-8 text-emerald-600">
+                            <div className="flex flex-col items-center py-8 text-emerald-600 dark:text-emerald-400">
                                 <CheckCircle className="w-12 h-12 mb-3" />
                                 <p className="font-bold">Senha alterada com sucesso!</p>
                             </div>
                         ) : (
                             <form onSubmit={handlePasswordChange} className="space-y-4">
                                 <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Nova Senha</label>
+                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5 block">Nova Senha</label>
                                     <input
                                         type="password"
                                         required
@@ -158,23 +158,23 @@ const SecuritySettings: React.FC = () => {
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         placeholder="Mínimo 6 caracteres"
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Confirmar Senha</label>
+                                    <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5 block">Confirmar Senha</label>
                                     <input
                                         type="password"
                                         required
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         placeholder="Repita a nova senha"
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                     />
                                 </div>
 
                                 {passwordError && (
-                                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
+                                    <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl text-red-600 dark:text-red-400 text-sm">
                                         <AlertCircle className="w-4 h-4 shrink-0" />
                                         <span>{passwordError}</span>
                                     </div>
@@ -184,14 +184,14 @@ const SecuritySettings: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => { setShowPasswordModal(false); setPasswordError(null); }}
-                                        className="px-4 py-2.5 text-slate-500 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 rounded-xl transition-all"
+                                        className="px-4 py-2.5 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-all"
                                     >
                                         Cancelar
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/30 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
                                     >
                                         <Save className="w-4 h-4" /> {isLoading ? 'Salvando...' : 'Salvar Nova Senha'}
                                     </button>
@@ -203,34 +203,34 @@ const SecuritySettings: React.FC = () => {
             )}
 
             {/* Audit Logs */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
-                        <History className="w-5 h-5 text-indigo-600" />
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+                        <History className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-900">Logs de Auditoria</h3>
-                        <p className="text-xs text-slate-500">Histórico de ações importantes realizadas no sistema.</p>
+                        <h3 className="font-bold text-slate-900 dark:text-slate-100">Logs de Auditoria</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Histórico de ações importantes realizadas no sistema.</p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-4 mb-4 items-end bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <div className="flex flex-wrap gap-4 mb-4 items-end bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">De</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">De</label>
                         <input
                             type="date"
                             value={inputStartDate}
                             onChange={(e) => setInputStartDate(e.target.value)}
-                            className="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none focus:border-indigo-500"
+                            className="text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg p-2 outline-none focus:border-indigo-500"
                         />
                     </div>
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">Até</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">Até</label>
                         <input
                             type="date"
                             value={inputEndDate}
                             onChange={(e) => setInputEndDate(e.target.value)}
-                            className="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none focus:border-indigo-500"
+                            className="text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg p-2 outline-none focus:border-indigo-500"
                         />
                     </div>
                     <div>
@@ -243,11 +243,11 @@ const SecuritySettings: React.FC = () => {
                         </button>
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">Filtrar Ação</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">Filtrar Ação</label>
                         <select
                             value={auditActionFilter}
                             onChange={(e) => setAuditActionFilter(e.target.value)}
-                            className="w-full text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none focus:border-indigo-500"
+                            className="w-full text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg p-2 outline-none focus:border-indigo-500"
                         >
                             <option value="">Todas as Ações</option>
                             {uniqueActions.map(action => (
@@ -256,55 +256,55 @@ const SecuritySettings: React.FC = () => {
                         </select>
                     </div>
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-1">Filtrar OS</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest block mb-1">Filtrar OS</label>
                         <input
                             type="text"
                             placeholder="Nº OS"
                             value={auditOsFilter}
                             onChange={(e) => setAuditOsFilter(e.target.value)}
-                            className="w-24 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none focus:border-indigo-500 placeholder:font-normal"
+                            className="w-24 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg p-2 outline-none focus:border-indigo-500 placeholder:font-normal"
                         />
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200">
+                <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
                     <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider w-24">OS</th>
-                                <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider">Data/Hora</th>
-                                <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider">Ação</th>
-                                <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider">Detalhes</th>
-                                <th className="px-4 py-3 font-bold text-slate-500 uppercase tracking-wider">Usuário</th>
+                                <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">OS</th>
+                                <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Data/Hora</th>
+                                <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ação</th>
+                                <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalhes</th>
+                                <th className="px-4 py-3 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuário</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                             {filteredHistory.length > 0 ? filteredHistory.map((log) => (
-                                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-4 py-3 text-indigo-600 font-black text-xs">
+                                <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td className="px-4 py-3 text-indigo-600 dark:text-indigo-400 font-black text-xs">
                                         #{log.orderId}
                                     </td>
-                                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                         {new Date(log.timestamp).toLocaleString('pt-BR')}
                                     </td>
-                                    <td className="px-4 py-3 font-bold text-slate-800">
-                                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] uppercase font-black tracking-wide ${log.action.includes('Delete') || log.action.includes('Excluir') ? 'bg-red-50 text-red-600' :
-                                            log.action.includes('Create') || log.action.includes('Criar') ? 'bg-emerald-50 text-emerald-600' :
-                                                'bg-indigo-50 text-indigo-600'
+                                    <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-200">
+                                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] uppercase font-black tracking-wide ${log.action.includes('Delete') || log.action.includes('Excluir') ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' :
+                                            log.action.includes('Create') || log.action.includes('Criar') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
+                                                'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                             }`}>
                                             {log.action}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600 max-w-xs truncate" title={log.diff || ''}>
+                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-xs truncate" title={log.diff || ''}>
                                         {log.diff || '-'}
                                     </td>
-                                    <td className="px-4 py-3 text-slate-500 font-medium">
+                                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">
                                         {log.userId || 'Sistema'}
                                     </td>
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-slate-400 italic">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-slate-500 italic">
                                         Nenhum registro encontrado no período selecionado.
                                     </td>
                                 </tr>

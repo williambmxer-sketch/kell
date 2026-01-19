@@ -5,6 +5,7 @@ import GeneralSettings from './Settings/GeneralSettings';
 import TeamSettings from './Settings/TeamSettings';
 import NotificationSettings from './Settings/NotificationSettings';
 import SecuritySettings from './Settings/SecuritySettings';
+import SystemSettings from './Settings/SystemSettings';
 import { APP_VERSION } from '../constants';
 
 const Settings: React.FC = () => {
@@ -16,7 +17,7 @@ const Settings: React.FC = () => {
     { id: 'team', icon: UserCog, label: 'Equipe e Permissões', desc: 'Gerencie mecânicos, consultores e acessos.' },
     { id: 'security', icon: Shield, label: 'Segurança', desc: 'Logs de auditoria, senhas e autenticação.' },
     { id: 'notifications', icon: Bell, label: 'Notificações', desc: 'Alertas de estoque, WhatsApp e lembretes.' },
-    { id: 'backup', icon: Database, label: 'Dados e Backup', desc: 'Exportação de dados e sincronização.' },
+    { id: 'backup', icon: Database, label: 'Config. do Sistema', desc: 'Exportação de dados e sincronização.' },
     { id: 'integrations', icon: Globe, label: 'Integrações', desc: 'Conecte com meios de pagamento e ERPs externos.' },
   ];
 
@@ -30,6 +31,8 @@ const Settings: React.FC = () => {
         return <SecuritySettings />;
       case 'notifications':
         return <NotificationSettings />;
+      case 'backup':
+        return <SystemSettings />;
       default:
         return (
           <>
@@ -38,25 +41,25 @@ const Settings: React.FC = () => {
                 <div
                   key={cat.id}
                   onClick={() => setActiveTab(cat.id)}
-                  className="bg-white border border-slate-200 p-6 rounded-2xl hover:border-indigo-600 hover:shadow-lg transition-all group cursor-pointer"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl hover:border-indigo-600 dark:hover:border-indigo-400 hover:shadow-lg transition-all group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-colors mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors mb-4">
                     <cat.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{cat.label}</h3>
-                  <p className="text-sm text-slate-500 mt-1 leading-relaxed">{cat.desc}</p>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{cat.label}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{cat.desc}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 p-6 bg-indigo-50 rounded-3xl border border-indigo-100">
+            <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl border border-indigo-100 dark:border-indigo-900/30">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
                   <SettingsIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-indigo-900">Versão do Sistema: {APP_VERSION}</h4>
-                  <p className="text-xs text-indigo-600 font-medium">Última verificação de atualização: Hoje às 08:30</p>
+                  <h4 className="font-bold text-indigo-900 dark:text-indigo-100">Versão do Sistema: {APP_VERSION}</h4>
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Última verificação de atualização: Hoje às 08:30</p>
                 </div>
               </div>
             </div>
@@ -66,21 +69,21 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 space-y-8 overflow-y-auto">
+    <div className="flex-1 p-8 space-y-8 overflow-y-auto bg-slate-50 dark:bg-slate-900">
       <header className="flex items-center gap-4">
         {activeTab && (
           <button
             onClick={() => setActiveTab(null)}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500 transition-colors"
+            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
         )}
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             {activeTab ? categories.find(c => c.id === activeTab)?.label : 'Configurações'}
           </h2>
-          <p className="text-slate-500 mt-1">
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
             {activeTab
               ? 'Gerencie as informações detalhadas desta seção.'
               : 'Personalize a experiência do Oficina Master Pro para sua empresa.'}

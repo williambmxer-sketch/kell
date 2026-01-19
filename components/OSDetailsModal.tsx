@@ -54,7 +54,9 @@ const PrintStyles = () => (
 );
 
 const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, onClose }) => {
-  const context = useContext(WorkshopContext);
+  const { orders, vehicles, clients, mechanics, settings, inventory, services, brands, gearboxes, updateOrder, addHistoryLog, updateOrderStatus, history, deleteOrder, paymentMethods, transactions, addTransaction, deleteTransaction } = useContext(WorkshopContext) || {
+    orders: [], vehicles: [], clients: [], mechanics: [], settings: null, inventory: [], services: [], brands: [], gearboxes: [], updateOrder: async () => { }, addHistoryLog: async () => { }, updateOrderStatus: async () => { }, history: [], deleteOrder: async () => { }, paymentMethods: [], transactions: [], addTransaction: async () => { }, deleteTransaction: async () => { }
+  };
   const [activeTab, setActiveTab] = useState<'details' | 'items' | 'documents' | 'history'>('details');
   const [localDiagnosis, setLocalDiagnosis] = useState(initialOrder.diagnosis || '');
   const [discount, setDiscount] = useState<number>(initialOrder.discount || 0);
@@ -77,6 +79,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
   const [tempTime, setTempTime] = useState('');
   const [previewDoc, setPreviewDoc] = useState<OrderDocument | null>(null);
   const [newChecklistItem, setNewChecklistItem] = useState('');
+
+
 
   // Payment Method State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -255,10 +259,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     };
   }, [onClose]);
 
-  if (!context) return null;
-  const { vehicles, clients, orders, inventory, services, mechanics, updateOrderStatus, updateOrder, history, addHistoryLog, gearboxes, settings, deleteOrder, paymentMethods } = context;
-
-  const order = context.orders.find(o => o.id === initialOrder.id) || initialOrder;
+  const order = orders.find(o => o.id === initialOrder.id) || initialOrder;
   const vehicle = vehicles.find(v => v.id === order.vehicleId);
   const client = vehicle ? clients.find(c => c.id === vehicle.clientId) : null;
   // Group consecutive identical history logs (e.g. repeated prints)
@@ -412,9 +413,9 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
     // Financial Integration: Remove Transaction if reverting from FINISHED
     if (order.status === OSStatus.FINISHED) {
-      const transaction = context.transactions.find(t => t.orderId === order.id);
+      const transaction = transactions.find(t => t.orderId === order.id);
       if (transaction) {
-        context.deleteTransaction(transaction.id);
+        deleteTransaction(transaction.id);
         addHistoryLog(order.id, 'FINANCEIRO', `Estorno: Removeu receita de R$ ${transaction.amount.toFixed(2)}`);
       }
     }
@@ -750,7 +751,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     // Financial Integration: Create Transaction on Finish
     if (targetStatus === OSStatus.FINISHED) {
       // Check for existing transaction to avoid duplicates
-      const existingTransaction = context.transactions.find(t => t.orderId === order.id);
+      const existingTransaction = transactions.find(t => t.orderId === order.id);
 
       if (!existingTransaction) {
         const transactionValue = totalValue; // Uses the calculated value from render scope
@@ -760,7 +761,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
         // Let's use then/catch to handle the promise side-effect without blocking UI excessively, 
         // but ideally we should block closure.
 
-        context.addTransaction({
+        addTransaction({
           id: crypto.randomUUID(),
           description: `Receita OS #${order.id} - ${client?.name || 'Cliente'}`,
           category: 'Serviços',
@@ -1234,11 +1235,11 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200 no-print" onClick={onClose}>
-        <div className="bg-white w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200" onClick={(e) => e.stopPropagation()}>
-          <header className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
+        <div className="bg-white dark:bg-slate-800 w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors" onClick={(e) => e.stopPropagation()}>
+          <header className="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800 shrink-0 transition-colors">
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-widest shadow-sm">OS: #{order.id}</span>
+                <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-900/30 uppercase tracking-widest shadow-sm">OS: #{order.id}</span>
                 <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-widest shadow-sm ${STATUS_CONFIG[order.status].color}`}>{STATUS_CONFIG[order.status].label}</span>
                 {order.category === 'RESTORATION' && (
                   <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase tracking-widest shadow-sm flex items-center gap-1">
@@ -1247,34 +1248,34 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                   </span>
                 )}
               </div>
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">{vehicle?.brand} {vehicle?.model} <span className="text-slate-300 font-mono text-sm ml-1">[{vehicle?.plate}]</span></h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{client?.name} • {client?.phone}</p>
+              <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">{vehicle?.brand} {vehicle?.model} <span className="text-slate-300 dark:text-slate-600 font-mono text-sm ml-1">[{vehicle?.plate}]</span></h2>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">{client?.name} • {client?.phone}</p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"><X className="w-5 h-5" /></button>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl transition-colors text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"><X className="w-5 h-5" /></button>
           </header>
 
           {!showScheduling && (
-            <nav className="flex border-b border-slate-100 px-6 bg-slate-50/30 shrink-0">
-              <button onClick={() => setActiveTab('details')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'details' ? 'border-indigo-600 text-indigo-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600'}`}><Activity className="w-3.5 h-3.5" /> DIAGNÓSTICO</button>
-              <button onClick={() => setActiveTab('items')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'items' ? 'border-indigo-600 text-indigo-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600'}`}><Package className="w-3.5 h-3.5" /> ORÇAMENTO</button>
-              <button onClick={() => setActiveTab('documents')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'documents' ? 'border-indigo-600 text-indigo-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600'}`}><FileText className="w-3.5 h-3.5" /> DOCUMENTOS</button>
-              <button onClick={() => setActiveTab('history')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-600 text-indigo-600 bg-white' : 'border-transparent text-slate-400 hover:text-slate-600'}`}><History className="w-3.5 h-3.5" /> HISTÓRICO</button>
+            <nav className="flex border-b border-slate-100 dark:border-slate-700 px-6 bg-slate-50/30 dark:bg-slate-800/50 shrink-0">
+              <button onClick={() => setActiveTab('details')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'details' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><Activity className="w-3.5 h-3.5" /> DIAGNÓSTICO</button>
+              <button onClick={() => setActiveTab('items')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'items' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><Package className="w-3.5 h-3.5" /> ORÇAMENTO</button>
+              <button onClick={() => setActiveTab('documents')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'documents' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><FileText className="w-3.5 h-3.5" /> DOCUMENTOS</button>
+              <button onClick={() => setActiveTab('history')} className={`px-5 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><History className="w-3.5 h-3.5" /> HISTÓRICO</button>
             </nav>
           )}
 
-          <main className="flex-1 overflow-y-auto p-6 bg-white custom-scrollbar">
+          <main className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-800 custom-scrollbar transition-colors">
             {showScheduling ? (
               <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl flex items-center gap-4 shadow-inner">
-                  <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg"><Calendar className="w-6 h-6 text-white" /></div>
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 p-5 rounded-2xl flex items-center gap-4 shadow-inner transition-colors">
+                  <div className="bg-indigo-600 dark:bg-indigo-500 p-2.5 rounded-xl shadow-lg"><Calendar className="w-6 h-6 text-white" /></div>
                   <div className="flex-1">
-                    <h3 className="text-xs font-black text-indigo-900 uppercase tracking-widest">Agendar Montagem</h3>
-                    <p className="text-[9px] text-indigo-500 font-bold uppercase tracking-tight">Defina o técnico e escolha um slot de horário livre.</p>
+                    <h3 className="text-xs font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-widest">Agendar Montagem</h3>
+                    <p className="text-[9px] text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-tight">Defina o técnico e escolha um slot de horário livre.</p>
                   </div>
                   {gearbox?.assemblyTime && (
-                    <div className="bg-white px-4 py-2 rounded-xl border border-indigo-100 shadow-sm text-center min-w-[100px]">
-                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Tempo Montagem</p>
-                      <p className="text-sm font-black text-indigo-600">{gearbox.assemblyTime}</p>
+                    <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-indigo-100 dark:border-indigo-900/30 shadow-sm text-center min-w-[100px] transition-colors">
+                      <p className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tempo Montagem</p>
+                      <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">{gearbox.assemblyTime}</p>
                     </div>
                   )}
                 </div>
@@ -1283,7 +1284,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                   <div className="space-y-1.5 col-span-1">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Mecânico</label>
                     <select
-                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                       value={tempMechanicId}
                       onChange={(e) => { setTempMechanicId(e.target.value); setTempTime(''); }}
                     >
@@ -1296,7 +1297,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                     <input
                       type="date"
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                       value={tempDate}
                       onChange={(e) => { setTempDate(e.target.value); setTempTime(''); }}
                     />
@@ -1327,16 +1328,16 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                             onClick={() => setTempTime(isPartial && status.startAt ? status.startAt : slot)}
                             className={`
                             py-3 rounded-xl border text-[10px] font-black transition-all flex items-center justify-center gap-1.5 relative overflow-hidden
-                            ${isBusy ? 'bg-red-50 border-red-100 text-red-300 cursor-not-allowed' :
-                                isSelected ? 'bg-indigo-600 border-indigo-700 text-white shadow-lg shadow-indigo-100' :
-                                  'bg-slate-50 border-slate-200 text-slate-600 hover:border-indigo-500 hover:text-indigo-600'}
+                            ${isBusy ? 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30 text-red-300 dark:text-red-500 cursor-not-allowed' :
+                                isSelected ? 'bg-indigo-600 border-indigo-700 text-white shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20' :
+                                  'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400'}
                           `}
                             style={isPartial && !isSelected ? {
                               background: 'linear-gradient(90deg, #fee2e2 50%, #ffffff 50%)',
                               borderColor: '#e2e8f0'
                             } : {}}
                           >
-                            <Clock className={`w-3 h-3 ${isSelected ? 'text-indigo-200' : isPartial && !isSelected ? 'text-slate-400 mix-blend-multiply' : 'text-slate-400'}`} />
+                            <Clock className={`w-3 h-3 ${isSelected ? 'text-indigo-200' : isPartial && !isSelected ? 'text-slate-400 mix-blend-multiply' : 'text-slate-400 dark:text-slate-500'}`} />
                             {isPartial && !isSelected ?
                               <span className="z-10 flex gap-1"><span className="text-red-300 line-through decoration-red-300">{slot}</span> <span className="text-emerald-600">30min</span></span>
                               :
@@ -1350,12 +1351,12 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                 )}
 
                 <div className="pt-4 flex gap-3">
-                  <button type="button" onClick={() => setShowScheduling(false)} className="flex-1 py-3 text-slate-400 font-black text-[10px] uppercase border border-slate-100 rounded-xl">Voltar</button>
+                  <button type="button" onClick={() => setShowScheduling(false)} className="flex-1 py-3 text-slate-400 dark:text-slate-500 font-black text-[10px] uppercase border border-slate-100 dark:border-slate-700/50 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">Voltar</button>
                   <button
                     type="button"
                     onClick={finalizeStageChange}
                     disabled={!tempMechanicId || !tempTime}
-                    className="flex-[2] py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-xl shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                    className="flex-[2] py-3 bg-indigo-600 text-white font-black text-[10px] uppercase rounded-xl shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 active:scale-95 transition-all disabled:opacity-50"
                   >
                     Confirmar Agendamento
                   </button>
@@ -1366,29 +1367,29 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                 {activeTab === 'details' && (
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="grid grid-cols-2 gap-4 items-start">
-                      <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl h-full shadow-sm">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Relato Original</p>
-                        <p className="text-xs text-slate-700 italic leading-relaxed font-medium">"{order.reportedFault || 'Nenhum relato.'}"</p>
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-2xl h-full shadow-sm">
+                        <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Relato Original</p>
+                        <p className="text-xs text-slate-700 dark:text-slate-300 italic leading-relaxed font-medium">"{order.reportedFault || 'Nenhum relato.'}"</p>
                       </div>
                       <div className="space-y-3">
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5">Status de Prioridade</p>
+                          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-1.5">Status de Prioridade</p>
                           <div className={`px-4 py-2.5 border rounded-xl flex items-center justify-center gap-2 ${PRIORITY_CONFIG[order.priority].bg} ${PRIORITY_CONFIG[order.priority].border} shadow-sm`}>
                             <div className={`w-2 h-2 rounded-full ${order.priority === Priority.HIGH ? 'bg-red-500 animate-pulse' : 'bg-slate-400'}`} />
                             <span className={`text-[10px] font-black uppercase tracking-widest ${PRIORITY_CONFIG[order.priority].color}`}>{PRIORITY_CONFIG[order.priority].label}</span>
                           </div>
                         </div>
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5">Tipo de Atendimento</p>
+                          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-1.5">Tipo de Atendimento</p>
                           {client?.type === 'COMPANY' ? (
-                            <div className="px-4 py-2.5 border border-purple-200 bg-purple-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
-                              <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-purple-700">Frota / Empresa</span>
+                            <div className="px-4 py-2.5 border border-purple-200 dark:border-purple-900/30 bg-purple-50 dark:bg-purple-900/10 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                              <Briefcase className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-purple-700 dark:text-purple-300">Frota / Empresa</span>
                             </div>
                           ) : (
-                            <div className="px-4 py-2.5 border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
-                              <UserCheck className="w-3.5 h-3.5 text-slate-400" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Serviço Particular</span>
+                            <div className="px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                              <UserCheck className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">Serviço Particular</span>
                             </div>
                           )}
                         </div>
@@ -1397,16 +1398,16 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
                     {/* Agendamento Info - Visible only if SCHEDULED or EXECUTION */}
                     {(order.status === OSStatus.SCHEDULED || order.status === OSStatus.EXECUTION) && order.scheduledDate && (
-                      <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-center gap-4 shadow-sm animate-in fade-in slide-in-from-top-2 mt-4">
+                      <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-4 flex items-center gap-4 shadow-sm animate-in fade-in slide-in-from-top-2 mt-4">
                         <div className="bg-indigo-600 p-2.5 rounded-xl shadow-md text-white">
                           <Clock className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-[10px] font-black text-indigo-900 uppercase tracking-widest leading-tight">Agendamento Atual</h3>
-                          <p className="text-xs font-bold text-indigo-700 mt-0.5">
+                          <h3 className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest leading-tight">Agendamento Atual</h3>
+                          <p className="text-xs font-bold text-indigo-700 dark:text-indigo-400 mt-0.5">
                             {new Date(order.scheduledDate).toLocaleDateString()} às {new Date(order.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
-                          <p className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider mt-0.5">
+                          <p className="text-[9px] text-indigo-400 dark:text-indigo-500 font-bold uppercase tracking-wider mt-0.5">
                             Mecânico: {mechanics.find(m => m.id === order.mechanicId)?.name || 'N/A'}
                           </p>
                         </div>
@@ -1437,13 +1438,13 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                       </div>
 
                       {/* History Log View */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 min-h-[120px] max-h-[300px] overflow-y-auto shadow-inner">
+                      <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4 min-h-[120px] max-h-[300px] overflow-y-auto shadow-inner custom-scrollbar">
                         {localDiagnosis ? (
-                          <div className="whitespace-pre-wrap text-xs text-slate-700 font-medium leading-relaxed">
+                          <div className="whitespace-pre-wrap text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
                             {localDiagnosis}
                           </div>
                         ) : (
-                          <p className="text-xs text-slate-400 italic text-center py-8">Nenhuma observação registrada.</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 italic text-center py-8">Nenhuma observação registrada.</p>
                         )}
                       </div>
 
@@ -1451,7 +1452,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                       <div className="flex gap-2 items-start">
                         <textarea
                           placeholder="Digite uma nova observação para adicionar..."
-                          className="flex-1 p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs text-slate-900 font-medium shadow-sm transition-all h-[50px] min-h-[50px]"
+                          className="flex-1 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs text-slate-900 dark:text-slate-100 font-medium shadow-sm transition-all h-[50px] min-h-[50px]"
                           value={newObservation}
                           onChange={(e) => setNewObservation(e.target.value)}
                           onKeyDown={(e) => {
@@ -1479,23 +1480,23 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                   <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Documentação</h3>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Fotos, Laudos e PDFs</p>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Documentação</h3>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-0.5">Fotos, Laudos e PDFs</p>
                       </div>
                     </div>
 
-                    <form onSubmit={handleUpload} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:bg-slate-50/80 transition-all">
+                    <form onSubmit={handleUpload} className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-all">
                       {!selectedFile ? (
                         <>
-                          <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Upload className="w-6 h-6" />
                           </div>
                           <label className={`block ${isFinished ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-                            <span className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:underline">Clique para enviar</span>
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide"> ou arraste o arquivo</span>
+                            <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline">Clique para enviar</span>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wide"> ou arraste o arquivo</span>
                             <input type="file" className="hidden" onChange={handleFileSelect} accept="image/png,image/jpeg,application/pdf" disabled={isFinished} />
                           </label>
-                          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-2">JPG, PNG ou PDF (Máx. 5MB)</p>
+                          <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-2">JPG, PNG ou PDF (Máx. 5MB)</p>
                         </>
                       ) : (
                         <div className="flex flex-col items-center gap-4">
@@ -1507,12 +1508,12 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                             </div>
                           )}
                           <div className="w-full max-w-xs">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-left block mb-1">Nome do Arquivo</label>
+                            <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-left block mb-1">Nome do Arquivo</label>
                             <input
                               type="text"
                               value={fileName}
                               onChange={e => setFileName(e.target.value)}
-                              className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 outline-none uppercase"
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-slate-100 outline-none uppercase"
                               autoFocus
                             />
                           </div>
@@ -1528,9 +1529,9 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
                     <div className="space-y-2">
                       {documents.length > 0 ? documents.map(doc => (
-                        <div key={doc.id} className="group flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 transition-all hover:shadow-sm">
+                        <div key={doc.id} className="group flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:shadow-sm">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400">
                               {doc.type.includes('IMAGE') || doc.type === 'JPG' || doc.type === 'PNG' ? (
                                 <ImageIcon className="w-4 h-4" />
                               ) : (
@@ -1538,8 +1539,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                               )}
                             </div>
                             <div>
-                              <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{doc.name}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase">{new Date(doc.createdAt).toLocaleDateString()} • {doc.type}</p>
+                              <p className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">{doc.name}</p>
+                              <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase">{new Date(doc.createdAt).toLocaleDateString()} • {doc.type}</p>
                             </div>
                           </div>
 
@@ -1568,8 +1569,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           </div>
                         </div>
                       )) : (
-                        <div className="py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                          <p className="text-[10px] font-black text-slate-300 uppercase">Nenhum documento anexado.</p>
+                        <div className="py-8 text-center bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700/50">
+                          <p className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase">Nenhum documento anexado.</p>
                         </div>
                       )}
                     </div>
@@ -1580,8 +1581,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                   <div id="budget-pdf-content" className="space-y-6 animate-in fade-in duration-300">
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Orçamento Detalhado</h3>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest font-mono">Peças e Mão de Obra</p>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Orçamento Detalhado</h3>
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest font-mono">Peças e Mão de Obra</p>
                       </div>
                       <div className="flex gap-2">
                         <div className="flex gap-2">
@@ -1624,26 +1625,26 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                       </div>
                     </div>
                     {isAddingItem && (
-                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-4 animate-in slide-in-from-top-2 duration-200 shadow-inner">
-                        <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Novo Item</span>
-                          <button onClick={() => setIsAddingItem(false)} className="text-slate-400 hover:text-slate-600 transition-colors"><X className="w-3.5 h-3.5" /></button>
+                      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl space-y-4 animate-in slide-in-from-top-2 duration-200 shadow-inner">
+                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/50 pb-2 mb-2">
+                          <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Novo Item</span>
+                          <button onClick={() => setIsAddingItem(false)} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"><X className="w-3.5 h-3.5" /></button>
                         </div>
                         <form onSubmit={handleAddItem} className="space-y-3">
                           <div className="grid grid-cols-2 gap-3">
                             <div className="col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo</label>
-                              <div className="flex bg-slate-100 p-1 rounded-lg">
+                              <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Tipo</label>
+                              <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
                                 <button
                                   type="button"
-                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'PART' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'PART' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
                                   onClick={() => { setNewItemType('PART'); setNewItemDesc(''); setNewItemPrice(0); }}
                                 >
                                   Peças
                                 </button>
                                 <button
                                   type="button"
-                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'SERVICE' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                  className={`flex-1 py-1.5 text-[9px] font-black uppercase rounded-md transition-all ${newItemType === 'SERVICE' ? 'bg-emerald-500 text-white shadow-md' : 'text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
                                   onClick={() => { setNewItemType('SERVICE'); setNewItemDesc(''); setNewItemPrice(0); }}
                                 >
                                   Serviços
@@ -1651,8 +1652,8 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                               </div>
                             </div>
                             <div className="col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Catálogo</label>
-                              <select className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" onChange={(e) => {
+                              <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Catálogo</label>
+                              <select className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-900 dark:text-slate-100 outline-none" onChange={(e) => {
                                 if (newItemType === 'PART') {
                                   const item = inventory.find(i => i.id === e.target.value);
                                   if (item) { setNewItemDesc(item.name); setNewItemPrice(item.salePrice); }
@@ -1666,16 +1667,16 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                               </select>
                             </div>
                           </div>
-                          <div className="space-y-1"><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição</label><input required type="text" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none uppercase" value={newItemDesc} onChange={(e) => setNewItemDesc(e.target.value)} /></div>
+                          <div className="space-y-1"><label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Descrição</label><input required type="text" className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-900 dark:text-slate-100 outline-none uppercase" value={newItemDesc} onChange={(e) => setNewItemDesc(e.target.value)} /></div>
                           <div className="grid grid-cols-2 gap-3">
-                            <div><label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Qtd</label><input type="number" min="1" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none" value={newItemQty} onChange={(e) => setNewItemQty(Number(e.target.value))} /></div>
+                            <div><label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Qtd</label><input type="number" min="1" className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-900 dark:text-slate-100 outline-none" value={newItemQty} onChange={(e) => setNewItemQty(Number(e.target.value))} /></div>
                             <div>
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Preço R$</label>
+                              <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Preço R$</label>
                               <input
                                 ref={priceInputRef}
                                 type="number"
                                 step="0.01"
-                                className={`w-full p-2 bg-white border rounded-lg text-[10px] font-bold text-slate-900 outline-none transition-colors ${showPriceError ? 'border-red-300 focus:border-red-400 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full p-2 bg-white dark:bg-slate-900 border rounded-lg text-[10px] font-bold text-slate-900 dark:text-slate-100 outline-none transition-colors ${showPriceError ? 'border-red-300 focus:border-red-400 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-700'}`}
                                 value={newItemPrice}
                                 onChange={(e) => {
                                   setNewItemPrice(Number(e.target.value));
@@ -1688,22 +1689,22 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
 
                           {/* Waiting Parts Toggle */}
                           {newItemType === 'PART' && (
-                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col gap-3">
+                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-xl p-3 flex flex-col gap-3">
                               <div className="flex items-center justify-between">
-                                <label className="text-[9px] font-black text-amber-700 uppercase tracking-widest">Aguardar Peça?</label>
-                                <div onClick={() => setIsWaitingParts(!isWaitingParts)} className={`w-8 h-4 rounded-full p-0.5 cursor-pointer transition-colors ${isWaitingParts ? 'bg-amber-500' : 'bg-slate-300'}`}>
+                                <label className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">Aguardar Peça?</label>
+                                <div onClick={() => setIsWaitingParts(!isWaitingParts)} className={`w-8 h-4 rounded-full p-0.5 cursor-pointer transition-colors ${isWaitingParts ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
                                   <div className={`w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${isWaitingParts ? 'translate-x-4' : 'translate-x-0'}`}></div>
                                 </div>
                               </div>
 
                               {isWaitingParts && (
                                 <div className="space-y-1 animate-in slide-in-from-top-2">
-                                  <label className="text-[8px] font-black text-amber-600 uppercase tracking-widest ml-1">Dias para chegar</label>
+                                  <label className="text-[8px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest ml-1">Dias para chegar</label>
                                   <div className="flex gap-2 items-center">
                                     <input
                                       type="number"
                                       min="1"
-                                      className="w-16 p-1.5 bg-white border border-amber-200 rounded-lg text-[10px] font-bold text-amber-900 outline-none text-center"
+                                      className="w-16 p-1.5 bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/50 rounded-lg text-[10px] font-bold text-amber-900 dark:text-amber-100 outline-none text-center"
                                       value={daysToArrive}
                                       onChange={(e) => setDaysToArrive(Number(e.target.value))}
                                     />
@@ -1717,57 +1718,57 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                           )}
 
                           <div className="flex gap-2 mt-2">
-                            <button type="button" onClick={handleFinishAdding} className="flex-1 py-2 text-slate-400 text-[9px] font-black uppercase border border-slate-200 rounded-lg hover:bg-slate-50">Concluir Adição</button>
+                            <button type="button" onClick={handleFinishAdding} className="flex-1 py-2 text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Concluir Adição</button>
                             <button type="submit" className="flex-[2] py-2 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-lg shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5"><ShoppingCart className="w-3.5 h-3.5" /> Adicionar</button>
                           </div>
                         </form>
                       </div>
                     )}
-                    <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
                       <table className="w-full text-left">
-                        <thead className="bg-slate-50 border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        <thead className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                           <tr><th className="px-5 py-4">Descrição</th><th className="px-5 py-4 text-center">Tipo</th><th className="px-5 py-4 text-center">Qtd</th><th className="px-5 py-4 text-right">Total</th><th className="px-5 py-4 w-10"></th></tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                           {order.items.length > 0 ? order.items.map(i => (
-                            <tr key={i.id} className="hover:bg-slate-50 transition-colors group">
-                              <td className="px-5 py-4 text-xs font-bold text-slate-700 uppercase">{i.description}</td>
-                              <td className="px-5 py-4 text-center"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase ${i.type === 'PART' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-purple-50 text-purple-600 border-purple-100'}`}>{i.type === 'PART' ? 'Peça' : 'M.O'}</span></td>
-                              <td className="px-5 py-4 text-center text-xs font-bold text-slate-500">{i.quantity}</td>
-                              <td className="px-5 py-4 text-right font-mono text-xs text-slate-900 font-black tracking-tighter">R$ {(i.price * i.quantity).toLocaleString()}</td>
-                              <td className="px-5 py-4 text-right"><button onClick={() => removeItem(i.id)} disabled={!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION)} className={`text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 ${!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) ? 'hidden' : ''}`}><Trash2 className="w-3.5 h-3.5" /></button></td>
+                            <tr key={i.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
+                              <td className="px-5 py-4 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">{i.description}</td>
+                              <td className="px-5 py-4 text-center"><span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase ${i.type === 'PART' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30' : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900/30'}`}>{i.type === 'PART' ? 'Peça' : 'M.O'}</span></td>
+                              <td className="px-5 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400">{i.quantity}</td>
+                              <td className="px-5 py-4 text-right font-mono text-xs text-slate-900 dark:text-slate-100 font-black tracking-tighter">R$ {(i.price * i.quantity).toLocaleString()}</td>
+                              <td className="px-5 py-4 text-right"><button onClick={() => removeItem(i.id)} disabled={!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION)} className={`text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 ${!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) ? 'hidden' : ''}`}><Trash2 className="w-3.5 h-3.5" /></button></td>
                             </tr>
-                          )) : <tr><td colSpan={5} className="px-5 py-12 text-center text-[10px] text-slate-300 font-black uppercase">Nenhum item adicionado.</td></tr>}
+                          )) : <tr><td colSpan={5} className="px-5 py-12 text-center text-[10px] text-slate-300 dark:text-slate-600 font-black uppercase">Nenhum item adicionado.</td></tr>}
                         </tbody>
-                        {order.items.length > 0 && <tfoot className="bg-slate-50/50"><tr><td colSpan={3} className="px-5 py-3 text-right text-[10px] font-black text-slate-400 uppercase">Total:</td><td className="px-5 py-3 text-right font-mono text-sm text-indigo-600 font-black">R$ {totalValue.toLocaleString()}</td><td></td></tr></tfoot>}
+                        {order.items.length > 0 && <tfoot className="bg-slate-50/50 dark:bg-slate-700/30"><tr><td colSpan={3} className="px-5 py-3 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Total:</td><td className="px-5 py-3 text-right font-mono text-sm text-indigo-600 dark:text-indigo-400 font-black">R$ {totalValue.toLocaleString()}</td><td></td></tr></tfoot>}
                       </table>
                     </div>
                     {/* Budget Controls */}
                     <div className="mt-4 flex flex-col md:flex-row gap-4 animate-in slide-in-from-bottom-2 duration-300">
                       {/* Notes Input */}
-                      <div className="flex-[2] bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col group focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+                      <div className="flex-[2] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col group focus-within:ring-2 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30 transition-all">
                         <div className="flex items-center gap-2 mb-2">
                           <FileText className="w-4 h-4 text-indigo-500" />
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Observações do Orçamento (Impresso)</label>
+                          <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Observações do Orçamento (Impresso)</label>
                         </div>
                         <textarea
                           value={localNotes}
                           onChange={(e) => { setLocalNotes(e.target.value); setHasChanges(true); }}
-                          className="flex-1 bg-white border border-slate-200 rounded-xl p-3 text-xs text-slate-700 font-medium outline-none resize-none focus:border-indigo-300 transition-all placeholder:text-slate-300"
+                          className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-700 dark:text-slate-300 font-medium outline-none resize-none focus:border-indigo-300 dark:focus:border-indigo-700 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                           placeholder="Ex: Garantia de 90 dias. Validade da proposta de 15 dias."
                           disabled={!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) || isFinished}
                         />
                       </div>
 
                       {/* Financials Input */}
-                      <div className="flex-1 bg-white border border-slate-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+                      <div className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
                         <div>
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-1">Desconto</label>
+                          <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Desconto</label>
                           <div className="flex gap-2 mt-1">
                             <select
                               value={discountType}
                               onChange={(e) => { setDiscountType(e.target.value as 'value' | 'percent'); setHasChanges(true); }}
-                              className="w-16 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 text-center uppercase"
+                              className="w-16 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500 text-center uppercase"
                               disabled={!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) || isFinished}
                             >
                               <option value="value">R$</option>
@@ -1781,16 +1782,16 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                                 setDiscount(val === '' ? 0 : Number(val));
                                 setHasChanges(true);
                               }}
-                              className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 text-right"
+                              className="flex-1 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500 text-right"
                               placeholder="0,00"
                               disabled={!(order.status === OSStatus.BUDGET || order.status === OSStatus.RECEPTION) || isFinished}
                             />
                           </div>
                         </div>
-                        <div className="h-px bg-slate-100 my-1"></div>
+                        <div className="h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
                         <div className="flex justify-between items-center px-1">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Final</span>
-                          <span className="text-lg font-black text-indigo-700">R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                          <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Final</span>
+                          <span className="text-lg font-black text-indigo-700 dark:text-indigo-400">R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                         </div>
                       </div>
                     </div>
@@ -1955,7 +1956,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
             </div>
           )}
 
-          <footer className="px-6 py-4 border-t border-slate-100 flex justify-between items-center bg-slate-50/30 shrink-0 no-print">
+          <footer className="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/30 dark:bg-slate-800/50 shrink-0 no-print transition-colors">
             <div className="flex items-center gap-1.5">
               <button type="button" onClick={() => {
                 const warnings = [];
@@ -1970,9 +1971,9 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                   message: "Esta ação é irreversível e excluirá todos os dados atrelados.",
                   warnings
                 });
-              }} disabled={isFinished} className={`p-2 text-slate-400 hover:text-slate-600 transition-all border border-transparent hover:border-slate-200 hover:bg-slate-50 rounded-lg ${isFinished ? 'opacity-30 cursor-not-allowed' : ''}`} title="Excluir OS"><Trash2 className="w-4 h-4" /></button>
-              <div className="h-4 w-px bg-slate-200 mx-1"></div>
-              <button type="button" onClick={handleRevert} className="p-2 text-slate-400 hover:text-amber-600 transition-all border border-transparent hover:border-amber-100 hover:bg-amber-50 rounded-lg" title="Estornar / Voltar"><Undo2 className="w-4 h-4" /></button>
+              }} disabled={isFinished} className={`p-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg ${isFinished ? 'opacity-30 cursor-not-allowed' : ''}`} title="Excluir OS"><Trash2 className="w-4 h-4" /></button>
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+              <button type="button" onClick={handleRevert} className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-all border border-transparent hover:border-amber-100 dark:hover:border-amber-900/30 hover:bg-amber-50 dark:hover:bg-amber-900/10 rounded-lg" title="Estornar / Voltar"><Undo2 className="w-4 h-4" /></button>
             </div>
 
             <div className="flex items-center gap-3">

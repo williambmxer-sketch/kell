@@ -642,7 +642,9 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
     return {
       ...globalData,
       whatsappMessageTemplate: globalData.whatsapp_message_template,
-      authTermTemplate: globalData.auth_term_template
+      authTermTemplate: globalData.auth_term_template,
+      theme: globalData.tema,
+      sidebarMode: globalData.modo_barra_lateral
     };
   }
 
@@ -658,7 +660,9 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
       return {
         ...userData,
         whatsappMessageTemplate: userData.whatsapp_message_template,
-        authTermTemplate: userData.auth_term_template
+        authTermTemplate: userData.auth_term_template,
+        theme: userData.tema,
+        sidebarMode: userData.modo_barra_lateral
       };
     }
   }
@@ -670,7 +674,9 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
       return {
         ...anyData,
         whatsappMessageTemplate: anyData.whatsapp_message_template,
-        authTermTemplate: anyData.auth_term_template
+        authTermTemplate: anyData.auth_term_template,
+        theme: anyData.tema,
+        sidebarMode: anyData.modo_barra_lateral
       };
     }
   }
@@ -683,7 +689,9 @@ export const fetchSettings = async (): Promise<WorkshopSettings | null> => {
   return {
     ...finalData,
     whatsappMessageTemplate: finalData.whatsapp_message_template,
-    authTermTemplate: finalData.auth_term_template
+    authTermTemplate: finalData.auth_term_template,
+    theme: finalData.tema,
+    sidebarMode: finalData.modo_barra_lateral
   };
 };
 
@@ -714,6 +722,8 @@ export const updateSettings = async (settings: Partial<WorkshopSettings>) => {
   if (settings.horario_funcionamento !== undefined) dbPayload.horario_funcionamento = settings.horario_funcionamento;
   if (settings.whatsappMessageTemplate !== undefined) dbPayload.whatsapp_message_template = settings.whatsappMessageTemplate;
   if (settings.authTermTemplate !== undefined) dbPayload.auth_term_template = settings.authTermTemplate;
+  if (settings.theme !== undefined) dbPayload.tema = settings.theme;
+  if (settings.sidebarMode !== undefined) dbPayload.modo_barra_lateral = settings.sidebarMode;
 
   const { error } = await supabase.from('configuracoes').upsert(dbPayload);
   if (error) throw error;

@@ -53,21 +53,21 @@ const NotificationSettings: React.FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-indigo-500" /> WhatsApp
                 </h3>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Modelo de Mensagem de Orçamento</label>
-                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Modelo de Mensagem de Orçamento</label>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
                             Configure o texto padrão que será enviado ao cliente junto com o PDF do orçamento.
                             <br />
-                            Use as variáveis: <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{CLIENTE}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{VEICULO}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{PLACA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{VALOR}`}</code>
+                            Use as variáveis: <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{CLIENTE}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{VEICULO}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{PLACA}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{VALOR}`}</code>
                         </p>
                         <textarea
-                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 min-h-[150px] leading-relaxed"
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 dark:text-slate-100 min-h-[150px] leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                             placeholder="Olá {CLIENTE}, segue o orçamento do seu {VEICULO}..."
                             value={settings.whatsappMessageTemplate || ''}
                             onChange={e => setSettings({ ...settings, whatsappMessageTemplate: e.target.value })}
@@ -76,21 +76,21 @@ const NotificationSettings: React.FC = () => {
                 </div>
             </section>
 
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <FileSignature className="w-4 h-4 text-indigo-500" /> Termo de Autorização
                 </h3>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Modelo do Termo de Abertura/Montagem</label>
-                        <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Modelo do Termo de Abertura/Montagem</label>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
                             Configure o texto que será impresso para o cliente assinar autorizando o serviço.
                             <br />
-                            Variáveis: <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{CLIENTE}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{MARCA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{VEICULO}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{PLACA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{DATA}`}</code>, <code className="bg-slate-100 px-1 rounded text-indigo-600 font-bold">{`{OFICINA}`}</code>
+                            Variáveis: <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{CLIENTE}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{MARCA}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{VEICULO}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{PLACA}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{DATA}`}</code>, <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-indigo-600 dark:text-indigo-400 font-bold">{`{OFICINA}`}</code>
                         </p>
                         <textarea
-                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 min-h-[200px] leading-relaxed"
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 dark:text-slate-100 min-h-[200px] leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500"
                             placeholder="Eu, {CLIENTE}, autorizo..."
                             value={settings.authTermTemplate || ''}
                             onChange={e => setSettings({ ...settings, authTermTemplate: e.target.value })}

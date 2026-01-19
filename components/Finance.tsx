@@ -51,48 +51,48 @@ const Finance: React.FC = () => {
   }, [filteredTransactions]);
 
   return (
-    <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+    <div className="flex-1 p-6 space-y-6 overflow-y-auto bg-slate-50/50 dark:bg-slate-950/50 transition-colors duration-300">
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Módulo Financeiro</h2>
-          <p className="text-slate-500 text-sm">Controle de receitas, despesas e fluxo de caixa.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight transition-colors">Módulo Financeiro</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Controle de receitas, despesas e fluxo de caixa.</p>
         </div>
         <div className="flex gap-3">
-          <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="text-xs font-bold text-slate-600 bg-transparent border-none outline-none focus:ring-0"
+              className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent border-none outline-none focus:ring-0"
             />
-            <span className="text-slate-300 font-bold">-</span>
+            <span className="text-slate-300 dark:text-slate-600 font-bold">-</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="text-xs font-bold text-slate-600 bg-transparent border-none outline-none focus:ring-0"
+              className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent border-none outline-none focus:ring-0"
             />
-            <div className="px-2 text-[10px] font-black uppercase text-slate-400 tracking-widest border-l border-slate-100 pl-2">
+            <div className="px-2 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest border-l border-slate-100 dark:border-slate-800 pl-2">
               Período
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm px-3">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-3 transition-colors">
             <select
-              className="text-xs font-bold text-slate-600 bg-transparent border-none outline-none focus:ring-0 min-w-[100px]"
+              className="text-xs font-bold text-slate-600 dark:text-slate-300 bg-transparent border-none outline-none focus:ring-0 min-w-[100px]"
               value={selectedPaymentMethodFilter}
               onChange={(e) => setSelectedPaymentMethodFilter(e.target.value)}
             >
-              <option value="">Todas as formas</option>
+              <option value="" className="dark:bg-slate-900 dark:text-slate-300">Todas as formas</option>
               {paymentMethods?.map(p => (
-                <option key={p.id} value={p.name}>{p.name}</option>
+                <option key={p.id} value={p.name} className="dark:bg-slate-900 dark:text-slate-300">{p.name}</option>
               ))}
             </select>
-            <div className="px-2 text-[10px] font-black uppercase text-slate-400 tracking-widest border-l border-slate-100 pl-2">
+            <div className="px-2 text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest border-l border-slate-100 dark:border-slate-800 pl-2">
               Pagamento
             </div>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95">
+          <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2 transition-all active:scale-95 shadow-indigo-100 dark:shadow-indigo-900/20">
             <Plus className="w-4 h-4" /> Novo Lançamento
           </button>
         </div>
@@ -100,8 +100,8 @@ const Finance: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-hover hover:shadow-md">
-            <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center mb-4`}>
+          <div key={i} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-hover hover:shadow-md">
+            <div className={`w-10 h-10 rounded-xl ${s.bg} dark:bg-opacity-10 flex items-center justify-center mb-4`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{s.label}</p>
@@ -110,54 +110,54 @@ const Finance: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
-          <h3 className="font-bold text-slate-800">Movimentações</h3>
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-sm transition-colors">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/50">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200">Movimentações</h3>
           <div className="flex gap-2">
             {/* Future filters */}
           </div>
         </div>
         <div className="overflow-x-auto">
           {combinedList.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 font-medium">Nenhuma movimentação no período selecionado.</div>
+            <div className="p-8 text-center text-slate-400 dark:text-slate-500 font-medium">Nenhuma movimentação no período selecionado.</div>
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-700/30 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Data</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Descrição</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Categoria</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Forma Pagto</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest">Status</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest text-right">Valor</th>
-                  <th className="px-6 py-4 font-bold text-slate-500 uppercase text-[10px] tracking-widest text-center">Ações</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">Data</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">Descrição</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">Categoria</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">Forma Pagto</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">Status</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest text-right">Valor</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest text-center">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                 {combinedList.map((row) => (
-                  <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 text-slate-500 font-mono text-xs">{new Date(row.date).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 font-bold text-slate-800">
+                  <tr key={row.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">{new Date(row.date).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
                       {row.description}
-                      {row.orderId && <span className="ml-2 text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">Auto</span>}
+                      {row.orderId && <span className="ml-2 text-[9px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800 uppercase tracking-wider">Auto</span>}
                     </td>
-                    <td className="px-6 py-4 text-slate-500 text-xs uppercase tracking-wide">{row.category}</td>
-                    <td className="px-6 py-4 text-slate-500 text-xs font-bold uppercase tracking-wider">{row.paymentMethod || '-'}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">{row.category}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">{row.paymentMethod || '-'}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${row.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                        row.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                          'bg-slate-50 text-slate-600 border-slate-100'
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${row.status === 'PAID' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800' :
+                        row.status === 'PENDING' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-800' :
+                          'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700'
                         }`}>
                         {row.status === 'PAID' ? 'Pago / Recebido' : 'Pendente'}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 font-black text-right ${row.type === 'IN' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    <td className={`px-6 py-4 font-black text-right ${row.type === 'IN' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
                       {row.type === 'IN' ? '+' : '-'} R$ {row.amount.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => setTransactionToDelete(row.id)}
-                        className="text-slate-400 hover:text-red-500 transition-colors text-xs font-bold uppercase"
+                        className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs font-bold uppercase"
                       >
                         Excluir
                       </button>
@@ -172,16 +172,16 @@ const Finance: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {transactionToDelete && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Confirmar Exclusão</h3>
-            <p className="text-slate-500 text-sm mb-6">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Confirmar Exclusão</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
               Tem certeza que deseja excluir esta transação? Essa ação não pode ser desfeita.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setTransactionToDelete(null)}
-                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-bold text-sm transition-colors"
+                className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-bold text-sm transition-colors"
               >
                 Cancelar
               </button>
@@ -234,14 +234,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, pa
     onClose();
   };
 
-  const inputClass = "w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all";
+  const inputClass = "w-full p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition-all";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
-        <header className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-          <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Novo Lançamento</h3>
-          <button onClick={onClose}><X className="w-5 h-5 text-slate-400 hover:text-slate-600" /></button>
+      <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors" onClick={e => e.stopPropagation()}>
+        <header className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Novo Lançamento</h3>
+          <button onClick={onClose}><X className="w-5 h-5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" /></button>
         </header>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
@@ -261,16 +261,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, pa
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Tipo</label>
-              <div className="flex bg-slate-100 p-1 rounded-xl">
-                <button type="button" onClick={() => setFormData({ ...formData, type: 'IN' })} className={`flex-1 py-2 rounded-lg text-xs font-black uppercase ${formData.type === 'IN' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Entrada</button>
-                <button type="button" onClick={() => setFormData({ ...formData, type: 'OUT' })} className={`flex-1 py-2 rounded-lg text-xs font-black uppercase ${formData.type === 'OUT' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Saída</button>
+              <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+                <button type="button" onClick={() => setFormData({ ...formData, type: 'IN' })} className={`flex-1 py-2 rounded-lg text-xs font-black uppercase ${formData.type === 'IN' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Entrada</button>
+                <button type="button" onClick={() => setFormData({ ...formData, type: 'OUT' })} className={`flex-1 py-2 rounded-lg text-xs font-black uppercase ${formData.type === 'OUT' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>Saída</button>
               </div>
             </div>
             <div>
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Status</label>
               <select className={inputClass} value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as any })}>
-                <option value="PAID">Pago / Recebido</option>
-                <option value="PENDING">Pendente</option>
+                <option value="PAID" className="dark:bg-slate-900">Pago / Recebido</option>
+                <option value="PENDING" className="dark:bg-slate-900">Pendente</option>
               </select>
             </div>
           </div>
@@ -281,14 +281,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ onClose, onSave, pa
           <div>
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Forma de Pagamento</label>
             <select className={inputClass} value={formData.paymentMethod} onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}>
-              <option value="">Nenhuma / Outros</option>
+              <option value="" className="dark:bg-slate-900">Nenhuma / Outros</option>
               {paymentMethods?.filter(p => p.active).map(p => (
-                <option key={p.id} value={p.name}>{p.name}</option>
+                <option key={p.id} value={p.name} className="dark:bg-slate-900">{p.name}</option>
               ))}
             </select>
           </div>
 
-          <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all mt-4">
+          <button type="submit" className="w-full py-3.5 bg-indigo-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 hover:bg-indigo-700 active:scale-[0.98] transition-all mt-4">
             Salvar Lançamento
           </button>
         </form>

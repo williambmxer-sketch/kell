@@ -172,6 +172,8 @@ export interface WorkshopSettings {
   horario_funcionamento?: Record<string, { ativo: boolean; inicio: string; fim: string }>;
   whatsappMessageTemplate?: string;
   authTermTemplate?: string;
+  theme?: 'light' | 'dark';
+  sidebarMode?: 'automatic' | 'fixed-open' | 'fixed-closed';
 }
 
 export interface PaymentMethod {

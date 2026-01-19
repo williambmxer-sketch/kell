@@ -143,20 +143,20 @@ const GeneralSettings: React.FC = () => {
 
     if (isLoading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-indigo-600" /></div>;
 
-    const inputClass = "w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700";
-    const labelClass = "text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block";
+    const inputClass = "w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-medium text-slate-700 dark:text-slate-200";
+    const labelClass = "text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-1 block";
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
             {/* Branding */}
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <Building className="w-4 h-4 text-indigo-500" /> Identidade Visual
                 </h3>
                 <div className="flex items-center gap-6">
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-24 h-24 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all overflow-hidden relative group"
+                        className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all overflow-hidden relative group"
                     >
                         {(previewUrl || settings.logo_url) ? (
                             <img src={previewUrl || settings.logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -166,7 +166,7 @@ const GeneralSettings: React.FC = () => {
                         <input type="file" ref={fileInputRef} onChange={handleLogoChange} accept="image/*" className="hidden" />
                     </div>
                     <div className="flex-1">
-                        <h4 className="font-bold text-slate-900">Logo da Oficina</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100">Logo da Oficina</h4>
                         <p className="text-xs text-slate-500 mt-1">Recomendado: 512x512px (PNG ou JPG).</p>
                         <p className="text-xs text-slate-500">Clique para alterar.</p>
                     </div>
@@ -174,8 +174,8 @@ const GeneralSettings: React.FC = () => {
             </section>
 
             {/* Basic Info */}
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-indigo-500" /> Dados Cadastrais
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -187,8 +187,8 @@ const GeneralSettings: React.FC = () => {
             </section>
 
             {/* Address */}
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-indigo-500" /> Endereço
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -202,17 +202,17 @@ const GeneralSettings: React.FC = () => {
             </section>
 
             {/* Business Hours */}
-            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-indigo-500" /> Horário de Funcionamento
                 </h3>
                 <div className="space-y-3">
                     {DAYS.map(day => {
                         const dayConfig = settings.horario_funcionamento?.[day.key] || { ativo: false, inicio: '', fim: '' };
                         return (
-                            <div key={day.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <div key={day.key} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-6 rounded-full flex items-center transition-colors p-1 cursor-pointer ${dayConfig.ativo ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}
+                                    <div className={`w-10 h-6 rounded-full flex items-center transition-colors p-1 cursor-pointer ${dayConfig.ativo ? 'bg-indigo-600 justify-end' : 'bg-slate-300 dark:bg-slate-600 justify-start'}`}
                                         onClick={() => setSettings(prev => ({
                                             ...prev,
                                             horario_funcionamento: {
@@ -223,19 +223,19 @@ const GeneralSettings: React.FC = () => {
                                     >
                                         <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
                                     </div>
-                                    <span className="text-xs font-bold text-slate-700 uppercase w-24">{day.label}</span>
+                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase w-24">{day.label}</span>
                                 </div>
 
                                 {dayConfig.ativo ? (
                                     <div className="flex items-center gap-2">
-                                        <input type="time" className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs outline-none focus:border-indigo-500"
+                                        <input type="time" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200"
                                             value={dayConfig.inicio}
                                             onChange={e => setSettings(prev => ({
                                                 ...prev, horario_funcionamento: { ...prev.horario_funcionamento, [day.key]: { ...dayConfig, inicio: e.target.value } }
                                             }))}
                                         />
                                         <span className="text-slate-400 text-xs">até</span>
-                                        <input type="time" className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs outline-none focus:border-indigo-500"
+                                        <input type="time" className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200"
                                             value={dayConfig.fim}
                                             onChange={e => setSettings(prev => ({
                                                 ...prev, horario_funcionamento: { ...prev.horario_funcionamento, [day.key]: { ...dayConfig, fim: e.target.value } }

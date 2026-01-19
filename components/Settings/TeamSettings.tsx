@@ -52,16 +52,16 @@ const TeamSettings: React.FC = () => {
     return (
         <div className="space-y-6 animate-fade-in relative">
             {/* Header Section */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-2">
                         <UserCog className="w-4 h-4 text-indigo-500" /> Gestão da Equipe
                     </h3>
-                    <p className="text-xs text-slate-500 mt-1">Gerencie os mecânicos e acessos ao sistema.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Gerencie os mecânicos e acessos ao sistema.</p>
                 </div>
                 <button
                     onClick={handleOpenAdd}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-indigo-100 active:scale-95"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-indigo-100 dark:shadow-indigo-900/30 active:scale-95"
                 >
                     <Plus className="w-4 h-4" /> Novo Membro
                 </button>
@@ -69,29 +69,29 @@ const TeamSettings: React.FC = () => {
 
             {/* Modal Form */}
             {isFormOpen && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={handleClose}>
+                    <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                            <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-2">
                                 {editingUser ? (
                                     <><UserCog className="w-4 h-4 text-indigo-500" /> Editar Membro</>
                                 ) : (
                                     <><Plus className="w-4 h-4 text-indigo-500" /> Novo Membro</>
                                 )}
                             </h4>
-                            <button type="button" onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors bg-slate-50 hover:bg-slate-100 p-2 rounded-lg">
+                            <button type="button" onClick={handleClose} className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 p-2 rounded-lg">
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Nome Completo</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5 block">Nome Completo</label>
                                 <input
                                     autoFocus
                                     type="text"
                                     required
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                                    className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                     placeholder="Ex: João Silva"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -99,10 +99,10 @@ const TeamSettings: React.FC = () => {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 block">Função / Cargo</label>
+                                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5 block">Função / Cargo</label>
                                 <div className="grid grid-cols-1 gap-2">
                                     <select
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all appearance-none"
+                                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all appearance-none"
                                         value={formData.role}
                                         onChange={e => setFormData({ ...formData, role: e.target.value as any })}
                                     >
@@ -122,13 +122,13 @@ const TeamSettings: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleClose}
-                                    className="px-4 py-2.5 text-slate-500 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 rounded-xl transition-all"
+                                    className="px-4 py-2.5 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-all"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2 active:scale-95"
+                                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/30 transition-all flex items-center gap-2 active:scale-95"
                                 >
                                     <Save className="w-4 h-4" /> {editingUser ? 'Salvar Alterações' : 'Cadastrar Membro'}
                                 </button>
@@ -145,13 +145,13 @@ const TeamSettings: React.FC = () => {
                         <div
                             key={user.id}
                             onClick={() => handleOpenEdit(user)}
-                            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden"
+                            className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md transition-all group cursor-pointer relative overflow-hidden"
                         >
                             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                                 {/* Delete button isolated */}
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleDelete(user.id); }}
-                                    className="bg-white text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg border border-slate-100 shadow-sm"
+                                    className="bg-white dark:bg-slate-700 text-slate-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-slate-100 dark:border-slate-600 shadow-sm"
                                     title="Remover Membro"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -160,18 +160,18 @@ const TeamSettings: React.FC = () => {
 
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg ${user.role === 'ADMIN' ? 'bg-slate-800 shadow-slate-100' :
-                                            user.role === 'MECHANIC' ? 'bg-indigo-500 shadow-indigo-100' :
-                                                'bg-emerald-500 shadow-emerald-100'
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg ${user.role === 'ADMIN' ? 'bg-slate-800 dark:bg-slate-900 dark:shadow-none' :
+                                        user.role === 'MECHANIC' ? 'bg-indigo-500 dark:shadow-none' :
+                                            'bg-emerald-500 dark:shadow-none'
                                         }`}>
                                         {user.role === 'ADMIN' ? <Shield className="w-6 h-6" /> : user.role === 'MECHANIC' ? <Wrench className="w-6 h-6" /> : <User className="w-6 h-6" />}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-base">{user.name}</h4>
+                                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-base">{user.name}</h4>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${user.role === 'ADMIN' ? 'bg-slate-100 text-slate-600 border-slate-200' :
-                                                    user.role === 'MECHANIC' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
-                                                        'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${user.role === 'ADMIN' ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600' :
+                                                user.role === 'MECHANIC' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-500/20' :
+                                                    'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20'
                                                 }`}>
                                                 {user.role === 'MECHANIC' ? 'Mecânico' : user.role === 'ADMIN' ? 'Admin' : 'Consultor'}
                                             </span>
@@ -180,19 +180,19 @@ const TeamSettings: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+                            <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
                                 <span>Clique para editar</span>
                                 <UserCog className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400" />
                             </div>
                         </div>
                     ))
                 ) : (
-                    <div className="col-span-full p-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-300">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <div className="col-span-full p-12 text-center bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
+                        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                             <UserCog className="w-8 h-8" />
                         </div>
-                        <h3 className="text-slate-900 font-bold mb-1">Nenhum membro encontrado</h3>
-                        <p className="text-slate-500 text-sm mb-6">Comece adicionando sua equipe para gerenciar ordens de serviço.</p>
+                        <h3 className="text-slate-900 dark:text-slate-100 font-bold mb-1">Nenhum membro encontrado</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Comece adicionando sua equipe para gerenciar ordens de serviço.</p>
                         <button
                             onClick={handleOpenAdd}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider inline-flex items-center gap-2 transition-all shadow-lg shadow-indigo-100"
