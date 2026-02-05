@@ -14,6 +14,19 @@ const Dashboard: React.FC = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isNewOSModalOpen, setIsNewOSModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Date Range Filter State
+  const [dateRange, setDateRange] = useState(() => {
+    const start = new Date();
+    start.setDate(start.getDate() - 10);
+    const end = new Date();
+    end.setDate(end.getDate() + 20);
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0]
+    };
+  });
+
   const [openSortMenu, setOpenSortMenu] = useState<OSStatus | null>(null);
   const [columnSort, setColumnSort] = useState<Record<OSStatus, 'createdAt' | 'priorityAsc' | 'priorityDesc'>>({
     [OSStatus.RECEPTION]: 'createdAt',
@@ -39,7 +52,18 @@ const Dashboard: React.FC = () => {
     const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
     const matchesMechanic = mechanicFilter === 'all' || o.mechanicId === mechanicFilter;
 
-    return matchesSearch && matchesMechanic;
+    // Date Range Logic
+    // Use scheduledDate if available, otherwise createdAt
+    // We compare using the date part (YYYY-MM-DD)
+    const targetDateStr = o.scheduledDate
+      ? o.scheduledDate.split('T')[0]
+      : o.createdAt.split('T')[0];
+
+    // Check if within range (inclusive)
+    const matchesDate = (!dateRange.start || targetDateStr >= dateRange.start) &&
+      (!dateRange.end || targetDateStr <= dateRange.end);
+
+    return matchesSearch && matchesMechanic && matchesDate;
   });
 
   const getOrdersInStatus = (status: OSStatus) => {
@@ -74,6 +98,23 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Date Filter Inputs */}
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-sm">
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+              className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter text-right"
+            />
+            <span className="text-slate-300 dark:text-slate-700">|</span>
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+              className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter"
+            />
+          </div>
+
           <button
             onClick={toggleTheme}
             className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm active:scale-95"
