@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Date Range Filter State
+  const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(true);
   const [dateRange, setDateRange] = useState(() => {
     const start = new Date();
     start.setDate(start.getDate() - 10);
@@ -60,8 +61,8 @@ const Dashboard: React.FC = () => {
       : o.createdAt.split('T')[0];
 
     // Check if within range (inclusive)
-    const matchesDate = (!dateRange.start || targetDateStr >= dateRange.start) &&
-      (!dateRange.end || targetDateStr <= dateRange.end);
+    const matchesDate = !isDateFilterEnabled || ((!dateRange.start || targetDateStr >= dateRange.start) &&
+      (!dateRange.end || targetDateStr <= dateRange.end));
 
     return matchesSearch && matchesMechanic && matchesDate;
   });
@@ -99,20 +100,38 @@ const Dashboard: React.FC = () => {
 
         <div className="flex items-center gap-4">
           {/* Date Filter Inputs */}
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-sm">
-            <input
-              type="date"
-              value={dateRange.start}
-              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter text-right"
-            />
-            <span className="text-slate-300 dark:text-slate-700">|</span>
-            <input
-              type="date"
-              value={dateRange.end}
-              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter"
-            />
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-sm transition-opacity duration-200">
+            <div className="flex items-center gap-2 px-2 border-r border-slate-200 dark:border-slate-800">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isDateFilterEnabled}
+                  onChange={(e) => setIsDateFilterEnabled(e.target.checked)}
+                />
+                <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                  {isDateFilterEnabled ? 'ON' : 'OFF'}
+                </span>
+              </label>
+            </div>
+            <div className={`flex items-center gap-2 transition-opacity duration-200 ${!isDateFilterEnabled ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <input
+                type="date"
+                value={dateRange.start}
+                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter text-right"
+                disabled={!isDateFilterEnabled}
+              />
+              <span className="text-slate-300 dark:text-slate-700">|</span>
+              <input
+                type="date"
+                value={dateRange.end}
+                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                className="bg-transparent border-none text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-0 w-24 uppercase tracking-tighter"
+                disabled={!isDateFilterEnabled}
+              />
+            </div>
           </div>
 
           <button
