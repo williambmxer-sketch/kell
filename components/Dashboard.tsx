@@ -53,22 +53,25 @@ const Dashboard: React.FC = () => {
     const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
     const matchesMechanic = mechanicFilter === 'all' || o.mechanicId === mechanicFilter;
 
-    // Date Range Logic
-    // Use scheduledDate if available, otherwise createdAt
-    // We compare using the date part (YYYY-MM-DD)
-    const targetDateStr = o.scheduledDate
-      ? o.scheduledDate.split('T')[0]
-      : o.createdAt.split('T')[0];
-
-    // Check if within range (inclusive)
-    const matchesDate = !isDateFilterEnabled || ((!dateRange.start || targetDateStr >= dateRange.start) &&
-      (!dateRange.end || targetDateStr <= dateRange.end));
-
-    return matchesSearch && matchesMechanic && matchesDate;
+    return matchesSearch && matchesMechanic;
   });
 
   const getOrdersInStatus = (status: OSStatus) => {
-    const ordersInStatus = filteredOrders.filter(o => o.status === status);
+    let ordersInStatus = filteredOrders.filter(o => o.status === status);
+
+    // Filtro de data só na coluna Finalizado
+    if (status === OSStatus.FINISHED && isDateFilterEnabled) {
+      ordersInStatus = ordersInStatus.filter(o => {
+        const targetDateStr = o.scheduledDate
+          ? o.scheduledDate.split('T')[0]
+          : o.createdAt.split('T')[0];
+        return (
+          (!dateRange.start || targetDateStr >= dateRange.start) &&
+          (!dateRange.end || targetDateStr <= dateRange.end)
+        );
+      });
+    }
+
     const sortType = columnSort[status];
 
     // Priority weight: HIGH=3, MEDIUM=2, LOW=1
@@ -134,16 +137,98 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* ─── Day / Night Toggle ─── */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm active:scale-95"
-            title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+            title={theme === 'dark' ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+            aria-label={theme === 'dark' ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+            style={{
+              width: 64,
+              height: 32,
+              borderRadius: 999,
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              position: 'relative',
+              overflow: 'hidden',
+              flexShrink: 0,
+              boxShadow: theme === 'dark'
+                ? 'inset 0 2px 6px rgba(0,0,0,0.6), 0 0 0 1.5px #2A2A2A'
+                : 'inset 0 2px 6px rgba(0,0,0,0.15), 0 0 0 1.5px #CBD5E1',
+              background: theme === 'dark'
+                ? 'linear-gradient(180deg, #0B0F1A 0%, #1A2540 100%)'
+                : 'linear-gradient(180deg, #60C6F5 0%, #A8DFFE 100%)',
+              transition: 'background 0.5s ease, box-shadow 0.4s ease',
+            }}
           >
-            {theme === 'dark' ? (
-              <Moon className="w-5 h-5" />
-            ) : (
-              <Sun className="w-5 h-5" />
-            )}
+            {/* Stars (night) */}
+            {['12%,28%', '30%,14%', '50%,22%', '68%,10%', '22%,48%', '45%,42%'].map((pos, i) => {
+              const [l, t] = pos.split(',');
+              return (
+                <span key={i} style={{
+                  position: 'absolute',
+                  left: l, top: t,
+                  width: i % 2 === 0 ? 2 : 1.5,
+                  height: i % 2 === 0 ? 2 : 1.5,
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  opacity: theme === 'dark' ? (0.5 + i * 0.08) : 0,
+                  transition: 'opacity 0.4s ease',
+                  transitionDelay: `${i * 40}ms`,
+                }} />
+              );
+            })}
+
+            {/* Cloud (day) */}
+            <span style={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              width: 26,
+              height: 14,
+              opacity: theme === 'dark' ? 0 : 1,
+              transform: theme === 'dark' ? 'translateX(10px)' : 'translateX(0)',
+              transition: 'opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s',
+            }}>
+              <svg viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
+                <ellipse cx="20" cy="16" rx="14" ry="8" fill="white" fillOpacity="0.9" />
+                <ellipse cx="30" cy="18" rx="10" ry="6" fill="white" fillOpacity="0.85" />
+                <ellipse cx="14" cy="18" rx="8" ry="6" fill="white" fillOpacity="0.75" />
+                <circle cx="20" cy="10" r="8" fill="white" fillOpacity="0.95" />
+                <circle cx="30" cy="12" r="6" fill="white" fillOpacity="0.9" />
+              </svg>
+            </span>
+
+            {/* Thumb: Sun (day) / Moon (night) */}
+            <span style={{
+              position: 'absolute',
+              top: 3,
+              left: theme === 'dark' ? 33 : 3,
+              width: 26,
+              height: 26,
+              borderRadius: '50%',
+              transition: 'left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              background: theme === 'dark'
+                ? 'radial-gradient(circle at 60% 40%, #D8D8D8 0%, #A8A8A8 60%, #808080 100%)'
+                : 'radial-gradient(circle at 40% 35%, #FFE566 0%, #FFD000 55%, #FFA500 100%)',
+              boxShadow: theme === 'dark'
+                ? '2px 2px 6px rgba(0,0,0,0.5), inset -2px -1px 4px rgba(0,0,0,0.3)'
+                : '0 2px 8px rgba(255,180,0,0.6), inset -1px -1px 3px rgba(255,120,0,0.3)',
+              zIndex: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}>
+              {/* Moon craters */}
+              {theme === 'dark' && (
+                <>
+                  <span style={{ position: 'absolute', top: 6, left: 6, width: 6, height: 6, borderRadius: '50%', background: 'rgba(0,0,0,0.18)' }} />
+                  <span style={{ position: 'absolute', top: 13, left: 9, width: 4, height: 4, borderRadius: '50%', background: 'rgba(0,0,0,0.14)' }} />
+                  <span style={{ position: 'absolute', top: 8, left: 14, width: 3, height: 3, borderRadius: '50%', background: 'rgba(0,0,0,0.12)' }} />
+                </>
+              )}
+            </span>
           </button>
           <select
             value={mechanicFilter}
@@ -168,7 +253,7 @@ const Dashboard: React.FC = () => {
           </div>
           <button
             onClick={() => setIsNewOSModalOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-indigo-100 dark:shadow-indigo-900/30 active:scale-95"
+            className="bg-[#E52020] hover:bg-[#C01A1A] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-red-900/20 active:scale-95"
           >
             <Plus className="w-4 h-4" />
             Novo Check-in
@@ -184,11 +269,11 @@ const Dashboard: React.FC = () => {
               <div
                 key={status}
                 className={`flex-1 min-w-0 flex flex-col h-full rounded-2xl border transition-colors duration-300 ${isFinished
-                  ? 'bg-slate-200/60 dark:bg-slate-900/40 border-slate-300 dark:border-slate-800 opacity-80 saturate-50'
-                  : 'bg-slate-100/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
+                  ? 'bg-slate-200 dark:bg-[#141414] border-slate-300 dark:border-[#2A2A2A] opacity-80 saturate-50'
+                  : 'bg-slate-100 dark:bg-[#161616] border-slate-200 dark:border-[#2A2A2A]'
                   }`}
               >
-                <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/30 rounded-t-2xl transition-colors">
+                <div className="p-4 border-b border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between bg-slate-50 dark:bg-[#1A1A1A] rounded-t-2xl transition-colors">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${STATUS_CONFIG[status].color.split(' ')[0]}`}></div>
                     <h3 className="font-black text-slate-700 dark:text-slate-300 text-[10px] uppercase tracking-widest">{STATUS_CONFIG[status].label}</h3>
@@ -215,21 +300,21 @@ const Dashboard: React.FC = () => {
                           <p className="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest px-3 py-2">Ordenar por</p>
                           <button
                             onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'createdAt' })); setOpenSortMenu(null); }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left ${columnSort[status] === 'createdAt' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10' : 'text-slate-600 dark:text-slate-300'}`}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-[#222222] transition-colors text-left ${columnSort[status] === 'createdAt' ? 'text-[#E52020] dark:text-[#FF5050] bg-red-50 dark:bg-[#2A1010]' : 'text-slate-600 dark:text-slate-300'}`}
                           >
                             <ListOrdered className="w-3.5 h-3.5" />
                             Ordem de Lançamento
                           </button>
                           <button
                             onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityDesc' })); setOpenSortMenu(null); }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left ${columnSort[status] === 'priorityDesc' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10' : 'text-slate-600 dark:text-slate-300'}`}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-[#222222] transition-colors text-left ${columnSort[status] === 'priorityDesc' ? 'text-[#E52020] dark:text-[#FF5050] bg-red-50 dark:bg-[#2A1010]' : 'text-slate-600 dark:text-slate-300'}`}
                           >
                             <ArrowUp className="w-3.5 h-3.5" />
                             Prioridade Alta → Baixa
                           </button>
                           <button
                             onClick={() => { setColumnSort(prev => ({ ...prev, [status]: 'priorityAsc' })); setOpenSortMenu(null); }}
-                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left ${columnSort[status] === 'priorityAsc' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10' : 'text-slate-600 dark:text-slate-300'}`}
+                            className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:hover:bg-[#222222] transition-colors text-left ${columnSort[status] === 'priorityAsc' ? 'text-[#E52020] dark:text-[#FF5050] bg-red-50 dark:bg-[#2A1010]' : 'text-slate-600 dark:text-slate-300'}`}
                           >
                             <ArrowDown className="w-3.5 h-3.5" />
                             Prioridade Baixa → Alta
@@ -250,57 +335,57 @@ const Dashboard: React.FC = () => {
                     let cardBg = "bg-white dark:bg-slate-800";
                     let cardBorder = "border-slate-200 dark:border-slate-700";
 
-                    // Priority Styles (Dark Mode Enhanced)
+                    // Priority Styles — sólidos, sem transparências
                     if (order.priority === Priority.HIGH) {
-                      cardBg = "bg-red-100 dark:bg-red-900/40";
-                      cardBorder = "border-red-200 dark:border-red-900/50";
+                      cardBg = "bg-red-50 dark:bg-[#2A0D0D]";
+                      cardBorder = "border-red-300 dark:border-[#5A1A1A]";
                     }
                     else if (order.priority === Priority.MEDIUM) {
-                      cardBg = "bg-amber-100 dark:bg-amber-900/40";
-                      cardBorder = "border-amber-200 dark:border-amber-900/50";
+                      cardBg = "bg-amber-50 dark:bg-[#2A1A08]";
+                      cardBorder = "border-amber-300 dark:border-[#5A3A10]";
                     }
                     else if (order.priority === Priority.LOW) {
-                      cardBg = "bg-emerald-100 dark:bg-emerald-900/40";
-                      cardBorder = "border-emerald-200 dark:border-emerald-900/50";
+                      cardBg = "bg-emerald-50 dark:bg-[#0D2218]";
+                      cardBorder = "border-emerald-300 dark:border-[#1A4A2A]";
                     }
 
                     return (
                       <div
                         key={order.id}
                         onClick={() => setSelectedOrderId(order.id)}
-                        className={`${cardBg} ${cardBorder} p-4 rounded-2xl border shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-500 transition-all cursor-pointer group`}
+                        className={`${cardBg} ${cardBorder} p-4 rounded-2xl border shadow-sm hover:shadow-md dark:hover:shadow-[0_0_0_1px_rgba(229,32,32,0.25)] dark:hover:border-[#E52020]/30 transition-all cursor-pointer group`}
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
+                          <span className="text-[10px] font-black text-[#E52020] dark:text-[#FF5050] bg-[#F3E8E8] dark:bg-[#2A1010] border border-red-200 dark:border-[#E52020]/20 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm">OS: #{order.id}</span>
                           <div className={`text-[9px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${priorityInfo.bg} ${priorityInfo.color} ${priorityInfo.border}`}>
                             {priorityInfo.label}
                           </div>
                         </div>
 
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm uppercase tracking-tight">
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-[#E52020] dark:group-hover:text-[#FF5050] transition-colors text-sm uppercase tracking-tight">
                           {vehicle?.brand} {vehicle?.model}
                         </h4>
                         <div className="flex items-center gap-1.5 mt-1 text-slate-500 dark:text-slate-400">
-                          <span className="text-[10px] bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded font-mono font-bold text-slate-600 dark:text-slate-300 uppercase tracking-tighter">{vehicle?.plate}</span>
+                          <span className="text-[10px] bg-slate-100 dark:bg-[#2A2A2A] border border-slate-200 dark:border-[#3A3A3A] px-1.5 py-0.5 rounded font-mono font-bold text-slate-700 dark:text-[#CCCCCC] uppercase tracking-tighter">{vehicle?.plate}</span>
                           <span className="text-xs">•</span>
                           <span className="text-xs truncate font-medium">{client?.name}</span>
                         </div>
 
                         {order.scheduledDate && (
-                          <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-lg flex items-center justify-between transition-colors">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                          <div className="mt-3 p-2 bg-slate-100 dark:bg-[#1E1E1E] border border-slate-200 dark:border-[#333333] rounded-lg flex items-center justify-between transition-colors">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-[#E52020] dark:text-[#E52020]">
                               {order.status === 'FINISHED' ? 'Finalizado' :
                                 (order.status === 'BUDGET') ? 'Aprovar Orçamento' :
                                   (order.status === 'SCHEDULED') ? 'Agendado: Montagem' :
                                     (order.status === 'EXECUTION') ? 'Agendado: Execução' : 'Agendamento'}
                             </span>
-                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 font-mono">
+                            <span className="text-[9px] font-bold text-slate-800 dark:text-[#DDDDDD] font-mono">
                               {formatScheduledDate(order.scheduledDate)} {formatScheduledTime(order.scheduledDate)}
                             </span>
                           </div>
                         )}
 
-                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between text-slate-400 dark:text-slate-500">
+                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-[#2A2A2A] flex items-center justify-between text-slate-400 dark:text-[#777777]">
                           <div className="flex items-center gap-1 text-[10px] font-bold">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -311,14 +396,14 @@ const Dashboard: React.FC = () => {
                               const date = waitingItem?.expectedArrival ? new Date(waitingItem.expectedArrival) : null;
                               const dateStr = date ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '---';
                               return (
-                                <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/30 px-2 py-1 rounded-full">
-                                  <Clock className="w-3 h-3 text-amber-600 dark:text-amber-500" />
-                                  <span className="text-[9px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-tight">Aguardando peça {dateStr}</span>
+                                <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-[#2A1A08] border border-amber-200 dark:border-[#5A3A10] px-2 py-1 rounded-full">
+                                  <Clock className="w-3 h-3 text-amber-600 dark:text-[#D97706]" />
+                                  <span className="text-[9px] font-black text-amber-700 dark:text-[#D97706] uppercase tracking-tight">Aguardando peça {dateStr}</span>
                                 </div>
                               )
                             })()
                           ) : order.mechanicId ? (
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-[#E52020] dark:text-[#E52020] uppercase tracking-widest">
                               <UserIcon className="w-3.5 h-3.5" />
                               <span>{mechanics.find(m => m.id === order.mechanicId)?.name || 'Mecânico'}</span>
                             </div>

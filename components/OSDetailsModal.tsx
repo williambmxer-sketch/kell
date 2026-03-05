@@ -1,5 +1,6 @@
 // cspell:ignore WHATSAPP
 import React, { useContext, useState, useEffect, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 import ReactDOM from 'react-dom';
 import { WorkshopContext } from '../App';
 import { WorkshopOrder, OSStatus, Priority, VehicleCategory, ChecklistItem, OrderItem, OrderDocument } from '../types';
@@ -225,7 +226,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       setDocToDelete(null);
     } catch (err) {
       console.error(err);
-      alert('Erro ao excluir documento.');
+      toast.error('Erro ao excluir documento.');
     }
   };
 
@@ -776,7 +777,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
         }).catch(err => {
           console.error("Erro ao gerar financeiro:", err);
           // Fallback: Notify user that financial record failed (likely migration issue)
-          alert("ATENÇÃO: A receita não foi gerada automaticamente.\n\nMotivo provável: Banco de dados desatualizado.\nPor favor, execute o script de migração enviado.");
+          toast.error('Atenção: A receita não foi gerada automaticamente. Banco de dados pode estar desatualizado.');
         });
       }
     }
@@ -838,7 +839,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       setShowPriceError(false);
     } catch (error) {
       console.error("Failed to add/update item", error);
-      alert("Erro ao salvar item no banco de dados.");
+      toast.error('Erro ao salvar item no banco de dados.');
     }
   };
 
@@ -891,7 +892,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       addHistoryLog(order.id, 'Remoção de Item', `${itemType} removido: ${itemDesc} (Qtd: ${itemToDelete?.quantity || 1} - R$ ${itemToDelete?.price?.toFixed(2) || '0.00'})`);
     } catch (error) {
       console.error("Failed to delete item", error);
-      alert("Erro ao excluir item.");
+      toast.error('Erro ao excluir item.');
     }
   };
 
@@ -926,7 +927,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
     updateOrder(order.id, { items: order.items });
     addHistoryLog(order.id, 'Orçamento Salvo', `Total de ${order.items.length} itens preservados.`);
     setHasChanges(false);
-    alert('Orçamento salvo com sucesso!');
+    toast.success('Orçamento salvo com sucesso!');
   };
 
   const handlePrint = () => {
@@ -1151,7 +1152,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       const { data: uploadedDoc, error } = await uploadDocService(order.id, selectedFile, fileName);
 
       if (error) {
-        alert(error); // Show exact error to user
+        toast.error(error);
         return;
       }
 
@@ -1163,7 +1164,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao enviar arquivo.');
+      toast.error('Erro ao enviar arquivo.');
     } finally {
       setIsUploading(false);
       setSelectedFile(null);
@@ -1598,7 +1599,7 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                             }
                             const phone = client?.phone?.replace(/\D/g, '') || '';
                             if (!phone) {
-                              alert('Cliente sem telefone cadastrado.');
+                              toast.error('Cliente sem telefone cadastrado.');
                               return;
                             }
                             setWhatsappModal({ isOpen: true, step: 'confirm' });
@@ -1803,21 +1804,43 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                     {orderHistory.length > 0 ? orderHistory.map(log => {
                       // Formatting Logic
                       let label = log.action;
-                      let colorClass = 'bg-indigo-500';
-                      let bgClass = 'bg-slate-50/50';
+                      let accentColor = '#6366f1'; // indigo fallback
+                      let cardBg = 'bg-white dark:bg-[#1E1E1E]';
+                      let cardBorder = 'border-slate-200 dark:border-[#2A2A2A]';
+                      let labelColor = 'text-slate-600 dark:text-slate-300';
 
-                      if (log.action === 'IMPRESSÃO') { label = 'Impressão do Orçamento'; colorClass = 'bg-slate-500'; }
-                      else if (log.action === 'WHATSAPP') { label = 'Envio via WhatsApp'; colorClass = 'bg-[#25D366]'; }
-                      else if (log.action === 'ESTORNO') { label = 'Estorno de Etapa'; colorClass = 'bg-amber-500'; bgClass = 'bg-amber-50/30'; }
-                      else if (log.action === 'Mudança de Status') { label = 'Avanço de Etapa'; colorClass = 'bg-indigo-600'; }
-                      else if (log.action === 'Alteração de dados') { label = 'Atualização de Dados'; colorClass = 'bg-slate-400'; }
-                      else if (log.action === 'Agendamento de Montagem') { label = 'Agendamento Confirmado'; colorClass = 'bg-purple-600'; }
-                      else if (log.action === 'Criação') { label = 'Abertura da OS'; colorClass = 'bg-emerald-500'; }
+                      if (log.action === 'IMPRESSÃO') {
+                        label = 'Impressão do Orçamento'; accentColor = '#64748b';
+                        labelColor = 'text-slate-600 dark:text-slate-300';
+                      } else if (log.action === 'WHATSAPP') {
+                        label = 'Envio via WhatsApp'; accentColor = '#25D366';
+                        labelColor = 'text-emerald-700 dark:text-[#25D366]';
+                      } else if (log.action === 'ESTORNO') {
+                        label = 'Estorno de Etapa'; accentColor = '#f59e0b';
+                        cardBg = 'bg-amber-50 dark:bg-[#2A1A08]';
+                        cardBorder = 'border-amber-200 dark:border-[#5A3A10]';
+                        labelColor = 'text-amber-700 dark:text-[#D97706]';
+                      } else if (log.action === 'Mudança de Status') {
+                        label = 'Avanço de Etapa'; accentColor = '#E52020';
+                        cardBg = 'bg-red-50 dark:bg-[#2A0D0D]';
+                        cardBorder = 'border-red-200 dark:border-[#5A1A1A]';
+                        labelColor = 'text-red-700 dark:text-[#E52020]';
+                      } else if (log.action === 'Alteração de dados') {
+                        label = 'Atualização de Dados'; accentColor = '#94a3b8';
+                        labelColor = 'text-slate-500 dark:text-slate-400';
+                      } else if (log.action === 'Agendamento de Montagem') {
+                        label = 'Agendamento Confirmado'; accentColor = '#8b5cf6';
+                        labelColor = 'text-violet-700 dark:text-violet-400';
+                      } else if (log.action === 'Criação') {
+                        label = 'Abertura da OS'; accentColor = '#16a34a';
+                        cardBg = 'bg-emerald-50 dark:bg-[#0D2218]';
+                        cardBorder = 'border-emerald-200 dark:border-[#1A4A2A]';
+                        labelColor = 'text-emerald-700 dark:text-[#16A34A]';
+                      }
 
                       // Translate Diff Content
                       let diffText = log.diff || '';
                       diffText = diffText
-                        // Field names
                         .replace(/estimatedDuration/g, 'Tempo Estimado')
                         .replace(/mechanicId/g, 'Mecânico Responsável')
                         .replace(/scheduledDate/g, 'Data Agendada')
@@ -1831,19 +1854,16 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                         .replace(/gearboxId/g, 'Câmbio')
                         .replace(/vehicleId/g, 'Veículo')
                         .replace(/clientId/g, 'Cliente')
-                        // Status values
                         .replace(/BUDGET/g, 'Orçamento')
                         .replace(/APPROVAL/g, 'Aguardando Aprovação')
                         .replace(/SCHEDULED/g, 'Agendado Montagem')
                         .replace(/EXECUTION/g, 'Em Execução')
                         .replace(/FINISHED/g, 'Finalizado')
                         .replace(/RECEPTION/g, 'Recepção')
-                        // Priority values
                         .replace(/URGENT/g, 'Urgente')
                         .replace(/HIGH/g, 'Alta')
                         .replace(/NORMAL/g, 'Normal')
                         .replace(/LOW/g, 'Baixa')
-                        // Other
                         .replace(/null/g, '(vazio)')
                         .replace(/undefined/g, '(não definido)')
                         .replace(/->/g, ' → ')
@@ -1851,22 +1871,33 @@ const OSDetailsModal: React.FC<OSDetailsModalProps> = ({ order: initialOrder, on
                         .replace(/Alterado para /g, 'Alterado para ');
 
                       return (
-                        <div key={log.id} className={`p-4 ${bgClass} border border-slate-100 rounded-2xl relative overflow-hidden shadow-sm transition-all hover:shadow-md`}>
-                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${colorClass}`}></div>
-                          <div className="flex justify-between items-center mb-1.5">
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${colorClass.replace('bg-', 'text-')}`}>
+                        <div key={log.id} className={`p-4 ${cardBg} ${cardBorder} border rounded-2xl relative overflow-hidden shadow-sm transition-all hover:shadow-md`}>
+                          {/* Accent bar */}
+                          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ backgroundColor: accentColor }}></div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${labelColor}`}>
                               {label}
-                              {log.count > 1 && <span className="ml-2 bg-slate-100 text-slate-600 text-[8px] px-1.5 py-0.5 rounded-full border border-slate-200">{log.count}x</span>}
+                              {log.count > 1 && (
+                                <span className="ml-2 bg-slate-100 dark:bg-[#2A2A2A] text-slate-600 dark:text-slate-300 text-[8px] px-1.5 py-0.5 rounded-full border border-slate-200 dark:border-[#3A3A3A]">
+                                  {log.count}x
+                                </span>
+                              )}
                             </span>
-                            <span className="text-[9px] font-bold text-slate-300 font-mono tracking-tight font-mono">{new Date(log.timestamp).toLocaleDateString()} • {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-tight">
+                              {new Date(log.timestamp).toLocaleDateString()} • {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
-                          {diffText && <p className="text-[10px] text-slate-600 font-medium leading-relaxed whitespace-pre-wrap pl-2 border-l border-slate-200">{diffText}</p>}
+                          {diffText && (
+                            <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap pl-2 border-l-2 border-slate-300 dark:border-[#3A3A3A]">
+                              {diffText}
+                            </p>
+                          )}
                         </div>
                       );
                     }) : (
                       <div className="text-center py-12 flex flex-col items-center gap-2">
-                        <History className="w-8 h-8 text-slate-200" />
-                        <p className="text-[10px] font-black text-slate-300 uppercase">Sem histórico registrado.</p>
+                        <History className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                        <p className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase">Sem histórico registrado.</p>
                       </div>
                     )}
                   </div>

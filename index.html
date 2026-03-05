@@ -9,6 +9,35 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        /* Paleta Dark Charcoal + Vermelho */
+                        dark: {
+                            root: '#111114',
+                            sidebar: '#16161A',
+                            primary: '#1C1C21',
+                            card: '#242429',
+                            elevated: '#2F2F36',
+                            input: '#1A1A1F',
+                            border: '#2E2E35',
+                            hover: '#2A2A30',
+                        },
+                        crimson: {
+                            DEFAULT: '#BF2B2B',
+                            hover: '#A82424',
+                            light: 'rgba(191,43,43,0.15)',
+                            text: '#FF7070',
+                        },
+                        /* Prioridades tonificadas para dark */
+                        priority: {
+                            low: '#16A34A',
+                            medium: '#CA8A04',
+                            high: '#DC2626',
+                        }
+                    }
+                }
+            }
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

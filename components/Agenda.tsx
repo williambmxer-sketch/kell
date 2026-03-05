@@ -859,94 +859,89 @@ const Agenda: React.FC = () => {
           onClick={() => setViewOnlyOrder(null)}
         >
           <div
-            className="bg-white w-full max-w-xl rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200"
+            className="bg-white dark:bg-[#1E1E1E] w-full max-w-xl rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-[#2A2A2A]"
             onClick={(e) => e.stopPropagation()}
           >
-            <header className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            {/* Header */}
+            <header className="p-6 border-b border-slate-100 dark:border-[#2A2A2A] flex justify-between items-center bg-slate-50 dark:bg-[#161616]">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-100"><Info className="w-6 h-6 text-white" /></div>
+                <div className="p-3 bg-[#E52020] rounded-xl shadow-lg shadow-red-900/30">
+                  <Info className="w-6 h-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">Detalhes da Ordem</h3>
-                  <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mt-1">#{viewOnlyOrder.id} • Informativo Premium</p>
+                  <h3 className="text-base font-black text-slate-900 dark:text-[#F0F0F0] uppercase tracking-tight">Detalhes da Ordem</h3>
+                  <p className="text-[10px] text-slate-400 dark:text-[#666666] font-black uppercase tracking-widest leading-none mt-1">#{viewOnlyOrder.id} • Informativo Premium</p>
                 </div>
               </div>
-              <button onClick={() => setViewOnlyOrder(null)} className="p-2 hover:bg-slate-200 rounded-xl transition-all"><X className="w-5 h-5 text-slate-400" /></button>
+              <button onClick={() => setViewOnlyOrder(null)} className="p-2 hover:bg-slate-200 dark:hover:bg-[#2A2A2A] rounded-xl transition-all">
+                <X className="w-5 h-5 text-slate-400 dark:text-[#777777]" />
+              </button>
             </header>
 
             <div className="p-8 space-y-8">
-              {/* Top Row: Vehicle Details */}
+              {/* Vehicle Details */}
               <div className="grid grid-cols-3 gap-6">
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Veículo</p>
-                  <p className="text-base font-black text-slate-900 uppercase">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.model}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Placa</p>
-                  <p className="text-base font-black text-slate-900 font-mono tracking-tighter">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.plate}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Montadora</p>
-                  <p className="text-base font-black text-slate-900 uppercase">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.brand}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ano</p>
-                  <p className="text-base font-black text-slate-900 uppercase">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.year}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cor</p>
-                  <p className="text-base font-black text-slate-900 uppercase">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.color}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Câmbio</p>
-                  <p className="text-base font-black text-slate-900 uppercase">{vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.transmission || 'N/A'}</p>
-                </div>
+                {[
+                  { label: 'Veículo', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.model },
+                  { label: 'Placa', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.plate, mono: true },
+                  { label: 'Montadora', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.brand },
+                  { label: 'Ano', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.year },
+                  { label: 'Cor', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.color },
+                  { label: 'Câmbio', value: vehicles.find(v => v.id === viewOnlyOrder.vehicleId)?.transmission || 'N/A' },
+                ].map(({ label, value, mono }) => (
+                  <div key={label}>
+                    <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest mb-1">{label}</p>
+                    <p className={`text-base font-black text-slate-900 dark:text-[#F0F0F0] uppercase ${mono ? 'font-mono tracking-tighter' : ''}`}>{value}</p>
+                  </div>
+                ))}
               </div>
 
-              <div className="h-px bg-slate-100 w-full" />
+              <div className="h-px bg-slate-100 dark:bg-[#2A2A2A] w-full" />
 
-              {/* Middle Row: Operational Info */}
+              {/* Operational Info */}
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest mb-1">Status</p>
                   <span className={`text-[10px] font-black px-2 py-1 rounded-md border uppercase inline-block ${STATUS_CONFIG[viewOnlyOrder.status].color}`}>{STATUS_CONFIG[viewOnlyOrder.status].label}</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Prioridade</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest mb-1">Prioridade</p>
                   <span className={`text-[10px] font-black px-2 py-1 rounded-md border uppercase inline-block ${PRIORITY_CONFIG[viewOnlyOrder.priority].bg} ${PRIORITY_CONFIG[viewOnlyOrder.priority].color} ${PRIORITY_CONFIG[viewOnlyOrder.priority].border}`}>{PRIORITY_CONFIG[viewOnlyOrder.priority].label}</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Mecânico Responsável</p>
-                  <p className="text-sm font-bold text-slate-900 uppercase">{mechanics.find(m => m.id === viewOnlyOrder.mechanicId)?.name || 'N/A'}</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest mb-1">Mecânico Responsável</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-[#E52020] uppercase">{mechanics.find(m => m.id === viewOnlyOrder.mechanicId)?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Data da Triagem</p>
-                  <p className="text-sm font-bold text-slate-900 uppercase">{new Date(viewOnlyOrder.createdAt).toLocaleDateString('pt-BR')} às {new Date(viewOnlyOrder.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest mb-1">Data da Triagem</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-[#DDDDDD] uppercase">{new Date(viewOnlyOrder.createdAt).toLocaleDateString('pt-BR')} às {new Date(viewOnlyOrder.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
               </div>
 
-              <div className="h-px bg-slate-100 w-full" />
+              <div className="h-px bg-slate-100 dark:bg-[#2A2A2A] w-full" />
 
-              {/* Bottom Section: Reports */}
+              {/* Reports */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Relato do Cliente</p>
-                  <p className="text-xs text-slate-700 leading-relaxed font-medium">"{viewOnlyOrder.reportedFault}"</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest">Relato do Cliente</p>
+                  <p className="text-xs text-slate-700 dark:text-[#CCCCCC] leading-relaxed font-medium">"{viewOnlyOrder.reportedFault}"</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Diagnóstico Técnico</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-[#666666] uppercase tracking-widest">Diagnóstico Técnico</p>
                   {viewOnlyOrder.diagnosis ? (
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium">{viewOnlyOrder.diagnosis}</p>
+                    <p className="text-xs text-slate-700 dark:text-[#CCCCCC] leading-relaxed font-medium">{viewOnlyOrder.diagnosis}</p>
                   ) : (
-                    <p className="text-xs text-slate-400 italic">Pendente</p>
+                    <p className="text-xs text-slate-400 dark:text-[#555555] italic">Pendente</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <footer className="p-6 bg-slate-50 border-t border-slate-100">
+            {/* Footer */}
+            <footer className="p-6 bg-slate-50 dark:bg-[#161616] border-t border-slate-100 dark:border-[#2A2A2A]">
               <button
                 onClick={() => setViewOnlyOrder(null)}
-                className="w-full py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl hover:bg-black active:scale-[0.98] transition-all"
+                className="w-full py-4 bg-[#E52020] hover:bg-[#C01A1A] text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-red-900/20 active:scale-[0.98] transition-all"
               >
                 Fechar Visualização
               </button>

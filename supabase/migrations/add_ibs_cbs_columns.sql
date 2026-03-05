@@ -1,6 +1,0 @@
--- Add Tax Reform fields (IBS/CBS) to fiscal_tax_rules
-ALTER TABLE fiscal_tax_rules
-ADD COLUMN IF NOT EXISTS cst_ibs TEXT,
-ADD COLUMN IF NOT EXISTS ibs_rate NUMERIC(5,2) DEFAULT 0,
-ADD COLUMN IF NOT EXISTS cst_cbs TEXT,
-ADD COLUMN IF NOT EXISTS cbs_rate NUMERIC(5,2) DEFAULT 0;

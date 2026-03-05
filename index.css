@@ -1,0 +1,436 @@
+/* ============================================================
+   GMPG — Dark Mode "Vermelho & Preto"
+   Referência visual: preto sólido #111111 + vermelho vivo #E52020
+   Inspiração: high-contrast, sem transparências, cores sólidas
+   ============================================================ */
+
+/* ─── FONT ─────────────────────────────── */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+}
+
+/* ─── SCROLLBAR (light) ─────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ============================================================
+   DARK MODE GLOBAL
+   ============================================================ */
+html.dark {
+    color-scheme: dark;
+}
+
+.dark body {
+    background-color: #111111;
+    color: #F0F0F0;
+}
+
+/* ─── SCROLLBAR (dark) ─── */
+.dark ::-webkit-scrollbar-track {
+    background: #1A1A1A;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #E52020;
+}
+
+/* ─── SELEÇÃO ─── */
+.dark ::selection {
+    background: rgba(229, 32, 32, 0.25);
+    color: #F0F0F0;
+}
+
+/* ============================================================
+   PALETA — CSS CUSTOM PROPERTIES
+   ============================================================ */
+.dark {
+    /* Fundos — sólidos, sem transparências */
+    --c-root: #111111;
+    /* fundo raiz */
+    --c-sidebar: #0D0D0D;
+    /* sidebar: preto mais fundo */
+    --c-page: #161616;
+    /* área de conteúdo principal */
+    --c-card: #1E1E1E;
+    /* cards, painéis */
+    --c-card-alt: #242424;
+    /* cards alternados / hover */
+    --c-input: #1A1A1A;
+    /* inputs */
+    --c-elevated: #2A2A2A;
+    /* dropdowns, tooltips */
+
+    /* Vermelho — acento principal */
+    --c-accent: #E52020;
+    /* vermelho vivo */
+    --c-accent-d: #C01A1A;
+    /* vermelho escurecido (hover) */
+    --c-accent-bg: #2A1010;
+    /* fundo sutil p/ badges vermelhos */
+
+    /* Bordas */
+    --c-border: #2A2A2A;
+    --c-border-l: #333333;
+
+    /* Textos */
+    --c-text: #F0F0F0;
+    --c-text-2: #999999;
+    --c-text-3: #555555;
+
+    /* Prioridades — sólidas */
+    --c-low: #16A34A;
+    --c-low-bg: #0D2A1A;
+    --c-mid: #D97706;
+    --c-mid-bg: #2A1E0A;
+    --c-high: #E52020;
+    --c-high-bg: #2A0D0D;
+}
+
+/* ============================================================
+   OVERRIDES TAILWIND — dark:bg-slate-*  →  paleta sólida
+   ============================================================ */
+
+/* Backgrounds */
+.dark .dark\:bg-slate-950 {
+    background-color: var(--c-root) !important;
+}
+
+.dark .dark\:bg-slate-900 {
+    background-color: var(--c-card) !important;
+}
+
+.dark .dark\:bg-slate-800 {
+    background-color: var(--c-card) !important;
+}
+
+.dark .dark\:bg-slate-700 {
+    background-color: var(--c-elevated) !important;
+}
+
+.dark .dark\:bg-slate-600 {
+    background-color: #383838 !important;
+}
+
+/* Variantes com opacidade — forçar sólido */
+.dark [class*="dark:bg-slate-900\/"] {
+    background-color: var(--c-card) !important;
+}
+
+.dark [class*="dark:bg-slate-800\/"] {
+    background-color: var(--c-card) !important;
+}
+
+.dark [class*="dark:bg-slate-700\/"] {
+    background-color: var(--c-elevated) !important;
+}
+
+/* Bordas */
+.dark .dark\:border-slate-800 {
+    border-color: var(--c-border) !important;
+}
+
+.dark .dark\:border-slate-700 {
+    border-color: var(--c-border) !important;
+}
+
+.dark .dark\:border-slate-600 {
+    border-color: var(--c-border-l) !important;
+}
+
+.dark [class*="dark:border-slate-700\/"] {
+    border-color: var(--c-border) !important;
+}
+
+.dark [class*="dark:border-slate-800\/"] {
+    border-color: var(--c-border) !important;
+}
+
+/* Textos */
+.dark .dark\:text-slate-100 {
+    color: var(--c-text) !important;
+}
+
+.dark .dark\:text-slate-200 {
+    color: #DDDDDD !important;
+}
+
+.dark .dark\:text-slate-300 {
+    color: #BBBBBB !important;
+}
+
+.dark .dark\:text-slate-400 {
+    color: var(--c-text-2) !important;
+}
+
+.dark .dark\:text-slate-500 {
+    color: var(--c-text-3) !important;
+}
+
+/* ============================================================
+   INDIGO → VERMELHO (acento principal)
+   ============================================================ */
+/* Backgrounds */
+.dark .dark\:bg-indigo-500\/10 {
+    background-color: var(--c-accent-bg) !important;
+}
+
+.dark .dark\:bg-indigo-900\/20 {
+    background-color: var(--c-accent-bg) !important;
+}
+
+.dark .bg-indigo-600 {
+    background-color: var(--c-accent) !important;
+}
+
+.dark .hover\:bg-indigo-700:hover {
+    background-color: var(--c-accent-d) !important;
+}
+
+.dark .dark\:bg-indigo-500\/10 {
+    background-color: var(--c-accent-bg) !important;
+}
+
+/* Bordas */
+.dark .dark\:border-indigo-500\/20 {
+    border-color: rgba(229, 32, 32, 0.25) !important;
+}
+
+.dark .dark\:border-indigo-700 {
+    border-color: var(--c-accent) !important;
+}
+
+/* Textos */
+.dark .dark\:text-indigo-400 {
+    color: var(--c-accent) !important;
+}
+
+.dark .dark\:group-hover\:text-indigo-400:hover,
+.dark .group:hover .dark\:group-hover\:text-indigo-400 {
+    color: var(--c-accent) !important;
+}
+
+.dark .dark\:hover\:text-indigo-400:hover {
+    color: var(--c-accent) !important;
+}
+
+/* Ring/focus */
+.dark .focus\:ring-indigo-500:focus {
+    --tw-ring-color: var(--c-accent) !important;
+}
+
+.dark .dark\:peer-focus\:ring-indigo-800 {
+    --tw-ring-color: rgba(229, 32, 32, 0.4) !important;
+}
+
+.dark .peer-checked\:bg-indigo-600 {
+    background-color: var(--c-accent) !important;
+}
+
+/* Shadow */
+.dark .dark\:shadow-indigo-900\/30 {
+    --tw-shadow-color: rgba(229, 32, 32, 0.2) !important;
+}
+
+/* ============================================================
+   PRIORIDADES — SÓLIDAS
+   ============================================================ */
+/* Alta / Urgente */
+.dark .dark\:bg-red-900\/40 {
+    background-color: var(--c-high-bg) !important;
+}
+
+.dark .dark\:border-red-900\/50 {
+    border-color: rgba(229, 32, 32, 0.3) !important;
+}
+
+.dark .dark\:text-red-400 {
+    color: var(--c-high) !important;
+}
+
+.dark .dark\:text-red-500 {
+    color: var(--c-high) !important;
+}
+
+.dark .dark\:bg-red-900\/20 {
+    background-color: var(--c-high-bg) !important;
+}
+
+/* Média */
+.dark .dark\:bg-amber-900\/40 {
+    background-color: var(--c-mid-bg) !important;
+}
+
+.dark .dark\:border-amber-900\/50 {
+    border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+.dark .dark\:text-amber-400 {
+    color: var(--c-mid) !important;
+}
+
+.dark .dark\:text-amber-500 {
+    color: var(--c-mid) !important;
+}
+
+.dark .dark\:bg-amber-900\/20 {
+    background-color: var(--c-mid-bg) !important;
+}
+
+/* Baixa */
+.dark .dark\:bg-emerald-900\/40 {
+    background-color: var(--c-low-bg) !important;
+}
+
+.dark .dark\:border-emerald-900\/50 {
+    border-color: rgba(22, 163, 74, 0.3) !important;
+}
+
+.dark .dark\:text-emerald-400 {
+    color: var(--c-low) !important;
+}
+
+.dark .dark\:bg-emerald-900\/20 {
+    background-color: var(--c-low-bg) !important;
+}
+
+.dark .dark\:border-emerald-900\/30 {
+    border-color: rgba(22, 163, 74, 0.25) !important;
+}
+
+/* ============================================================
+   COMPONENTES GLOBAIS
+   ============================================================ */
+
+/* Sidebar */
+.dark nav[class*="bg-"],
+.dark aside[class*="bg-"] {
+    background-color: var(--c-sidebar) !important;
+    border-color: var(--c-border) !important;
+}
+
+/* Inputs & selects */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark textarea,
+.dark select {
+    background-color: var(--c-input) !important;
+    border-color: var(--c-border) !important;
+    color: var(--c-text) !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+    border-color: var(--c-accent) !important;
+    box-shadow: 0 0 0 2px rgba(229, 32, 32, 0.2) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: var(--c-text-3) !important;
+}
+
+/* Tags/badges OS# */
+.dark .dark\:text-indigo-400.bg-indigo-50,
+.dark .dark\:bg-indigo-500\/10 {
+    background-color: var(--c-accent-bg) !important;
+    color: var(--c-accent) !important;
+    border-color: rgba(229, 32, 32, 0.2) !important;
+}
+
+/* Modais */
+.dark [role="dialog"],
+.dark .fixed.inset-0>div {
+    background-color: var(--c-card) !important;
+    border-color: var(--c-border) !important;
+}
+
+/* ============================================================
+   KANBAN — Colunas e Cards sólidos
+   ============================================================ */
+
+/* Coluna normal */
+.dark [class*="dark:bg-\[#161616\]"] {
+    background-color: #161616 !important;
+}
+
+/* Coluna concluída */
+.dark [class*="dark:bg-\[#141414\]"] {
+    background-color: #141414 !important;
+}
+
+/* Header da coluna */
+.dark [class*="dark:bg-\[#1A1A1A\]"] {
+    background-color: #1A1A1A !important;
+}
+
+/* Card agendamento */
+.dark [class*="dark:bg-\[#1E1E1E\]"] {
+    background-color: #1E1E1E !important;
+}
+
+/* Cards default (sem prioridade) - manter legibilidade */
+.dark .dark\:bg-slate-800 {
+    background-color: #1E1E1E !important;
+}
+
+/* Badge de número da coluna */
+.dark .dark\:bg-slate-800.border.dark\:border-slate-700 {
+    background-color: #2A2A2A !important;
+    border-color: #333333 !important;
+}
+
+/* ============================================================
+   HOVER STATES — dark:hover:bg-slate-700
+   ============================================================ */
+.dark .dark\:hover\:bg-slate-700:hover,
+.dark .dark\:hover\:bg-slate-800:hover {
+    background-color: var(--c-card-alt) !important;
+}
+
+.dark .dark\:hover\:bg-slate-700\/30:hover {
+    background-color: #222222 !important;
+}
+
+.dark .dark\:hover\:bg-slate-700\/50:hover {
+    background-color: #1E1E1E !important;
+}
+
+/* ============================================================
+   ANIMAÇÕES
+   ============================================================ */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dark .animate-in {
+    animation: fadeUp 0.15s ease-out;
+}

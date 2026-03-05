@@ -1,4 +1,5 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
+import { toast } from 'sonner';
 import { WorkshopContext } from '../App';
 import { OSStatus, Priority, VehicleCategory, Client, Vehicle, WorkshopOrder } from '../types';
 import { X, Search, Car, User, Plus, ChevronRight, Briefcase, Sparkles, UserCheck, ChevronLeft, ToggleLeft, ToggleRight } from 'lucide-react';
@@ -148,11 +149,11 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
         setIsRegisteringClient(false);
         setStep(3); // Go to Vehicle
       } else {
-        alert("Erro ao cadastrar cliente.");
+        toast.error('Erro ao cadastrar cliente.');
       }
     } catch (error) {
       console.error(error);
-      alert("Erro inesperado ao cadastrar cliente.");
+      toast.error('Erro inesperado ao cadastrar cliente.');
     }
   };
 
@@ -186,7 +187,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
       setIsRegisteringGearbox(false);
     } catch (error) {
       console.error(error);
-      alert("Erro ao cadastrar modelo de câmbio.");
+      toast.error('Erro ao cadastrar modelo de câmbio.');
     }
   };
 
@@ -207,7 +208,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
       setNewBrandName('');
     } catch (error) {
       console.error(error);
-      alert("Erro ao cadastrar marca.");
+      toast.error('Erro ao cadastrar marca.');
     }
   };
 
@@ -233,7 +234,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
     const isMercosur = /^[A-Z]{3}\d[A-Z]\d{2}$/.test(cleanPlate);
 
     if (!isOld && !isMercosur) {
-      alert("Formato de placa inválido. Use ABC-1234 ou ABC1C34.");
+      toast.error('Formato de placa inválido. Use ABC-1234 ou ABC1C34.');
       return;
     }
 
@@ -245,7 +246,7 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
       if (existingClient) {
         setConflictData({ vehicle: existingVehicle, client: existingClient });
       } else {
-        alert("Esta placa já está cadastrada, mas o cliente não foi encontrado.");
+        toast.error('Esta placa já está cadastrada, mas o cliente não foi encontrado.');
       }
       return;
     }
@@ -266,11 +267,11 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
         setSelectedVehicle(createdVehicle);
         setStep(4); // Go to Priority
       } else {
-        alert("Erro ao cadastrar veículo.");
+        toast.error('Erro ao cadastrar veículo.');
       }
     } catch (error) {
       console.error(error);
-      alert("Erro inesperado ao cadastrar veículo.");
+      toast.error('Erro inesperado ao cadastrar veículo.');
     }
   };
 
@@ -327,11 +328,11 @@ const NewOSModal: React.FC<NewOSModalProps> = ({ onClose }) => {
         await addHistoryLog(result.id, 'Abertura de OS', `Recepcionado direto em Orçamento. Relato: ${fault} | Tipo: ${finalCategory} | Prioridade: ${priority}`);
         onClose();
       } else {
-        alert("Erro ao criar Ordem de Serviço. Tente novamente.");
+        toast.error('Erro ao criar Ordem de Serviço. Tente novamente.');
       }
     } catch (error) {
       console.error(error);
-      alert("Erro inesperado ao criar OS.");
+      toast.error('Erro inesperado ao criar OS.');
     }
   };
 

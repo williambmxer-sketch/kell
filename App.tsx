@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { toast, Toaster } from 'sonner';
 import { useBranding } from './hooks/useBranding';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -11,97 +12,80 @@ import Inventory from './components/Inventory';
 import Finance from './components/Finance';
 import Settings from './components/Settings';
 import Login from './components/Login';
-import { STATUS_CONFIG } from './constants';
-import {
-  fetchOrders, fetchClients, fetchVehicles, fetchInventory, fetchServices, fetchUsers, fetchHistory as fetchHistoryService, addHistory as addHistoryService,
-  createClient as createClientService, updateClient as updateClientService, createVehicle as createVehicleService, updateVehicle as updateVehicleService, deleteVehicle as deleteVehicleService,
-  createOrder as createOrderService, updateOrder as updateOrderService, deleteOrder as deleteOrderService,
-  createInventoryItem as createInventoryItemService, updateInventoryItem as updateInventoryItemService, deleteInventoryItem as deleteInventoryItemService,
-  createService as createServiceService, updateService as updateServiceService, deleteService as deleteServiceService,
-  deleteClient as deleteClientService, fetchTransactions as fetchTransactionsService, createTransaction as createTransactionService, deleteTransaction as deleteTransactionService,
-  fetchGearboxes as fetchGearboxesService, createGearbox as createGearboxService, updateGearbox as updateGearboxService, deleteGearbox as deleteGearboxService,
-  fetchSettings as fetchSettingsService, updateSettings as updateSettingsService,
-  createUser as createUserService, updateUser as updateUserService, deleteUser as deleteUserService,
-  fetchBrands as fetchBrandsService, createBrand as createBrandService, deleteBrand as deleteBrandService,
-  fetchPaymentMethods as fetchPaymentMethodsService, createPaymentMethod as createPaymentMethodService, deletePaymentMethod as deletePaymentMethodService, togglePaymentMethod as togglePaymentMethodService,
-  supabase, getSession
-} from './services/supabase';
-import { WorkshopOrder, Client, Vehicle, InventoryItem, OSStatus, OrderHistory, Gearbox, Service, User, Transaction, WorkshopSettings, Brand, PaymentMethod } from './types';
+import { useOrders } from './hooks/useOrders';
+import { useClients } from './hooks/useClients';
+import { useInventory } from './hooks/useInventory';
+import { useFinance } from './hooks/useFinance';
+import { fetchSettings as fetchSettingsService, updateSettings as updateSettingsService, supabase, getSession } from './services/supabase';
+import { WorkshopSettings } from './types';
 
 export const WorkshopContext = React.createContext<{
-  orders: WorkshopOrder[];
-  clients: Client[];
-  vehicles: Vehicle[];
-  inventory: InventoryItem[];
-  gearboxes: Gearbox[];
-  services: Service[];
-  mechanics: User[];
-  history: OrderHistory[];
-  transactions: Transaction[];
+  orders: ReturnType<typeof useOrders>['orders'];
+  clients: ReturnType<typeof useClients>['clients'];
+  vehicles: ReturnType<typeof useClients>['vehicles'];
+  inventory: ReturnType<typeof useInventory>['inventory'];
+  gearboxes: ReturnType<typeof useInventory>['gearboxes'];
+  services: ReturnType<typeof useInventory>['services'];
+  mechanics: ReturnType<typeof useFinance>['mechanics'];
+  history: ReturnType<typeof useOrders>['history'];
+  transactions: ReturnType<typeof useFinance>['transactions'];
   settings: WorkshopSettings | null;
-  brands: Brand[];
-  setOrders: React.Dispatch<React.SetStateAction<WorkshopOrder[]>>;
-  setClients: React.Dispatch<React.SetStateAction<Client[]>>;
-  setVehicles: React.Dispatch<React.SetStateAction<Vehicle[]>>;
-  setGearboxes: React.Dispatch<React.SetStateAction<Gearbox[]>>;
-  setServices: React.Dispatch<React.SetStateAction<Service[]>>;
-  setInventory: React.Dispatch<React.SetStateAction<InventoryItem[]>>;
+  brands: ReturnType<typeof useInventory>['brands'];
+  paymentMethods: ReturnType<typeof useFinance>['paymentMethods'];
+  setOrders: ReturnType<typeof useOrders>['setOrders'];
+  setClients: ReturnType<typeof useClients>['setClients'];
+  setVehicles: ReturnType<typeof useClients>['setVehicles'];
+  setGearboxes: ReturnType<typeof useInventory>['setGearboxes'];
+  setServices: ReturnType<typeof useInventory>['setServices'];
+  setInventory: ReturnType<typeof useInventory>['setInventory'];
   setSettings: React.Dispatch<React.SetStateAction<WorkshopSettings | null>>;
-  setBrands: React.Dispatch<React.SetStateAction<Brand[]>>;
-  paymentMethods: PaymentMethod[];
-  setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethod[]>>;
-  updateOrderStatus: (orderId: string, status: OSStatus) => Promise<void>;
-  updateOrder: (orderId: string, data: Partial<WorkshopOrder>) => Promise<void>;
-  addHistoryLog: (orderId: string, action: string, diff?: string) => Promise<void>;
-  addClient: (client: Client) => Promise<Client | undefined>;
-  updateClient: (id: string, data: Partial<Client>) => Promise<void>;
-  deleteClient: (id: string) => Promise<void>;
-  addVehicle: (vehicle: Vehicle) => Promise<Vehicle | undefined>;
-  updateVehicle: (id: string, data: Partial<Vehicle>) => Promise<void>;
-  deleteVehicle: (id: string) => Promise<void>;
-  addGearbox: (gearbox: Gearbox) => Promise<void>;
-  updateGearbox: (id: string, gearbox: Gearbox) => Promise<void>;
-  deleteGearbox: (id: string) => Promise<void>;
-  addBrand: (brand: Brand) => Promise<void>;
-  deleteBrand: (id: string) => Promise<void>;
-  addPaymentMethod: (name: string) => Promise<void>;
-  deletePaymentMethod: (id: string) => Promise<void>;
-  togglePaymentMethod: (id: string, active: boolean) => Promise<void>;
-  addService: (service: Service) => Promise<void>;
-  updateService: (id: string, service: Service) => void;
-  deleteService: (id: string) => void;
-  addInventoryItem: (item: InventoryItem) => Promise<void>;
-  updateInventoryItem: (id: string, item: InventoryItem) => Promise<void>;
-  deleteInventoryItem: (id: string) => Promise<void>;
-  addNewOrder: (order: WorkshopOrder) => Promise<WorkshopOrder | undefined>;
-  addTransaction: (transaction: Transaction) => Promise<void>;
-  deleteTransaction: (id: string) => Promise<void>;
-  addUser: (user: Omit<User, 'id'>) => Promise<void>;
-  updateUser: (id: string, user: Partial<User>) => Promise<void>;
-  deleteUser: (id: string) => Promise<void>;
-  deleteOrder: (id: string) => Promise<void>;
+  setBrands: ReturnType<typeof useInventory>['setBrands'];
+  setPaymentMethods: ReturnType<typeof useFinance>['setPaymentMethods'];
+  updateOrderStatus: ReturnType<typeof useOrders>['updateOrderStatus'];
+  updateOrder: ReturnType<typeof useOrders>['updateOrder'];
+  addHistoryLog: ReturnType<typeof useOrders>['addHistoryLog'];
+  addClient: ReturnType<typeof useClients>['addClient'];
+  updateClient: ReturnType<typeof useClients>['updateClient'];
+  deleteClient: ReturnType<typeof useClients>['deleteClient'];
+  addVehicle: ReturnType<typeof useClients>['addVehicle'];
+  updateVehicle: ReturnType<typeof useClients>['updateVehicle'];
+  deleteVehicle: ReturnType<typeof useClients>['deleteVehicle'];
+  addGearbox: ReturnType<typeof useInventory>['addGearbox'];
+  updateGearbox: ReturnType<typeof useInventory>['updateGearbox'];
+  deleteGearbox: ReturnType<typeof useInventory>['deleteGearbox'];
+  addBrand: ReturnType<typeof useInventory>['addBrand'];
+  deleteBrand: ReturnType<typeof useInventory>['deleteBrand'];
+  addService: ReturnType<typeof useInventory>['addService'];
+  updateService: ReturnType<typeof useInventory>['updateService'];
+  deleteService: ReturnType<typeof useInventory>['deleteService'];
+  addInventoryItem: ReturnType<typeof useInventory>['addInventoryItem'];
+  updateInventoryItem: ReturnType<typeof useInventory>['updateInventoryItem'];
+  deleteInventoryItem: ReturnType<typeof useInventory>['deleteInventoryItem'];
+  addNewOrder: ReturnType<typeof useOrders>['addNewOrder'];
+  addTransaction: ReturnType<typeof useFinance>['addTransaction'];
+  deleteTransaction: ReturnType<typeof useFinance>['deleteTransaction'];
+  addUser: ReturnType<typeof useFinance>['addUser'];
+  updateUser: ReturnType<typeof useFinance>['updateUser'];
+  deleteUser: ReturnType<typeof useFinance>['deleteUser'];
+  addPaymentMethod: ReturnType<typeof useFinance>['addPaymentMethod'];
+  deletePaymentMethod: ReturnType<typeof useFinance>['deletePaymentMethod'];
+  togglePaymentMethod: ReturnType<typeof useFinance>['togglePaymentMethod'];
+  deleteOrder: ReturnType<typeof useOrders>['deleteOrder'];
 } | null>(null);
 
 const App: React.FC = () => {
-  const [orders, setOrders] = useState<WorkshopOrder[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [mechanics, setMechanics] = useState<User[]>([]);
-  const [history, setHistory] = useState<OrderHistory[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [gearboxes, setGearboxes] = useState<Gearbox[]>([]);
   const [settings, setSettings] = useState<WorkshopSettings | null>(null);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  const ordersHook = useOrders();
+  const clientsHook = useClients();
+  const inventoryHook = useInventory();
+  const financeHook = useFinance();
 
   useBranding(settings);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // null = checking, false = not auth, true = auth
-
-  // Check Auth Session on Mount
+  // Auth Check
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -113,7 +97,6 @@ const App: React.FC = () => {
     };
     checkSession();
 
-    // Listen for auth state changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
     });
@@ -121,42 +104,24 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load Initial Data
+  // Load All Data
   useEffect(() => {
-    if (!isAuthenticated) return; // Only load data if authenticated
+    if (!isAuthenticated) return;
 
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const [ordersData, clientsData, vehiclesData, inventoryData, servicesData, usersData, historyData, transactionsData, enginesData, settingsData, brandsData, paymentMethodsData] = await Promise.all([
-          fetchOrders(),
-          fetchClients(),
-          fetchVehicles(),
-          fetchInventory(),
-          fetchServices(),
-          fetchUsers(),
-          fetchHistoryService(),
-          fetchTransactionsService(),
-          fetchGearboxesService(),
+        const [settingsData] = await Promise.all([
           fetchSettingsService(),
-          fetchBrandsService(),
-          fetchPaymentMethodsService()
+          ordersHook.load(),
+          clientsHook.load(),
+          inventoryHook.load(),
+          financeHook.load()
         ]);
-
-        setOrders(ordersData);
-        setClients(clientsData);
-        setVehicles(vehiclesData);
-        setInventory(inventoryData);
-        setServices(servicesData);
-        setMechanics(usersData.filter(u => u.role === 'MECHANIC')); // Filter mechanics for UI
-        setHistory(historyData);
-        setTransactions(transactionsData);
-        setGearboxes(enginesData);
         setSettings(settingsData || null);
-        setBrands(brandsData);
-        setPaymentMethods(paymentMethodsData);
       } catch (error) {
         console.error('Error loading data from Supabase:', error);
+        toast.error('Erro ao carregar dados do sistema. Verifique sua conexão.');
       } finally {
         setIsLoading(false);
       }
@@ -165,294 +130,66 @@ const App: React.FC = () => {
     loadData();
   }, [isAuthenticated]);
 
-  const addHistoryLog = async (orderId: string, action: string, diff?: string) => {
-    // Optimistic update
-    const newLog: OrderHistory = {
-      id: crypto.randomUUID(),
-      orderId,
-      action,
-      diff,
-      timestamp: new Date().toISOString(),
-      userId: 'admin-01' // Placeholder
-    };
-    setHistory(prev => [newLog, ...prev]);
-
-    try {
-      await addHistoryService(newLog);
-    } catch (err) {
-      console.error("Failed to add history log", err);
-    }
-  };
-
-  const createAuditLog = (orderId: string, oldData: WorkshopOrder, newData: Partial<WorkshopOrder>) => {
-    const changes: string[] = [];
-    const ignoreKeys = ['updatedAt', 'status', 'mechanicId', 'scheduledDate', 'documents', 'items']; // Ignored or handled elsewhere
-
-    (Object.keys(newData) as Array<keyof WorkshopOrder>).forEach(key => {
-      if (ignoreKeys.includes(key)) return;
-
-      const oldVal = oldData[key];
-      const newVal = newData[key];
-
-      if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
-        if (key === 'diagnosis') {
-          // Skip - handled by specific 'Observação Adicionada' log in OSDetailsModal
-        } else if (key === 'discount') {
-          const val = typeof newVal === 'number' ? newVal : 0;
-          changes.push(`Alterou o desconto para ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-        } else if (key === 'discountType') {
-          changes.push(`Alterou tipo de desconto para ${newVal === 'percent' ? '%' : 'R$'}`);
-        } else if (key === 'notes') {
-          changes.push('Atualizou observações do orçamento');
-        } else {
-          // Fallback for other fields (e.g. vehicleId if changed directly, though unlikely in this flow)
-          changes.push(`Alterou ${key}`);
-        }
-      }
-    });
-
-    if (changes.length > 0) {
-      addHistoryLog(orderId, 'Alteração de dados', changes.join(' | '));
-    }
-  };
-
-  const updateOrderStatus = async (orderId: string, status: OSStatus) => {
-    const order = orders.find(o => o.id === orderId);
-    if (order && order.status !== status) {
-      addHistoryLog(orderId, 'Mudança de Status', `Alterado para ${STATUS_CONFIG[status]?.label || status}`);
-
-      // Speculative update
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status, updatedAt: new Date().toISOString() } : o));
-
-      try {
-        await updateOrderService(orderId, { status });
-      } catch (err) {
-        console.error("Failed to update status", err);
-        // Revert? (For MVP we rely on no error)
-      }
-    }
-  };
-
-  const updateOrder = async (orderId: string, data: Partial<WorkshopOrder>) => {
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return;
-
-    // Audit Log (Side Effect) - Must be outside setOrders
-    createAuditLog(orderId, order, data);
-
-    // Speculative Update
-    setOrders(prev => prev.map(o => {
-      if (o.id === orderId) {
-        return { ...o, ...data, updatedAt: new Date().toISOString() };
-      }
-      return o;
-    }));
-
-    try {
-      await updateOrderService(orderId, data);
-    } catch (err) {
-      console.error("Failed to update order", err);
-    }
-  };
-
-  const addNewOrder = async (order: WorkshopOrder) => {
-    // Optimistic
-    setOrders(prev => [order, ...prev]);
-    try {
-      const newOrder = await createOrderService(order);
-      // Update details if any changed (e.g. timestamp from DB)
-      setOrders(prev => prev.map(o => o.id === order.id ? newOrder : o));
-      return newOrder;
-    } catch (err) {
-      console.error("Failed to create order", err);
-      setOrders(prev => prev.filter(o => o.id !== order.id)); // Revert
-    }
-  };
-
-  const deleteOrder = async (id: string) => {
-    setOrders(prev => prev.filter(o => o.id !== id));
-    try {
-      await deleteOrderService(id);
-    } catch (err) {
-      console.error("Failed to delete order", err);
-    }
-  }
-
-  // CRUD Implementations
-
-  // Clients
-  const addClient = async (client: Client) => {
-    try {
-      const newClient = await createClientService(client);
-      setClients(prev => [...prev, newClient]);
-      return newClient;
-    } catch (err) {
-      console.error("Failed to add client", err);
-    }
-  };
-  const updateClient = async (id: string, data: Partial<Client>) => {
-    setClients(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
-    await updateClientService(id, data);
-  };
-  const deleteClient = async (id: string) => {
-    setClients(prev => prev.filter(c => c.id !== id));
-    await deleteClientService(id);
-  };
-
-  // Vehicles
-  const addVehicle = async (vehicle: Vehicle) => {
-    try {
-      const newVehicle = await createVehicleService(vehicle);
-      setVehicles(prev => [...prev, newVehicle]);
-      return newVehicle;
-    } catch (err) {
-      console.error("Failed to add vehicle", err);
-    }
-  };
-  const updateVehicle = async (id: string, data: Partial<Vehicle>) => {
-    setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...data } : v));
-    await updateVehicleService(id, data);
-  };
-  const deleteVehicle = async (id: string) => {
-    setVehicles(prev => prev.filter(item => item.id !== id));
-    await deleteVehicleService(id);
-  };
-
-  // Gearboxes
-  const addGearbox = async (gearbox: Gearbox) => {
-    try {
-      const newGearbox = await createGearboxService(gearbox);
-      setGearboxes(prev => [...prev, newGearbox]);
-    } catch (err) {
-      console.error("Failed to add gearbox", err);
-    }
-  };
-  const updateGearbox = async (id: string, gearbox: Gearbox) => {
-    setGearboxes(prev => prev.map(e => e.id === id ? gearbox : e));
-    await updateGearboxService(id, gearbox);
-  };
-  const deleteGearbox = async (id: string) => {
-    setGearboxes(prev => prev.filter(e => e.id !== id));
-    await deleteGearboxService(id);
-  };
-
-  // Brands
-  const addBrand = async (brand: Brand) => {
-    setBrands(prev => [...prev, brand]);
-    await createBrandService(brand);
-  };
-
-  const deleteBrand = async (id: string) => {
-    setBrands(prev => prev.filter(b => b.id !== id));
-    await deleteBrandService(id);
-  };
-
-  // Services
-  const addService = async (service: Service) => {
-    setServices(prev => [...prev, service]);
-    await createServiceService(service);
-  };
-  const updateService = async (id: string, service: Service) => {
-    setServices(prev => prev.map(s => s.id === id ? service : s));
-    await updateServiceService(id, service);
-  };
-  const deleteService = async (id: string) => {
-    setServices(prev => prev.filter(s => s.id !== id));
-    await deleteServiceService(id);
-  };
-
-  // Inventory
-  const addInventoryItem = async (item: InventoryItem) => {
-    try {
-      const newItem = await createInventoryItemService(item);
-      setInventory(prev => [...prev, newItem]);
-    } catch (err) {
-      console.error("Failed to add inventory", err);
-    }
-  };
-  const updateInventoryItem = async (id: string, item: InventoryItem) => {
-    setInventory(prev => prev.map(i => i.id === id ? item : i));
-    await updateInventoryItemService(id, item);
-  };
-  const deleteInventoryItem = async (id: string) => {
-    setInventory(prev => prev.filter(i => i.id !== id));
-    await deleteInventoryItemService(id);
-  };
-
-  // Transactions
-  const addTransaction = async (transaction: Transaction) => {
-    try {
-      const newTransaction = await createTransactionService(transaction);
-      setTransactions(prev => [newTransaction, ...prev]);
-    } catch (err: any) {
-      console.error("Failed to add transaction", err);
-      alert(`Erro ao salvar transação: ${err.message || JSON.stringify(err)}`);
-    }
-  };
-
-  const deleteTransaction = async (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
-    await deleteTransactionService(id);
-  };
-
-  // Mechanics / Users
-  const addUser = async (user: Omit<User, 'id'>) => {
-    try {
-      const newUser = await createUserService(user);
-      setMechanics(prev => [...prev, newUser]);
-    } catch (err) {
-      console.error("Failed to add user", err);
-    }
-  };
-
-  const updateUser = async (id: string, user: Partial<User>) => {
-    setMechanics(prev => prev.map(u => u.id === id ? { ...u, ...user } : u));
-    await updateUserService(id, user);
-  };
-
-  const deleteUser = async (id: string) => {
-    setMechanics(prev => prev.filter(u => u.id !== id));
-    await deleteUserService(id);
-  };
-
-
-  const addPaymentMethod = async (name: string) => {
-    try {
-      const newMethod = await createPaymentMethodService(name);
-      setPaymentMethods(prev => [...prev, newMethod]);
-    } catch (err) {
-      console.error("Failed to add payment method", err);
-    }
-  };
-
-  const deletePaymentMethod = async (id: string) => {
-    setPaymentMethods(prev => prev.filter(p => p.id !== id));
-    await deletePaymentMethodService(id);
-  };
-
-  const togglePaymentMethod = async (id: string, active: boolean) => {
-    setPaymentMethods(prev => prev.map(p => p.id === id ? { ...p, active } : p));
-    await togglePaymentMethodService(id, active);
-  };
-
   const contextValue = useMemo(() => ({
-    orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands, paymentMethods,
-    setOrders, setClients, setVehicles, setGearboxes, setServices, setInventory, setSettings, setBrands, setPaymentMethods,
-    updateOrderStatus, updateOrder, addHistoryLog,
-    addClient, updateClient, deleteClient,
-    addVehicle, updateVehicle, deleteVehicle,
-    addGearbox, updateGearbox, deleteGearbox,
-    addBrand, deleteBrand,
-    addService, updateService, deleteService,
-    addInventoryItem, updateInventoryItem, deleteInventoryItem,
-    addNewOrder,
-    deleteOrder,
-    addTransaction, deleteTransaction,
-    addUser, updateUser, deleteUser,
-    addPaymentMethod, deletePaymentMethod, togglePaymentMethod
-  }), [orders, clients, vehicles, inventory, gearboxes, services, history, mechanics, transactions, settings, brands, paymentMethods, isLoading]);
+    orders: ordersHook.orders,
+    clients: clientsHook.clients,
+    vehicles: clientsHook.vehicles,
+    inventory: inventoryHook.inventory,
+    gearboxes: inventoryHook.gearboxes,
+    services: inventoryHook.services,
+    mechanics: financeHook.mechanics,
+    history: ordersHook.history,
+    transactions: financeHook.transactions,
+    settings,
+    brands: inventoryHook.brands,
+    paymentMethods: financeHook.paymentMethods,
+    setOrders: ordersHook.setOrders,
+    setClients: clientsHook.setClients,
+    setVehicles: clientsHook.setVehicles,
+    setGearboxes: inventoryHook.setGearboxes,
+    setServices: inventoryHook.setServices,
+    setInventory: inventoryHook.setInventory,
+    setSettings,
+    setBrands: inventoryHook.setBrands,
+    setPaymentMethods: financeHook.setPaymentMethods,
+    updateOrderStatus: ordersHook.updateOrderStatus,
+    updateOrder: ordersHook.updateOrder,
+    addHistoryLog: ordersHook.addHistoryLog,
+    addClient: clientsHook.addClient,
+    updateClient: clientsHook.updateClient,
+    deleteClient: clientsHook.deleteClient,
+    addVehicle: clientsHook.addVehicle,
+    updateVehicle: clientsHook.updateVehicle,
+    deleteVehicle: clientsHook.deleteVehicle,
+    addGearbox: inventoryHook.addGearbox,
+    updateGearbox: inventoryHook.updateGearbox,
+    deleteGearbox: inventoryHook.deleteGearbox,
+    addBrand: inventoryHook.addBrand,
+    deleteBrand: inventoryHook.deleteBrand,
+    addService: inventoryHook.addService,
+    updateService: inventoryHook.updateService,
+    deleteService: inventoryHook.deleteService,
+    addInventoryItem: inventoryHook.addInventoryItem,
+    updateInventoryItem: inventoryHook.updateInventoryItem,
+    deleteInventoryItem: inventoryHook.deleteInventoryItem,
+    addNewOrder: ordersHook.addNewOrder,
+    deleteOrder: ordersHook.deleteOrder,
+    addTransaction: financeHook.addTransaction,
+    deleteTransaction: financeHook.deleteTransaction,
+    addUser: financeHook.addUser,
+    updateUser: financeHook.updateUser,
+    deleteUser: financeHook.deleteUser,
+    addPaymentMethod: financeHook.addPaymentMethod,
+    deletePaymentMethod: financeHook.deletePaymentMethod,
+    togglePaymentMethod: financeHook.togglePaymentMethod
+  }), [
+    ordersHook.orders, ordersHook.history,
+    clientsHook.clients, clientsHook.vehicles,
+    inventoryHook.inventory, inventoryHook.services, inventoryHook.gearboxes, inventoryHook.brands,
+    financeHook.transactions, financeHook.paymentMethods, financeHook.mechanics,
+    settings
+  ]);
 
-  // Auth Loading State
   if (isAuthenticated === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900">
@@ -464,12 +201,10 @@ const App: React.FC = () => {
     );
   }
 
-  // Not Authenticated -> Show Login
   if (!isAuthenticated) {
     return <Login onSuccess={() => setIsAuthenticated(true)} />;
   }
 
-  // Data Loading State
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
@@ -483,6 +218,7 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider>
+      <Toaster position="bottom-right" richColors closeButton />
       <WorkshopContext.Provider value={contextValue}>
         <Router>
           <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
